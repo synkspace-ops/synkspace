@@ -1,0 +1,55 @@
+{
+  "name": "sync-backend",
+  "version": "1.0.0",
+  "description": "Sync - India's creator-brand-event marketplace API",
+  "type": "module",
+  "scripts": {
+    "postinstall": "prisma generate",
+    "build": "prisma generate && tsc",
+    "dev": "tsx watch src/server.ts",
+    "dev:all": "concurrently -n api,web -c blue,magenta \"npm run dev\" \"npm run dev --prefix frontend\"",
+    "env:local": "node scripts/write-local-env.mjs",
+    "setup:local": "node scripts/setup-local.mjs",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "start": "node dist/server.js",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "gen:jwt-keys": "node scripts/gen-jwt-keys.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.700.0",
+    "@aws-sdk/s3-request-presigner": "^3.700.0",
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/cors": "^11.2.0",
+    "@prisma/client": "^5.22.0",
+    "bcrypt": "^5.1.1",
+    "dotenv": "^17.4.2",
+    "fastify": "^5.8.4",
+    "ioredis": "^5.4.1",
+    "jsonwebtoken": "^9.0.2",
+    "openai": "^4.73.0",
+    "pdf-lib": "^1.17.1",
+    "razorpay": "^2.9.2",
+    "resend": "^4.0.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.9.0",
+    "concurrently": "^9.2.1",
+    "prisma": "^5.22.0",
+    "supertest": "^7.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^4.1.4"
+  }
+}

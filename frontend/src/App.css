@@ -1,0 +1,158 @@
+.page {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 4rem;
+}
+
+.hero {
+  margin-bottom: 2rem;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 0.5rem;
+}
+
+.hero h1 {
+  font-size: clamp(2rem, 6vw, 2.75rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin: 0 0 0.75rem;
+  background: linear-gradient(135deg, #fff 0%, #a8c4ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.lede {
+  color: var(--muted);
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem 1.35rem;
+  margin-bottom: 1.25rem;
+}
+
+.card h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.35rem;
+}
+
+.hint {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0 0 1rem;
+}
+
+.hint code,
+.lede code,
+.banner code {
+  font-size: 0.88em;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 0.12em 0.35em;
+  border-radius: 4px;
+}
+
+.banner {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.92rem;
+}
+
+.banner.ok {
+  background: rgba(61, 214, 140, 0.12);
+  border: 1px solid rgba(61, 214, 140, 0.35);
+  color: #b8f0d0;
+}
+
+.banner.error {
+  background: rgba(240, 113, 120, 0.1);
+  border: 1px solid rgba(240, 113, 120, 0.35);
+  color: #ffc4c8;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.optional {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.form input,
+.form select {
+  font: inherit;
+  padding: 0.55rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.form input:focus,
+.form select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.form button {
+  font: inherit;
+  font-weight: 600;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%);
+  color: #fff;
+  cursor: pointer;
+  margin-top: 0.25rem;
+}
+
+.form button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.linkish {
+  font: inherit;
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.foot {
+  margin-top: 2rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.foot a {
+  color: var(--accent);
+}
+
+.sep {
+  margin: 0 0.35rem;
+}

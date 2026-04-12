@@ -1,0 +1,4605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SynkSpace - India's #1 Creator Marketplace</title>
+<link rel="icon" type="image/png" href="assets/synkspace-logo.png">
+<link rel="apple-touch-icon" href="assets/synkspace-logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Liberation+Mono&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Manrope', sans-serif;
+  background: #FFFFFF;
+  overflow-x: hidden;
+}
+
+/* ─── NAV ─── */
+.nav {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(255,255,255,0.85);
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0px 1px 2px rgba(0,0,0,0.05);
+  backdrop-filter: blur(8px);
+}
+
+.nav-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 32px;
+  width: 100%;
+  max-width: 1400px;
+  height: 72px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.nav-logo-wrap {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.2px;
+}
+
+.nav-logo-img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.nav-logo-bg {
+  display: none;
+}
+
+.nav-logo-text {
+   font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 32px;
+  letter-spacing: -0.3px;
+  margin-left: -12px;
+  color: #0F172A
+}
+
+.nav-cta-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 24px;
+  height: 40px;
+  background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+  border-radius: 9999px;
+  border: 1px solid rgba(99,102,241,0.35);
+  cursor: pointer;
+  text-decoration: none;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 20px;
+  color: #FFFFFF;
+  position: relative;
+  overflow: visible;
+  box-shadow:
+    0 0 0 3px rgba(99,102,241,0.08),
+    0px 2px 8px rgba(15,23,42,0.18);
+  transition: all 0.25s ease;
+}
+
+.nav-cta-btn::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 9999px;
+  padding: 2px;
+  background: conic-gradient(from var(--angle), #3B82F6, #8B5CF6, #EC4899, #3B82F6);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  animation: rotateBorder 2s linear infinite;
+  animation-play-state: paused;
+}
+
+.nav-cta-btn:hover::before {
+  opacity: 1;
+  animation-play-state: running;
+}
+
+.nav-cta-btn:hover {
+  border-color: rgba(99,102,241,0.55);
+  box-shadow:
+    0 0 0 4px rgba(99,102,241,0.12),
+    0px 4px 14px rgba(15,23,42,0.22);
+  transform: translateY(-1px);
+}
+  
+/* ─── PAGE WRAPPER ─── */
+.page-wrapper {
+  width: 100%;
+  background: #FFFFFF;
+  overflow-x: hidden;
+}
+
+/* ─── HEADER / HERO ─── */
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80px 0 96px;
+  isolation: isolate;
+  width: 100%;
+  min-height: 600px;
+  height: auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.header-blur-1 {
+  position: absolute;
+  width: 600px; height: 600px;
+  right: -200px; top: -150px;
+  background: rgba(233,213,255,0.4);
+  filter: blur(32px);
+  border-radius: 9999px;
+  z-index: 0;
+  pointer-events: none;
+}
+.header-blur-2 {
+  position: absolute;
+  width: 500px; height: 500px;
+  left: -125px; bottom: -125px;
+  background: rgba(191,219,254,0.4);
+  filter: blur(32px);
+  border-radius: 9999px;
+  z-index: 1;
+  pointer-events: none;
+}
+.header-blur-3 {
+  position: absolute;
+  width: 800px; height: 800px;
+  left: calc(50% - 400px);
+  top: calc(50% - 400px);
+  background: rgba(224,231,255,0.3);
+  filter: blur(50px);
+  border-radius: 9999px;
+  z-index: 2;
+  pointer-events: none;
+}
+.header-bg {
+  position: absolute;
+  left: 0; right: 0; top: 0; bottom: 0;
+  background: linear-gradient(120.1deg, #F8FAFC 0%, #EFF6FF 50%, #F3E8FF 100%);
+  z-index: 3;
+}
+
+.header-content-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  isolation: isolate;
+  width: 100%;
+  height: auto;
+  position: relative;
+  z-index: 4;
+}
+
+.header-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  height: auto;
+  padding: 0 40px 0 48px;
+  box-sizing: border-box;
+}
+
+.header-left {
+  width: auto;
+  max-width: 560px;
+  height: auto;
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Badge pill */
+.hero-badge-pill {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 4px 12px;
+  gap: 6px;
+  height: 26px;
+  background: rgba(255,255,255,0.6);
+  border: 1px solid rgba(255,255,255,0.5);
+  box-shadow: 0px 1px 2px rgba(0,0,0,0.05);
+  backdrop-filter: blur(4px);
+  border-radius: 9999px;
+  align-self: flex-start;
+  margin-bottom: 24px;
+}
+.badge-dot-container { position: relative; width: 8px; height: 8px; }
+.badge-dot-pulse {
+  position: absolute; inset: 0;
+  background: #3B82F6; opacity: 0.75;
+  border-radius: 9999px;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100% { transform: scale(1); opacity: 0.75; }
+  50% { transform: scale(1.4); opacity: 0.4; }
+}
+.badge-dot { width: 8px; height: 8px; background: #3B82F6; border-radius: 9999px; position: relative; z-index: 1; }
+.hero-badge-pill span {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700; font-size: 12px; line-height: 16px;
+  letter-spacing: 0.6px; text-transform: uppercase; color: #0F172A;
+}
+
+/* H1 */
+.hero-h1 {
+  margin-bottom: 20px;
+}
+.hero-h1 h1 {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800; font-size: 72px; line-height: 76px;
+  letter-spacing: -1.8px; color: #0F172A;
+}
+.hero-h1 h1 .gradient-text {
+  background: linear-gradient(90deg, #3B82F6 0%, #8B5CF6 60%, #EC4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Subtitle */
+.hero-subtitle-wrap {
+  margin-bottom: 32px;
+}
+.hero-subtitle-wrap p {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 500; font-size: 20px; line-height: 28px;
+  color: #64748B;
+  max-width: 520px;
+}
+
+/* CTA area */
+.hero-cta-area {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.hero-buttons-row {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  align-items: stretch;
+}
+.hero-trust-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  align-items: center;
+}
+
+/* Buttons */
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes rotateBorder {
+  from { --angle: 0deg; }
+  to   { --angle: 360deg; }
+}
+
+.btn-creator {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 16px 28px;
+  gap: 12px;
+  isolation: isolate;
+  height: 60px;
+  background: linear-gradient(90deg, #0F172A 0%, #1E293B 100%);
+  border-radius: 12px;
+  box-shadow: 0px 10px 15px -3px rgba(0,0,0,0.1), 0px 4px 6px -4px rgba(0,0,0,0.1);
+  border: none; cursor: pointer; text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: visible;
+}
+
+.btn-creator::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 14px;
+  padding: 2px;
+  background: conic-gradient(from var(--angle), #3B82F6, #8B5CF6, #EC4899, #3B82F6);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  animation: rotateBorder 2s linear infinite;
+  animation-play-state: paused;
+}
+
+.btn-creator:hover::before {
+  opacity: 1;
+  animation-play-state: running;
+}
+
+.btn-creator:hover {
+  background: linear-gradient(90deg, #1E293B 0%, #334155 100%);
+  box-shadow: 0px 16px 24px -4px rgba(0,0,0,0.18), 0px 6px 10px -4px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+
+.btn-creator .b-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.btn-creator .b-text {
+  font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 16px; line-height: 24px;
+  color: #FFFFFF; text-align: center;
+}
+
+.btn-brand {
+  display: flex; flex-direction: row;
+  justify-content: center; align-items: center;
+  padding: 16px 28px; gap: 12px;
+  height: 60px;
+  background: rgba(255,255,255,0.8);
+  border: 2px solid #FFFFFF;
+  box-shadow: 0px 1px 2px rgba(0,0,0,0.05);
+  backdrop-filter: blur(4px);
+  border-radius: 12px; cursor: pointer; text-decoration: none;
+  white-space: nowrap;
+}
+.btn-brand .b-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.btn-brand .b-text {
+  font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 16px; line-height: 24px;
+  color: #0F172A; text-align: center;
+}
+
+.btn-event {
+  display: flex; flex-direction: row;
+  justify-content: center; align-items: center;
+  padding: 16px 28px; gap: 12px;
+  height: 60px;
+  background: rgba(255,255,255,0.8);
+  border: 2px solid #FFFFFF;
+  box-shadow: 0px 1px 2px rgba(0,0,0,0.05);
+  backdrop-filter: blur(4px);
+  border-radius: 12px; cursor: pointer; text-decoration: none;
+  white-space: nowrap;
+}
+.btn-event .b-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.btn-event .b-text {
+  font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 16px; line-height: 24px;
+  color: #0F172A; text-align: center;
+}
+
+/* Trust badges */
+.trust-1, .trust-2, .trust-3 { display: flex; align-items: center; gap: 6px; white-space: nowrap; flex-shrink: 0; }
+.trust-label { font-family: 'Manrope', sans-serif; font-weight: 500; font-size: 14px; line-height: 20px; color: #64748B; white-space: nowrap; }
+
+/* Hero Illustration */
+.hero-illustration {
+  width: 480px; max-width: 48vw; min-width: 320px; height: 480px;
+  flex: none; order: 1; flex-shrink: 0;
+  position: relative; display: flex; align-items: center; justify-content: center;
+}
+
+/* Floating card base */
+.hi-card {
+  position: absolute;
+  background: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0px 8px 32px rgba(15,23,42,0.10), 0px 2px 8px rgba(15,23,42,0.06);
+  border: 1px solid rgba(241,245,249,0.8);
+  padding: 16px;
+  animation: floatY 4s ease-in-out infinite;
+}
+@keyframes floatY {
+  0%,100% { transform: translateY(0px); }
+  50%      { transform: translateY(-8px); }
+}
+@keyframes floatY2 {
+  0%,100% { transform: translateY(0px); }
+  50%      { transform: translateY(-6px); }
+}
+@keyframes floatY3 {
+  0%,100% { transform: translateY(0px); }
+  50%      { transform: translateY(-10px); }
+}
+
+/* Main central card — campaign stats */
+.hi-main {
+  width: 240px;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  z-index: 4;
+  animation: floatY 5s ease-in-out infinite;
+}
+.hi-main-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+}
+.hi-main-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: white; font-weight: 700; font-family: 'Manrope',sans-serif;
+  flex-shrink: 0;
+}
+.hi-main-info { flex: 1; }
+.hi-main-name {
+  font-family: 'Manrope',sans-serif; font-weight: 700; font-size: 13px;
+  color: #0F172A; line-height: 1.2;
+}
+.hi-main-role {
+  font-family: 'Manrope',sans-serif; font-weight: 400; font-size: 11px;
+  color: #64748B; line-height: 1.4;
+}
+.hi-verified {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #3B82F6; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.hi-stats-row {
+  display: flex; gap: 8px; margin-bottom: 14px;
+}
+.hi-stat-box {
+  flex: 1; background: #F8FAFC; border-radius: 10px;
+  padding: 8px; text-align: center;
+}
+.hi-stat-num {
+  font-family: 'Manrope',sans-serif; font-weight: 800; font-size: 14px;
+  color: #0F172A; line-height: 1.2;
+}
+.hi-stat-label {
+  font-family: 'Manrope',sans-serif; font-weight: 400; font-size: 10px;
+  color: #94A3B8; line-height: 1.4; text-transform: uppercase; letter-spacing: 0.3px;
+}
+.hi-progress-wrap { margin-bottom: 12px; }
+.hi-progress-label {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 5px;
+}
+.hi-progress-text {
+  font-family: 'Manrope',sans-serif; font-weight: 600; font-size: 11px; color: #64748B;
+}
+.hi-progress-pct {
+  font-family: 'Manrope',sans-serif; font-weight: 700; font-size: 11px; color: #3B82F6;
+}
+.hi-progress-bar {
+  height: 5px; background: #EFF6FF; border-radius: 9999px; overflow: hidden;
+}
+.hi-progress-fill {
+  height: 100%; border-radius: 9999px;
+  background: linear-gradient(90deg, #3B82F6, #8B5CF6);
+}
+.hi-match-btn {
+  width: 100%; padding: 9px; border-radius: 8px;
+  background: linear-gradient(90deg, #0F172A, #1E293B);
+  border: none; cursor: pointer;
+  font-family: 'Manrope',sans-serif; font-weight: 700; font-size: 12px; color: #FFFFFF;
+  text-align: center;
+}
+
+/* Top-left card — earnings */
+.hi-earn {
+  width: 168px;
+  top: 12px; left: 10px;
+  animation: floatY2 4.5s ease-in-out infinite;
+  z-index: 3;
+}
+.hi-earn-label {
+  font-family: 'Manrope',sans-serif; font-weight: 500; font-size: 11px; color: #64748B;
+  margin-bottom: 4px;
+}
+.hi-earn-amount {
+  font-family: 'Manrope',sans-serif; font-weight: 800; font-size: 20px; color: #059669;
+  line-height: 1.1; margin-bottom: 8px;
+}
+.hi-earn-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #DCFCE7; border-radius: 20px; padding: 3px 8px;
+}
+.hi-earn-badge span {
+  font-family: 'Manrope',sans-serif; font-weight: 600; font-size: 11px; color: #16A34A;
+}
+/* mini sparkline */
+.hi-sparkline {
+  display: flex; align-items: flex-end; gap: 3px; height: 28px; margin-top: 8px;
+}
+.hi-spark-bar {
+  flex: 1; border-radius: 2px 2px 0 0;
+  background: linear-gradient(180deg, #3B82F6, #8B5CF6);
+  opacity: 0.7;
+}
+
+/* Bottom-left card — creator match */
+.hi-match {
+  width: 182px;
+  bottom: 20px; left: 10px;
+  animation: floatY3 5.5s ease-in-out infinite;
+  z-index: 3;
+}
+.hi-match-header {
+  display: flex; align-items: center; gap: 6px; margin-bottom: 10px;
+}
+.hi-match-dot {
+  width: 8px; height: 8px; background: #22C55E; border-radius: 50%; flex-shrink: 0;
+}
+.hi-match-title {
+  font-family: 'Manrope',sans-serif; font-weight: 700; font-size: 12px; color: #0F172A;
+}
+.hi-match-avatars { display: flex; gap: -4px; margin-bottom: 8px; }
+.hi-avatar-sm {
+  width: 28px; height: 28px; border-radius: 50%; border: 2px solid #fff;
+  margin-right: -6px; display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; font-family: 'Manrope',sans-serif; color: white;
+  flex-shrink: 0;
+}
+.hi-match-sub {
+  font-family: 'Manrope',sans-serif; font-weight: 400; font-size: 10px; color: #94A3B8;
+  margin-top: 4px;
+}
+
+/* Top-right card — campaign live */
+.hi-live {
+  width: 164px;
+  top: 12px; right: 8px;
+  animation: floatY 3.8s ease-in-out infinite;
+  z-index: 3;
+}
+.hi-live-top {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+}
+.hi-live-badge {
+  display: flex; align-items: center; gap: 5px;
+  background: #FEF2F2; border-radius: 20px; padding: 3px 8px;
+}
+.hi-live-dot { width: 6px; height: 6px; background: #EF4444; border-radius: 50%; animation: blink 1.2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.hi-live-text {
+  font-family: 'Manrope',sans-serif; font-weight: 700; font-size: 10px; color: #EF4444; letter-spacing: 0.5px;
+}
+.hi-live-num {
+  font-family: 'Manrope',sans-serif; font-weight: 800; font-size: 18px; color: #0F172A;
+  line-height: 1.1; margin-bottom: 3px;
+}
+.hi-live-sub {
+  font-family: 'Manrope',sans-serif; font-weight: 400; font-size: 10px; color: #64748B; margin-bottom: 8px;
+}
+.hi-live-bar { height: 4px; background: #F1F5F9; border-radius: 9999px; overflow: hidden; }
+.hi-live-fill { height: 100%; border-radius: 9999px; background: linear-gradient(90deg,#F97316,#EF4444); width: 68%; }
+
+/* Bottom-right card — escrow */
+.hi-escrow {
+  width: 156px;
+  bottom: 20px; right: 8px;
+  animation: floatY2 6s ease-in-out infinite;
+  z-index: 3;
+}
+.hi-escrow-icon {
+  width: 32px; height: 32px; border-radius: 10px; background: #EFF6FF;
+  display: flex; align-items: center; justify-content: center; margin-bottom: 8px;
+}
+.hi-escrow-label {
+  font-family: 'Manrope',sans-serif; font-weight: 500; font-size: 10px; color: #94A3B8;
+  text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px;
+}
+.hi-escrow-val {
+  font-family: 'Manrope',sans-serif; font-weight: 800; font-size: 16px; color: #0F172A; margin-bottom: 6px;
+}
+.hi-escrow-status {
+  display: flex; align-items: center; gap: 5px;
+}
+.hi-escrow-check {
+  width: 14px; height: 14px; border-radius: 50%; background: #DCFCE7;
+  display: flex; align-items: center; justify-content: center;
+}
+.hi-escrow-status-text {
+  font-family: 'Manrope',sans-serif; font-weight: 600; font-size: 10px; color: #16A34A;
+}
+
+/* ── Mobile hero carousel ─────────────────────────────────────────── */
+.hi-mobile-carousel {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 14px;
+  overflow: hidden;
+  padding: 8px 0 4px;
+}
+.hi-carousel-track {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  width: 100%;
+  will-change: transform;
+}
+.hi-carousel-slide {
+  min-width: 100%;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 4px 16px 12px;
+}
+/* Shared slide card styling — no float animation, self-contained */
+.hi-cmain, .hi-cearn, .hi-clive {
+  background: #FFFFFF;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(15,23,42,0.10), 0 2px 8px rgba(15,23,42,0.05);
+  border: 1px solid rgba(226,232,240,0.8);
+  padding: 22px;
+  width: calc(100% - 32px);
+  max-width: 300px;
+  animation: none !important; /* no floating */
+  position: relative !important;
+  top: auto !important; left: auto !important;
+  right: auto !important; bottom: auto !important;
+}
+/* Carousel dots */
+.hi-carousel-dots {
+  display: flex; gap: 8px; justify-content: center;
+  padding-top: 4px;
+}
+.hi-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #CBD5E1; cursor: pointer;
+  transition: all 0.3s ease;
+}
+.hi-dot.hi-dot-active {
+  width: 22px; border-radius: 4px;
+  background: linear-gradient(90deg, #3B82F6, #8B5CF6);
+}
+/* Dashed connection lines between cards */
+.hi-connector {
+  position: absolute;
+  border: 1.5px dashed rgba(148,163,184,0.35);
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+
+/* ── 3D Revolving Carousel (mobile only) ─────────────────────────── */
+/* ── Mobile Card Carousel (stacked swipe style) ──────────────────── */
+.mob-revo-wrap {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 8px 0 28px;
+  position: relative;
+}
+.mob-revo-scene {
+  width: 100%;
+  height: 340px;
+  position: relative;
+  overflow: visible;
+}
+/* Each card is absolutely positioned, transitions via JS class changes */
+.mob-revo-card {
+  position: absolute;
+  width: calc(100% - 32px);
+  max-width: 360px;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%) scale(1) translateY(0px);
+  border-radius: 22px;
+  padding: 28px 24px 26px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255,255,255,0.10);
+  cursor: pointer;
+  transition: transform 0.5s cubic-bezier(0.34,1.26,0.64,1),
+              opacity 0.5s ease,
+              box-shadow 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+/* Active card — front and centre */
+.mob-revo-card.revo-active {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 3;
+  transform: translateX(-50%) scale(1) translateY(0px);
+}
+/* Card behind (next) */
+.mob-revo-card.revo-next {
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 2;
+  transform: translateX(-50%) scale(0.90) translateY(20px);
+}
+/* Card further behind */
+.mob-revo-card.revo-next2 {
+  opacity: 0.25;
+  pointer-events: none;
+  z-index: 1;
+  transform: translateX(-50%) scale(0.80) translateY(38px);
+}
+.mob-revo-card.c1 { background: linear-gradient(145deg,#0d1f4a,#1a2d6b,#0f1a3d); box-shadow: 0 12px 48px rgba(59,130,246,0.45); }
+.mob-revo-card.c2 { background: linear-gradient(145deg,#1a0d45,#2d1875,#150c38); box-shadow: 0 12px 48px rgba(99,102,241,0.45); }
+.mob-revo-card.c3 { background: linear-gradient(145deg,#2d0f45,#4a1878,#230c38); box-shadow: 0 12px 48px rgba(139,92,246,0.45); }
+.mob-revo-card.c4 { background: linear-gradient(145deg,#3d0d3a,#681560,#300b2e); box-shadow: 0 12px 48px rgba(192,38,211,0.45); }
+.mob-revo-card.c5 { background: linear-gradient(145deg,#450d2a,#781540,#380b22); box-shadow: 0 12px 48px rgba(236,72,153,0.45); }
+.mob-revo-card.c6 { background: linear-gradient(145deg,#0f1635,#1c2660,#0b1228); box-shadow: 0 12px 48px rgba(59,130,246,0.38); }
+.mob-revo-card:active { filter: brightness(1.15); }
+.mob-revo-icon {
+  width: 40px; height: 40px;
+  background: rgba(255,255,255,0.13);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px;
+}
+.mob-revo-title {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800; font-size: 16px; color: #FFFFFF;
+  margin-bottom: 8px; line-height: 1.3; letter-spacing: -0.3px;
+}
+.mob-revo-desc {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 400; font-size: 12px;
+  color: rgba(255,255,255,0.60);
+  line-height: 1.65;
+}
+/* Animated background glow */
+.mob-revo-glow {
+  position: absolute;
+  top: 40%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 280px; height: 200px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg,#3B82F6,#8B5CF6,#EC4899,#3B82F6);
+  opacity: 0.10;
+  animation: revoGlowSpin 10s linear infinite;
+  pointer-events: none;
+  filter: blur(32px);
+}
+@keyframes revoGlowSpin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+.mob-revo-dots {
+  display: flex; gap: 7px; justify-content: center;
+  margin-top: 18px;
+}
+.mob-revo-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(99,102,241,0.22);
+  cursor: pointer;
+  transition: all 0.35s ease;
+}
+.mob-revo-dot.active {
+  width: 26px; border-radius: 4px;
+  background: linear-gradient(90deg, #3B82F6, #8B5CF6, #EC4899);
+}
+.mob-revo-hint {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px; color: rgba(100,116,139,0.55);
+  margin-top: 10px; letter-spacing: 0.4px;
+}
+
+
+.how-section {
+  width: 100%;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 100%);
+  padding: 96px 40px 80px;
+  position: relative;
+}
+.how-header-block {
+  text-align: center;
+  margin-bottom: 64px;
+}
+.how-eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 14px;
+  background: rgba(99,102,241,0.07);
+  border: 1px solid rgba(99,102,241,0.18);
+  border-radius: 9999px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700; font-size: 11px;
+  letter-spacing: 1.4px; text-transform: uppercase;
+  color: #6366F1; margin-bottom: 18px;
+}
+.how-h2 {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800; font-size: 42px;
+  line-height: 50px; letter-spacing: -1.2px;
+  color: #0F172A; margin-bottom: 14px;
+}
+.how-h2 .how-grad {
+  background: linear-gradient(90deg, #3B82F6 0%, #8B5CF6 50%, #EC4899 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.how-p {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 400; font-size: 17px;
+  line-height: 27px; color: #64748B;
+  max-width: 500px; margin: 0 auto;
+}
+/* Static centered cards row */
+.how-cards-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+  gap: 24px;
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+/* Cards */
+.how-card {
+  flex: 1 1 380px;
+  max-width: 420px;
+  border-radius: 28px;
+  padding: 44px 40px 40px;
+  display: flex; flex-direction: column; gap: 24px;
+  box-sizing: border-box;
+  position: relative; overflow: hidden;
+}
+.how-card::after {
+  content: '';
+  position: absolute; top: -60%; left: -60%;
+  width: 60%; height: 220%;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.07) 50%, transparent 60%);
+  animation: howShimmer 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+.how-card-1 { animation-delay: 0s; }
+.how-card-2::after { animation-delay: 0.8s; }
+.how-card-3::after { animation-delay: 1.6s; }
+@keyframes howShimmer { 0% { left: -60%; } 100% { left: 130%; } }
+/* Card 1 — Blue */
+.how-card-1 {
+  background: linear-gradient(145deg, #1e3a8a 0%, #2563eb 45%, #1d4ed8 100%);
+  border: 1px solid rgba(147,197,253,0.25);
+  box-shadow: 0 24px 64px rgba(37,99,235,0.35), 0 8px 24px rgba(0,0,0,0.12);
+}
+/* Card 2 — Purple */
+.how-card-2 {
+  background: linear-gradient(145deg, #4c1d95 0%, #7c3aed 45%, #6d28d9 100%);
+  border: 1px solid rgba(196,181,253,0.25);
+  box-shadow: 0 24px 64px rgba(124,58,237,0.35), 0 8px 24px rgba(0,0,0,0.12);
+}
+/* Card 3 — Pink */
+.how-card-3 {
+  background: linear-gradient(145deg, #831843 0%, #db2777 45%, #be185d 100%);
+  border: 1px solid rgba(249,168,212,0.25);
+  box-shadow: 0 24px 64px rgba(219,39,119,0.35), 0 8px 24px rgba(0,0,0,0.12);
+}
+/* Blob, step num, icon, text */
+.how-card-blob {
+  position: absolute; width: 200px; height: 200px;
+  border-radius: 50%; right: -40px; top: -60px;
+  opacity: 0.12; pointer-events: none;
+}
+.how-card-1 .how-card-blob { background: radial-gradient(circle, #93C5FD, transparent 70%); }
+.how-card-2 .how-card-blob { background: radial-gradient(circle, #C4B5FD, transparent 70%); }
+.how-card-3 .how-card-blob { background: radial-gradient(circle, #F9A8D4, transparent 70%); }
+.how-step-num {
+  position: absolute; right: 28px; bottom: 16px;
+  font-family: 'Manrope', sans-serif; font-weight: 800;
+  font-size: 96px; line-height: 1; letter-spacing: -6px;
+  color: rgba(255,255,255,0.07); user-select: none; pointer-events: none;
+}
+.how-icon-wrap {
+  width: 64px; height: 64px; border-radius: 18px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.how-card-tag {
+  font-family: 'Manrope', sans-serif; font-weight: 700;
+  font-size: 11px; letter-spacing: 1.8px; text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+}
+.how-card-title {
+  font-family: 'Manrope', sans-serif; font-weight: 800;
+  font-size: 26px; line-height: 34px; letter-spacing: -0.4px; color: #FFFFFF;
+}
+.how-card-body {
+  font-family: 'Manrope', sans-serif; font-weight: 400;
+  font-size: 15px; line-height: 25px; color: rgba(255,255,255,0.65);
+}
+/* Responsive */
+@media (max-width: 1024px) {
+  .how-h2   { font-size: 36px; line-height: 44px; }
+  .how-section { padding: 80px 32px 64px; }
+}
+@media (max-width: 768px) {
+  .how-section  { padding: 64px 20px 56px; }
+  .how-h2       { font-size: 28px; line-height: 36px; }
+  .how-p        { font-size: 15px; }
+  .how-cards-row { gap: 16px; }
+  .how-card     { flex: 1 1 100%; max-width: 100%; padding: 32px 28px; }
+  .how-card-title { font-size: 22px; line-height: 28px; }
+}
+/* ── How It Works: Scroll-Reveal Timeline (mobile only) ─────────── */
+.how-timeline-wrap {
+  display: none; /* hidden on desktop */
+  flex-direction: column;
+  width: 100%;
+  padding: 4px 0 8px;
+  position: relative;
+}
+
+/* The vertical line running through all nodes */
+.how-tl-line {
+  position: absolute;
+  left: 19px;
+  top: 24px;
+  bottom: 24px;
+  width: 2px;
+  background: rgba(99,102,241,0.12);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.how-tl-line-fill {
+  width: 100%;
+  height: 0%;
+  background: linear-gradient(180deg, #3B82F6, #8B5CF6, #EC4899);
+  border-radius: 2px;
+  transition: height 0.6s ease;
+}
+
+/* Each step row: node + card */
+.how-tl-item {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+  position: relative;
+}
+.how-tl-item:last-child { margin-bottom: 0; }
+
+/* Circular node on the line */
+.how-tl-node {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px;
+}
+.how-tl-node-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(99,102,241,0.10);
+  border: 1.5px solid rgba(99,102,241,0.2);
+  transform: scale(0.5);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1),
+              opacity 0.4s ease;
+}
+.how-tl-node-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(59,130,246,0.35);
+  transform: scale(0.4);
+  opacity: 0;
+  transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1),
+              opacity 0.35s ease;
+  position: relative;
+  z-index: 1;
+}
+
+/* Node color overrides per step */
+.how-tl-item[data-step="1"] .how-tl-node-dot {
+  background: linear-gradient(135deg, #7C3AED, #8B5CF6);
+  box-shadow: 0 4px 16px rgba(124,58,237,0.35);
+}
+.how-tl-item[data-step="2"] .how-tl-node-dot {
+  background: linear-gradient(135deg, #DB2777, #EC4899);
+  box-shadow: 0 4px 16px rgba(219,39,119,0.35);
+}
+
+/* Card — revealed on scroll */
+.how-tl-card {
+  flex: 1;
+  border-radius: 22px;
+  padding: 24px 22px 22px;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.5s ease,
+              transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+/* Card gradients matching desktop */
+.how-tl-c1 {
+  background: linear-gradient(145deg, #1e3a8a 0%, #2563eb 45%, #1d4ed8 100%);
+  border: 1px solid rgba(147,197,253,0.25);
+  box-shadow: 0 16px 48px rgba(37,99,235,0.30);
+}
+.how-tl-c2 {
+  background: linear-gradient(145deg, #4c1d95 0%, #7c3aed 45%, #6d28d9 100%);
+  border: 1px solid rgba(196,181,253,0.25);
+  box-shadow: 0 16px 48px rgba(124,58,237,0.30);
+}
+.how-tl-c3 {
+  background: linear-gradient(145deg, #831843 0%, #db2777 45%, #be185d 100%);
+  border: 1px solid rgba(249,168,212,0.25);
+  box-shadow: 0 16px 48px rgba(219,39,119,0.30);
+}
+/* Decorative blob inside card */
+.how-tl-card-blob {
+  position: absolute; width: 140px; height: 140px;
+  border-radius: 50%; right: -24px; top: -40px;
+  opacity: 0.12; pointer-events: none;
+}
+.how-tl-c1 .how-tl-card-blob { background: radial-gradient(circle, #93C5FD, transparent 70%); }
+.how-tl-c2 .how-tl-card-blob { background: radial-gradient(circle, #C4B5FD, transparent 70%); }
+.how-tl-c3 .how-tl-card-blob { background: radial-gradient(circle, #F9A8D4, transparent 70%); }
+
+/* Shimmer sweep */
+.how-tl-card::after {
+  content: '';
+  position: absolute; top: -60%; left: -60%;
+  width: 55%; height: 220%;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.07) 50%, transparent 60%);
+  animation: howShimmer 2.6s ease-in-out infinite;
+  pointer-events: none;
+}
+.how-tl-c1::after { animation-delay: 0s; }
+.how-tl-c2::after { animation-delay: 0.9s; }
+.how-tl-c3::after { animation-delay: 1.8s; }
+
+.how-tl-step-label {
+  font-family: 'Manrope', sans-serif; font-weight: 700;
+  font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase;
+  color: rgba(255,255,255,0.45); margin-bottom: 8px;
+  position: relative; z-index: 1;
+}
+.how-tl-title {
+  font-family: 'Manrope', sans-serif; font-weight: 800;
+  font-size: 20px; line-height: 26px; letter-spacing: -0.3px;
+  color: #FFFFFF; margin-bottom: 10px;
+  position: relative; z-index: 1;
+}
+.how-tl-body {
+  font-family: 'Manrope', sans-serif; font-weight: 400;
+  font-size: 13px; line-height: 21px; color: rgba(255,255,255,0.65);
+  margin-bottom: 14px; position: relative; z-index: 1;
+}
+.how-tl-tag-row {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  position: relative; z-index: 1;
+}
+.how-tl-tag {
+  font-family: 'Manrope', sans-serif; font-weight: 600;
+  font-size: 11px; letter-spacing: 0.3px;
+  padding: 3px 10px; border-radius: 9999px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.70);
+}
+
+/* ── "revealed" state triggered by IntersectionObserver ── */
+.how-tl-item.tl-revealed .how-tl-node-dot {
+  transform: scale(1);
+  opacity: 1;
+}
+.how-tl-item.tl-revealed .how-tl-node-ring {
+  transform: scale(1.18);
+  opacity: 1;
+}
+.how-tl-item.tl-revealed .how-tl-card {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* stagger node vs card slightly */
+.how-tl-item.tl-revealed .how-tl-node-dot   { transition-delay: 0s; }
+.how-tl-item.tl-revealed .how-tl-node-ring  { transition-delay: 0.08s; }
+.how-tl-item.tl-revealed .how-tl-card       { transition-delay: 0.12s; }
+
+@media (max-width: 480px) {
+
+  .nav-logo-text { 
+    margin-left: 2px; 
+  }
+
+  .hero-cards { 
+    display: none; 
+  }
+
+  /* HERO SECTION FIX */
+  .header {
+    padding: 8px 0 32px;
+  }
+
+  .header-row {
+    padding: 0 16px;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .header-left {
+    width: 100%;
+  }
+
+  .hero-badge-pill {
+    margin-bottom: 12px;
+  }
+
+  .hero-h1 {
+    margin-bottom: 12px;
+  }
+
+  .hero-h1 h1 {
+    font-size: 30px;
+    line-height: 36px;
+  }
+
+  .hero-subtitle-wrap {
+    margin-bottom: 16px;
+  }
+
+  .hero-subtitle-wrap p {
+    font-size: 15px;
+    line-height: 22px;
+  }
+
+  .hero-buttons-row {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .btn-creator {
+    width: 100%;
+    height: 52px;
+    justify-content: center;
+  }
+
+  .hero-trust-row {
+    gap: 10px 14px;
+  }
+
+  /* HOW SECTION */
+
+  .how-section { 
+    padding: 48px 16px 48px; 
+  }
+
+  .how-h2 { 
+    font-size: 24px; 
+    line-height: 32px; 
+  }
+
+  .how-cards-row { 
+    display: none !important; 
+  }
+
+  .how-timeline-wrap { 
+    display: flex; 
+  }
+
+}
+  /* ─── PLATFORM SUPERPOWERS ─── */
+.sp-section {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 96px 40px 100px;
+  width: 100%; box-sizing: border-box;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+  position: relative; overflow: hidden;
+}
+
+.sp-inner {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 56px; width: 100%; max-width: 1200px;
+  position: relative; z-index: 1;
+}
+
+/* Header */
+.sp-header {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 14px; width: 100%;
+}
+.sp-eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 14px;
+  background: rgba(99,102,241,0.07);
+  border: 1px solid rgba(99,102,241,0.18);
+  border-radius: 9999px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700; font-size: 11px;
+  letter-spacing: 1.4px; text-transform: uppercase;
+  color: #6366F1;
+}
+.sp-h2-row { display: flex; justify-content: center; width: 100%; }
+.sp-h2 {
+  font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 38px;
+  line-height: 46px; letter-spacing: -1px; color: #0F172A; text-align: center;
+}
+.sp-h2 .sp-grad {
+  background: linear-gradient(90deg, #3B82F6 0%, #8B5CF6 50%, #EC4899 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.sp-sub-row { display: flex; justify-content: center; width: 100%; }
+.sp-sub {
+  font-family: 'Manrope', sans-serif; font-weight: 400; font-size: 16px;
+  line-height: 26px; color: #64748B; text-align: center; max-width: 480px;
+}
+
+/* Grid */
+.sp-grid {
+  width: 100%; display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* Base card — dark gradient cards on white page */
+.sp-card {
+  box-sizing: border-box;
+  display: flex; flex-direction: column;
+  padding: 28px 26px 26px;
+  gap: 20px;
+  border-radius: 20px;
+  position: relative; overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.07);
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1),
+              box-shadow 0.35s ease,
+              border-color 0.35s ease;
+  cursor: default;
+}
+.sp-card:hover {
+  transform: translateY(-6px) scale(1.01);
+}
+
+/* Shimmer sweep on hover */
+.sp-card::before {
+  content: '';
+  position: absolute; top: -60%; left: -80%;
+  width: 50%; height: 220%;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.055) 50%, transparent 60%);
+  transition: left 0.6s ease;
+  pointer-events: none; z-index: 1;
+}
+.sp-card:hover::before { left: 130%; }
+
+/* Decorative corner glow */
+.sp-card::after {
+  content: '';
+  position: absolute; top: -40px; right: -40px;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  opacity: 0.15;
+  pointer-events: none; z-index: 0;
+  transition: opacity 0.35s ease;
+}
+.sp-card:hover::after { opacity: 0.32; }
+
+/* Per-card gradient backgrounds — blue → purple → pink palette */
+.sp-c1 {
+  background: linear-gradient(145deg, #0d1f4a 0%, #1a2d6b 60%, #0f1a3d 100%);
+  box-shadow: 0 4px 24px rgba(37,99,235,0.18);
+}
+.sp-c1:hover { box-shadow: 0 20px 52px rgba(37,99,235,0.32); border-color: rgba(96,165,250,0.25); }
+.sp-c1::after { background: radial-gradient(circle, #60A5FA, transparent 70%); }
+
+.sp-c2 {
+  background: linear-gradient(145deg, #1a0d45 0%, #2d1875 60%, #150c38 100%);
+  box-shadow: 0 4px 24px rgba(109,40,217,0.18);
+}
+.sp-c2:hover { box-shadow: 0 20px 52px rgba(109,40,217,0.32); border-color: rgba(167,139,250,0.25); }
+.sp-c2::after { background: radial-gradient(circle, #A78BFA, transparent 70%); }
+
+.sp-c3 {
+  background: linear-gradient(145deg, #0f1635 0%, #1c2660 60%, #0b1228 100%);
+  box-shadow: 0 4px 24px rgba(59,130,246,0.15);
+}
+.sp-c3:hover { box-shadow: 0 20px 52px rgba(99,102,241,0.32); border-color: rgba(129,140,248,0.25); }
+.sp-c3::after { background: radial-gradient(circle, #818CF8, transparent 70%); }
+
+.sp-c4 {
+  background: linear-gradient(145deg, #2d0f45 0%, #4a1878 60%, #230c38 100%);
+  box-shadow: 0 4px 24px rgba(139,92,246,0.18);
+}
+.sp-c4:hover { box-shadow: 0 20px 52px rgba(139,92,246,0.32); border-color: rgba(192,132,252,0.25); }
+.sp-c4::after { background: radial-gradient(circle, #C084FC, transparent 70%); }
+
+.sp-c5 {
+  background: linear-gradient(145deg, #3d0d3a 0%, #681560 60%, #300b2e 100%);
+  box-shadow: 0 4px 24px rgba(192,38,130,0.18);
+}
+.sp-c5:hover { box-shadow: 0 20px 52px rgba(192,38,130,0.32); border-color: rgba(240,171,252,0.25); }
+.sp-c5::after { background: radial-gradient(circle, #E879F9, transparent 70%); }
+
+.sp-c6 {
+  background: linear-gradient(145deg, #450d2a 0%, #781540 60%, #380b22 100%);
+  box-shadow: 0 4px 24px rgba(219,39,119,0.18);
+}
+.sp-c6:hover { box-shadow: 0 20px 52px rgba(219,39,119,0.32); border-color: rgba(249,168,212,0.25); }
+.sp-c6::after { background: radial-gradient(circle, #F472B6, transparent 70%); }
+
+/* Icon box */
+.sp-icon {
+  display: flex; justify-content: center; align-items: center;
+  width: 48px; height: 48px; min-width: 48px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.14);
+  position: relative; z-index: 2;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+.sp-card:hover .sp-icon {
+  transform: scale(1.1);
+  background: rgba(255,255,255,0.18);
+}
+
+/* Text */
+.sp-col {
+  display: flex; flex-direction: column; gap: 8px;
+  flex: 1; position: relative; z-index: 2;
+}
+.sp-title {
+  font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 16px;
+  line-height: 24px; color: #FFFFFF;
+}
+.sp-desc {
+  font-family: 'Manrope', sans-serif; font-weight: 400; font-size: 14px;
+  line-height: 22px; color: rgba(255,255,255,0.55);
+}
+
+/* Entrance animations — stagger each card */
+.sp-card { opacity: 0; transform: translateY(24px); }
+.sp-card.sp-visible {
+  animation: spFadeUp 0.55s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
+}
+.sp-c1.sp-visible { animation-delay: 0.05s; }
+.sp-c2.sp-visible { animation-delay: 0.12s; }
+.sp-c3.sp-visible { animation-delay: 0.19s; }
+.sp-c4.sp-visible { animation-delay: 0.26s; }
+.sp-c5.sp-visible { animation-delay: 0.33s; }
+.sp-c6.sp-visible { animation-delay: 0.40s; }
+@keyframes spFadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 1280px) { .sp-section { padding: 80px 32px 88px; } }
+@media (max-width: 1024px) {
+  .sp-section { padding: 72px 24px 80px; }
+  .sp-grid    { grid-template-columns: 1fr 1fr; gap: 16px; }
+  .sp-h2      { font-size: 32px; line-height: 40px; }
+}
+@media (max-width: 768px) {
+  .sp-section { padding: 64px 20px 72px; }
+  .sp-grid    { grid-template-columns: 1fr 1fr; gap: 14px; }
+  .sp-h2      { font-size: 26px; line-height: 34px; }
+  .sp-sub     { font-size: 15px; }
+}@media (max-width: 480px) {
+
+  /* section spacing */
+  .sp-section {
+    padding: 48px 16px 220px;
+  }
+
+  .sp-h2 {
+    font-size: 22px;
+    line-height: 30px;
+  }
+
+  .sp-title {
+    font-size: 15px;
+  }
+
+  .sp-desc {
+    font-size: 13px;
+    line-height: 20px;
+  }
+
+  /* disable the existing mobile carousel */
+  .mob-revo-wrap.sp-revo {
+    display: none;
+  }
+
+  /* show the grid again but stacked */
+  .sp-grid {
+    display: flex !important;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* stacked scroll cards */
+  .sp-card {
+    position: sticky;
+    top: 88px;
+    margin-bottom: 24px;
+    transform: scale(0.97);
+    transition: transform 0.3s ease;
+  }
+
+  .sp-card:nth-child(1) { top: 88px; }
+  .sp-card:nth-child(2) { top: 96px; }
+  .sp-card:nth-child(3) { top: 104px; }
+  .sp-card:nth-child(4) { top: 112px; }
+  .sp-card:nth-child(5) { top: 120px; }
+  .sp-card:nth-child(6) { top: 128px; }
+
+  /* subtle depth effect */
+  .sp-card:hover {
+    transform: scale(1);
+  }
+
+}
+@media (max-width: 360px) { .sp-section { padding: 40px 12px; } }
+
+/* ─── FOOTER ─── */
+.footer-section {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 80px 40px;
+  width: 100%; box-sizing: border-box;
+  background: #020617;
+}
+.footer-inner {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 32px; width: 100%; max-width: 960px;
+}
+.footer-h2-wrap { display: flex; justify-content: center; width: 100%; }
+.footer-h2 {
+  font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 48px;
+  line-height: 48px; color: #FFFFFF; text-align: center;
+  display: flex; align-items: center; justify-content: center;
+}
+.footer-sub-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  width: 100%; max-width: 640px;
+}
+.footer-sub {
+  font-family: 'Manrope', sans-serif; font-weight: 400; font-size: 18px;
+  line-height: 28px; color: #94A3B8; text-align: center;
+  width: 100%; display: flex; align-items: center; justify-content: center; text-align: center;
+}
+.footer-cta-block {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 16px 0 48px; gap: 20px; width: 100%;
+}
+.footer-cta-btn {
+  display: flex; justify-content: center; align-items: center;
+  padding: 20px 48px;
+  height: 60px; min-width: 200px;
+  background: #FFFFFF; border-radius: 9999px;
+  box-shadow: 0px 25px 50px -12px rgba(0,0,0,0.25);
+  border: none; cursor: pointer; text-decoration: none;
+  font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 20px;
+  line-height: 28px; color: #0F172A; text-align: center;
+}
+.footer-invite {
+  font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 14px;
+  line-height: 20px; letter-spacing: 1.4px; text-transform: uppercase;
+  color: #64748B; text-align: center;
+}
+.footer-border-row {
+  box-sizing: border-box;
+  display: flex; flex-direction: row; justify-content: space-between; align-items: center;
+  padding: 32px 0 0; gap: 24px;
+  width: 100%; flex-wrap: wrap; justify-content: center;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  align-self: stretch;
+}
+.footer-copy {
+  font-family: 'Manrope', sans-serif; font-weight: 400; font-size: 14px;
+  line-height: 20px; color: #64748B; width: 289.75px; display: flex; align-items: center;
+}
+.footer-links { display: flex; flex-direction: row; gap: 32px; }
+.footer-link {
+  font-family: 'Manrope', sans-serif; font-weight: 400; font-size: 14px;
+  line-height: 20px; color: #64748B; text-decoration: none;
+  display: flex; align-items: center;
+}
+.footer-link:hover { color: #94A3B8; }
+
+/* ═══════════════════════════════════════════════════
+   REGISTRATION MODAL
+═══════════════════════════════════════════════════ */
+
+/* Overlay */
+#reg-overlay {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(2,6,23,0.60);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  padding: 20px;
+}
+#reg-overlay.open {
+  opacity: 1; visibility: visible;
+}
+
+/* Modal box */
+.reg-modal {
+  background: #FFFFFF;
+  border-radius: 24px;
+  width: 100%; max-width: 540px;
+  max-height: 92vh;
+  overflow-y: auto;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.22), 0 0 0 1px rgba(241,245,249,0.8);
+  transform: translateY(24px) scale(0.97);
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  scrollbar-width: thin;
+  scrollbar-color: #E2E8F0 transparent;
+}
+#reg-overlay.open .reg-modal {
+  transform: translateY(0) scale(1);
+}
+
+/* Header gradient strip */
+.reg-header {
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+  border-radius: 24px 24px 0 0;
+  padding: 22px 28px 18px;
+  position: relative;
+}
+.reg-close {
+  position: absolute; top: 24px; right: 22px;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.reg-close:hover { background: rgba(255,255,255,0.18); }
+.reg-close svg { pointer-events: none; }
+
+/* Role pill tabs */
+.reg-role-tabs {
+  display: flex; gap: 8px; margin-bottom: 14px;
+  padding-right: 44px;
+}
+.reg-role-tab {
+  flex: 1; padding: 8px 4px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px; cursor: pointer;
+  text-align: center;
+  font-family: 'Manrope', sans-serif; font-weight: 600; font-size: 13px;
+  color: rgba(255,255,255,0.55);
+  transition: all 0.2s ease;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.reg-role-tab:hover { background: rgba(255,255,255,0.13); color: rgba(255,255,255,0.8); }
+.reg-role-tab.active {
+  background: #FFFFFF; color: #0F172A; border-color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.reg-role-tab .rt-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+
+.reg-header-title {
+  font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 22px;
+  color: #FFFFFF; margin-bottom: 4px; letter-spacing: -0.4px;
+}
+.reg-header-sub {
+  font-family: 'Manrope', sans-serif; font-weight: 400; font-size: 13px;
+  color: rgba(255,255,255,0.5); line-height: 1.5;
+}
+
+/* Form body */
+.reg-body {
+  padding: 20px 28px 24px;
+}
+
+/* Form panels */
+.reg-panel { display: none; }
+.reg-panel.active { display: block; }
+
+/* Field groups */
+.reg-field {
+  margin-bottom: 12px;
+}
+.reg-field label {
+  display: block;
+  font-family: 'Manrope', sans-serif; font-weight: 600; font-size: 12px;
+  letter-spacing: 0.4px; text-transform: uppercase; color: #64748B;
+  margin-bottom: 7px;
+}
+.reg-field label span.req { color: #EF4444; margin-left: 2px; }
+
+.reg-input, .reg-select {
+  width: 100%; height: 48px;
+  padding: 0 16px;
+  background: #F8FAFC;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 12px;
+  font-family: 'Manrope', sans-serif; font-weight: 500; font-size: 15px;
+  color: #0F172A; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  -webkit-appearance: none; appearance: none;
+}
+.reg-input::placeholder { color: #94A3B8; }
+.reg-input:focus, .reg-select:focus {
+  border-color: #3B82F6;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.10);
+}
+.reg-input:focus::placeholder { color: #CBD5E1; }
+
+/* Select wrapper for custom arrow */
+.reg-select-wrap {
+  position: relative;
+}
+.reg-select-wrap::after {
+  content: '';
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  width: 0; height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid #64748B;
+  pointer-events: none;
+}
+.reg-select { padding-right: 40px; cursor: pointer; }
+
+/* Two-column row */
+.reg-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+
+/* Divider */
+.reg-divider {
+  height: 1px; background: #F1F5F9; margin: 2px 0 14px;
+}
+
+/* Section label inside form */
+.reg-section-label {
+  font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 11px;
+  letter-spacing: 1px; text-transform: uppercase; color: #94A3B8;
+  margin-bottom: 10px; margin-top: 0;
+}
+
+/* Phone field with +91 */
+.phone-wrap { position: relative; }
+.phone-prefix {
+  position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+  font-family: 'Manrope', sans-serif; font-weight: 600; font-size: 15px;
+  color: #64748B; pointer-events: none;
+}
+.phone-wrap .reg-input { padding-left: 46px; }
+
+/* Submit button */
+.reg-submit {
+  width: 100%; height: 52px; border: none; border-radius: 14px;
+  background: linear-gradient(135deg, #1E40AF 0%, #4C1D95 100%);
+  color: #FFFFFF;
+  font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 16px;
+  cursor: pointer; margin-top: 4px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 14px rgba(99,102,241,0.35);
+}
+.reg-submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(99,102,241,0.45);
+}
+.reg-submit:active { transform: translateY(0); }
+
+/* Success state */
+.reg-success {
+  display: none; text-align: center; padding: 20px 0 8px;
+}
+.reg-success.show { display: block; }
+.reg-success-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: linear-gradient(135deg, #DCFCE7, #A7F3D0);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px;
+}
+.reg-success h3 {
+  font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 20px;
+  color: #0F172A; margin-bottom: 8px;
+}
+.reg-success p {
+  font-family: 'Manrope', sans-serif; font-weight: 400; font-size: 14px;
+  color: #64748B; line-height: 1.6;
+}
+
+/* Footer note */
+.reg-note {
+  text-align: center; margin-top: 10px;
+  font-family: 'Manrope', sans-serif; font-weight: 400; font-size: 12px;
+  color: #94A3B8; line-height: 1.6;
+}
+.reg-note a { color: #3B82F6; text-decoration: none; }
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVE — Full breakpoint system
+══════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════
+   RESPONSIVE SYSTEM — 1280 / 1024 / 768 / 480 / 360
+══════════════════════════════════════════════════════ */
+
+/* ─ Large screens (≤1280px) ─ */
+@media (max-width: 1280px) {
+  .nav-container       { padding: 14px 32px; }
+  .header-row          { padding: 0 32px; }
+  .refer-section       { padding: 72px 32px; }
+  .footer-section      { padding: 72px 32px; }
+}
+
+/* ─ Tablet landscape (≤1024px) ─ */
+@media (max-width: 1024px) {
+  .nav-container       { padding: 12px 24px; }
+  .header              { padding: 60px 0 80px; }
+  .header-row          { padding: 0 24px; gap: 28px; }
+  .header-left         { max-width: 420px; }
+  .hero-h1 h1          { font-size: 52px; line-height: 58px; }
+  .hero-subtitle-wrap p{ font-size: 17px; }
+  .hero-illustration   { width: 400px; min-width: 300px; max-width: 45vw; height: 420px; }
+  .hi-earn             { width: 148px; left: 6px; }
+  .hi-match            { width: 158px; left: 6px; }
+  .hi-live             { width: 148px; right: 6px; }
+  .hi-escrow           { width: 136px; right: 6px; }
+  .hi-main             { width: 200px; }
+  .refer-section       { padding: 64px 24px; }
+  .footer-section      { padding: 64px 24px; }
+}
+
+/* ─ Tablet portrait (≤768px) ─ */
+@media (max-width: 768px) {
+  /* Nav */
+  .nav-container       { padding: 12px 20px; height: 60px; }
+  .nav-logo-text       { font-size: 20px; }
+  .nav-logo-img        { width: 52px; height: 52px; }
+
+  /* Hero — stack vertically */
+  .header              { padding: 0; min-height: calc(100svh - 60px); justify-content: center; }
+  .header-content-wrap { justify-content: center; }
+  .header-content-wrap { height: auto; }
+  .header-row          {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0 20px;
+    height: auto;
+    gap: 32px;
+  }
+  .header-left         { max-width: 100%; width: 100%; text-align: left; align-items: flex-start; display: flex; flex-direction: column; order: 1; }
+  .hero-badge-pill     { align-self: flex-start; }
+  .hero-h1 h1          { font-size: 38px; line-height: 46px; letter-spacing: -1px; text-align: left; }
+  .hero-subtitle-wrap p{ font-size: 16px; max-width: 100%; text-align: left; }
+  .hero-buttons-row    { flex-wrap: wrap; gap: 10px; justify-content: flex-start; }
+  .hero-trust-row      { justify-content: flex-start; gap: 12px 20px; }
+  .trust-label         { font-size: 13px; }
+  .btn-creator, .btn-brand, .btn-event { height: 52px; padding: 12px 22px; }
+  .b-text              { font-size: 15px; }
+
+  /* Hero illustration — hidden on mobile */
+  .hero-illustration   { display: none !important; }
+  .hi-mobile-carousel  { display: none !important; }
+
+  /* Refer */
+  .refer-section       { padding: 56px 20px; gap: 16px; }
+  .refer-h2            { font-size: 28px; line-height: 36px; }
+  .refer-sub           { font-size: 16px; }
+  .refer-amt           { font-size: 22px; line-height: 28px; }
+  .refer-input-box     { max-width: 100%; }
+
+  /* Footer */
+  .footer-section      { padding: 60px 20px; }
+  .footer-inner        { gap: 24px; }
+  .footer-h2           { font-size: 32px; line-height: 40px; }
+  .footer-sub          { font-size: 16px; }
+  .footer-cta-btn      { font-size: 17px; height: 56px; padding: 14px 32px; }
+  .footer-border-row   { flex-direction: column; align-items: center; gap: 14px; padding-top: 24px; }
+
+  /* Modal */
+  .reg-modal           { border-radius: 18px; }
+  .reg-header          { border-radius: 18px 18px 0 0; padding: 18px 20px 16px; }
+  .reg-body            { padding: 16px 20px 20px; }
+  .reg-row             { grid-template-columns: 1fr; gap: 0; }
+}
+
+/* ─ Mobile (≤480px) ─ */
+@media (max-width: 480px) {
+  /* Nav */
+  .nav-container       { padding: 10px 16px; }
+  .nav-logo-img        { width: 44px; height: 44px; }
+  .nav-cta-btn         { padding: 8px 14px; font-size: 13px; height: 36px; }
+
+  /* Hero — full screen on mobile */
+  .header              { padding: 0; min-height: calc(100svh - 60px); justify-content: center; }
+  .header-content-wrap { justify-content: center; height: 100%; }
+  .header-row          { padding: 32px 16px; gap: 28px; }
+  .hero-badge-pill     { margin-bottom: 14px; }
+  .hero-h1 h1          { font-size: 30px; line-height: 38px; letter-spacing: -0.8px; }
+  .hero-subtitle-wrap  { margin-bottom: 20px; }
+  .hero-subtitle-wrap p{ font-size: 15px; line-height: 22px; }
+  .hero-cta-area       { gap: 16px; width: 100%; }
+  .hero-buttons-row    { flex-direction: column; gap: 8px; width: 100%; }
+  .btn-creator, .btn-brand, .btn-event {
+    width: 100%; height: 52px; padding: 12px 20px; justify-content: center;
+  }
+  .b-text              { font-size: 15px; }
+  .hero-trust-row      { gap: 10px 16px; justify-content: flex-start; }
+  .trust-label         { font-size: 12px; }
+
+  /* Hero illustration — carousel already handles layout */
+  .hero-illustration   { max-width: 340px; }
+
+  /* Refer */
+  .refer-section       { padding: 48px 16px; gap: 14px; }
+  .refer-h2            { font-size: 24px; line-height: 32px; }
+  .refer-sub           { font-size: 15px; }
+  .refer-amt           { font-size: 18px; line-height: 26px; }
+  .refer-input-box     { flex-direction: column; gap: 8px; padding: 10px; }
+  .refer-input         { width: 100%; }
+  .refer-copy-btn      { width: 100%; height: 44px; }
+
+  /* Footer */
+  .footer-section      { padding: 48px 16px; }
+  .footer-h2           { font-size: 26px; line-height: 34px; }
+  .footer-sub          { font-size: 15px; }
+  .footer-cta-btn      { width: 100%; font-size: 16px; height: 56px; }
+  .footer-border-row   { flex-direction: column; text-align: center; gap: 12px; }
+  .footer-links        { gap: 20px; justify-content: center; }
+
+  /* Modal */
+  #reg-overlay         { padding: 10px; }
+  .reg-modal           { border-radius: 14px; max-height: 96vh; }
+  .reg-header          { border-radius: 14px 14px 0 0; padding: 16px 16px 14px; }
+  .reg-body            { padding: 14px 16px 18px; }
+  .reg-header-title    { font-size: 18px; }
+  .reg-role-tab        { font-size: 12px; padding: 6px 4px; gap: 4px; }
+  .reg-input, .reg-select { height: 44px; font-size: 14px; }
+}
+
+/* ─ Small mobile (≤360px) ─ */
+@media (max-width: 360px) {
+  .header-row          { padding: 0 12px; }
+  .hero-h1 h1          { font-size: 26px; line-height: 33px; }
+  .hero-subtitle-wrap p{ font-size: 14px; }
+  .hero-illustration   { max-width: 300px; }
+  .hi-cmain, .hi-cearn, .hi-clive { padding: 16px; }
+  .hi-stat-num         { font-size: 13px; }
+  .hi-earn-amount      { font-size: 20px; }
+  .how-section         { padding: 40px 12px; }
+  .sp-section          { padding: 40px 12px; }
+  .refer-section       { padding: 40px 12px; }
+  .footer-section      { padding: 40px 12px; }
+  .faq-section         { padding: 40px 12px; }
+  .reg-role-tab span   { display: none; }
+  .rt-dot              { width: 10px; height: 10px; }
+}
+
+/* ─── FAQ SECTION ─── */
+.faq-section {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 96px 40px 40px;
+  background: linear-gradient(160deg, #020617 0%, #0F172A 50%, #1a0533 100%);
+  position: relative;
+  overflow: hidden;
+}
+.faq-section::before {
+  content: '';
+  position: absolute;
+  width: 680px; height: 680px;
+  left: 50%; top: -200px;
+  transform: translateX(-50%);
+  background: radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 65%);
+  pointer-events: none;
+}
+.faq-section::after {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  right: -100px; bottom: -100px;
+  background: radial-gradient(circle, rgba(236,72,153,0.10) 0%, transparent 65%);
+  pointer-events: none;
+}
+.faq-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 56px;
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+.faq-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+.faq-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  background: rgba(99,102,241,0.15);
+  border: 1px solid rgba(99,102,241,0.35);
+  border-radius: 9999px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700; font-size: 11px;
+  letter-spacing: 1.4px; text-transform: uppercase;
+  color: #A5B4FC;
+}
+.faq-h2 {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800; font-size: 44px;
+  line-height: 50px; letter-spacing: -1.2px;
+  color: #FFFFFF;
+}
+.faq-h2 span {
+  background: linear-gradient(90deg, #60A5FA 0%, #C084FC 55%, #F472B6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.faq-sub {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 400; font-size: 17px;
+  line-height: 27px; color: #94A3B8;
+  max-width: 480px;
+}
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.4);
+}
+.faq-card {
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  cursor: pointer;
+  transition: background 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+.faq-card:last-child { border-bottom: none; }
+.faq-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #6366F1, #EC4899);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.faq-card:hover { background: rgba(255,255,255,0.06); }
+.faq-card.open  { background: rgba(99,102,241,0.08); }
+.faq-card.open::before { opacity: 1; }
+.faq-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px 28px;
+}
+.faq-q-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1; min-width: 0;
+}
+.faq-num {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800; font-size: 13px;
+  color: rgba(99,102,241,0.6);
+  letter-spacing: 0.5px;
+  min-width: 24px;
+  flex-shrink: 0;
+}
+.faq-card.open .faq-num {
+  background: linear-gradient(90deg, #818CF8, #C084FC);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.faq-q-text {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700; font-size: 16px;
+  line-height: 24px; color: #E2E8F0;
+  transition: color 0.2s;
+}
+.faq-card.open .faq-q-text { color: #FFFFFF; }
+.faq-toggle {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+.faq-toggle svg {
+  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+.faq-card.open .faq-toggle {
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  border-color: transparent;
+}
+.faq-card.open .faq-toggle svg { transform: rotate(180deg); }
+.faq-card.open .faq-toggle svg path { stroke: #FFFFFF; }
+.faq-a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease;
+  opacity: 0;
+}
+.faq-card.open .faq-a { max-height: 300px; opacity: 1; }
+.faq-a-inner {
+  padding: 0 28px 24px 64px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 400; font-size: 15px;
+  line-height: 25px; color: #94A3B8;
+}
+.faq-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.faq-bottom-text {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 500; font-size: 15px;
+  color: #64748B;
+}
+.faq-contact-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 24px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 9999px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700; font-size: 14px;
+  color: #E2E8F0; text-decoration: none;
+  cursor: pointer;
+  pointer-events: all;
+  position: relative; z-index: 10;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+.faq-contact-btn:hover {
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(99,102,241,0.5);
+  transform: translateY(-1px);
+  color: #FFFFFF;
+}
+@media (max-width: 1024px) {
+  .faq-section { padding: 80px 32px; }
+  .faq-h2      { font-size: 38px; line-height: 44px; }
+}
+@media (max-width: 768px) {
+  .faq-section { padding: 64px 20px; }
+  .faq-h2      { font-size: 30px; line-height: 38px; }
+  .faq-sub     { font-size: 15px; }
+  .faq-q       { padding: 20px; }
+  .faq-a-inner { padding: 0 20px 20px 52px; font-size: 14px; }
+}
+@media (max-width: 480px) {
+  .faq-section { padding: 48px 16px; }
+  .faq-h2      { font-size: 26px; line-height: 32px; }
+  .faq-q       { padding: 18px 16px; gap: 12px; }
+  .faq-q-text  { font-size: 14px; line-height: 21px; }
+  .faq-a-inner { padding: 0 16px 18px 40px; }
+  .faq-num     { display: none; }
+}
+
+/* ── WELCOME POPUP ── */
+@keyframes synkFloat  { 0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)} }
+@keyframes synkFadeIn { from{opacity:0}to{opacity:1} }
+@keyframes synkScaleIn{ from{opacity:0;transform:scale(0.86)}to{opacity:1;transform:scale(1)} }
+@keyframes synkConfetti{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+@keyframes synkPulse  { 0%,100%{transform:scale(1);opacity:.75}50%{transform:scale(1.5);opacity:.3} }
+@keyframes synkShimmer{ 0%{transform:translateX(-100%)}100%{transform:translateX(250%)} }
+#welcomeOverlay {
+  display:none; position:fixed; inset:0; z-index:99999;
+  background:
+    radial-gradient(ellipse 700px 500px at 80% -5%,  rgba(139,92,246,.28) 0%, transparent 55%),
+    radial-gradient(ellipse 500px 400px at -5% 85%,  rgba(59,130,246,.2)  0%, transparent 50%),
+    radial-gradient(ellipse 350px 300px at 50% 110%, rgba(236,72,153,.18) 0%, transparent 50%),
+    radial-gradient(ellipse 250px 250px at 15% 20%,  rgba(249,115,22,.1)  0%, transparent 55%),
+    rgba(6,11,24,0.92);
+  align-items:center; justify-content:center; padding:20px; box-sizing:border-box; overflow:hidden;
+}
+#welcomeOverlay.show { display:flex; animation:synkFadeIn 0.3s ease both; }
+#welcomeModal {
+  background:linear-gradient(145deg,#1E1040 0%,#0F172A 45%,#1a0a28 80%,#111827 100%);
+  border:1px solid rgba(139,92,246,.28);
+  border-radius:22px; padding:36px 32px 30px;
+  max-width:420px; width:100%; box-sizing:border-box; text-align:center;
+  position:relative; z-index:1; overflow:hidden;
+  animation:synkScaleIn .4s cubic-bezier(.34,1.56,.64,1) both;
+}
+.synk-rocket-wrap {
+  width:68px; height:68px; border-radius:20px;
+  display:flex; align-items:center; justify-content:center;
+  margin:0 auto 18px; position:relative; cursor:pointer;
+}
+.synk-rocket-inner {
+  width:100%; height:100%; border-radius:20px;
+  display:flex; align-items:center; justify-content:center;
+  transition:transform .2s;
+}
+.synk-rocket-wrap:hover .synk-rocket-inner { transform:scale(1.1); }
+.synk-eyebrow {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:5px 14px; border-radius:9999px;
+  font-family:'Manrope',sans-serif; font-weight:700; font-size:11px;
+  letter-spacing:1.4px; text-transform:uppercase; margin-bottom:16px;
+  background:rgba(99,102,241,.08); border:1px solid rgba(99,102,241,.22); color:#818CF8;
+}
+.synk-got-it {
+  padding:13px 0;
+  background:linear-gradient(135deg,#3B82F6 0%,#6366F1 35%,#8B5CF6 65%,#EC4899 100%);
+  border-radius:12px; color:#FFFFFF; font-size:15px; font-weight:700;
+  cursor:pointer; font-family:'Manrope',sans-serif;
+  position:relative; overflow:hidden;
+  transition:transform .15s, box-shadow .15s;
+}
+.synk-got-it:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(99,102,241,.4); }
+.synk-got-it:active { transform:scale(.98); }
+.synk-shimmer {
+  position:absolute; top:0; left:0; width:40%; height:100%;
+  background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.18) 50%,transparent 70%);
+  animation:synkShimmer 2.4s ease-in-out infinite;
+}
+@media(max-width:480px){
+  #welcomeModal { padding:26px 16px 22px !important; border-radius:16px !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-container">
+    <div class="nav-logo-wrap">
+      <img src="assets/synkspace-logo.png" class="nav-logo-img" alt="SynkSpace Logo">
+      <span class="nav-logo-text">SynkSpace</span>
+    </div>
+    <a href="#" class="nav-cta-btn" id="navCta" style="opacity:0;pointer-events:none;transition:opacity 0.3s ease;" onclick="event.preventDefault();openReg('creator')">Get Early Access</a>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+
+  <!-- ─── HERO ─── -->
+  <div class="header">
+    <div class="header-blur-1"></div>
+    <div class="header-blur-2"></div>
+    <div class="header-blur-3"></div>
+    <div class="header-bg"></div>
+
+    <div class="header-content-wrap">
+      <div class="header-row">
+        <!-- LEFT -->
+        <div class="header-left">
+          <div class="hero-badge-pill">
+            <div class="badge-dot-container">
+              <div class="badge-dot-pulse"></div>
+              <div class="badge-dot"></div>
+            </div>
+            <span>India's #1 Creator Marketplace</span>
+          </div>
+
+          <div class="hero-h1">
+            <h1>Connect.<br>Collaborate.<br><span class="gradient-text">Create Impact.</span></h1>
+          </div>
+
+          <div class="hero-subtitle-wrap">
+            <p>The all-in-one ecosystem connecting India's top influencers, ambitious brands, and major events. No middlemen, full transparency.</p>
+          </div>
+
+          <div class="hero-cta-area">
+            <div class="hero-buttons-row" id="heroCtaRow">
+              <a href="#" class="btn-creator" id="heroCta" onclick="event.preventDefault();openReg('creator')">
+                <div class="b-icon">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="10" cy="7" r="4.5" stroke="#E2E8F0" stroke-width="1.6"/>
+                    <path d="M2 18c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke="#E2E8F0" stroke-width="1.6" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div class="b-text">Get Early Access</div>
+              </a>
+            </div>
+
+            <!-- Trust badges -->
+            <div class="hero-trust-row">
+              <div class="trust-1">
+                <svg width="16" height="16" viewBox="0 0 17 16" fill="#3B82F6" xmlns="http://www.w3.org/2000/svg"><path d="M8.5 1l2 5.5H16l-4.5 3.3 1.7 5.2L8.5 12 4.8 15l1.7-5.2L2 6.5h5.5z"/></svg>
+                <span class="trust-label">Verified Profiles</span>
+              </div>
+              <div class="trust-2">
+                <svg width="12" height="15" viewBox="0 0 12 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="1" y="6.5" width="10" height="9" rx="1.5" stroke="#3B82F6" stroke-width="1.4"/>
+                  <path d="M3.5 6.5V4.5a2.5 2.5 0 015 0v2" stroke="#3B82F6" stroke-width="1.4"/>
+                  <circle cx="6" cy="11" r="1.1" fill="#3B82F6"/>
+                </svg>
+                <span class="trust-label">Secure Escrow</span>
+              </div>
+              <div class="trust-3">
+                <svg width="12" height="15" viewBox="0 0 12 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <polyline points="1,10 3,10 4.5,14.5 7.5,1 9,10 11,10" stroke="#3B82F6" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="trust-label">Fast Matching</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Illustration — Creator Marketplace Dashboard -->
+        <div class="hero-illustration">
+
+          <!-- Desktop: floating cards (absolute positioned) -->
+          <!-- Earnings card — top left -->
+          <div class="hi-card hi-earn hi-desktop-card">
+            <div class="hi-earn-label">Total Earned</div>
+            <div class="hi-earn-amount">₹2,40,000</div>
+            <div class="hi-earn-badge">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 7L5 3L8 7" stroke="#16A34A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>+24% this month</span>
+            </div>
+            <div class="hi-sparkline">
+              <div class="hi-spark-bar" style="height:40%"></div>
+              <div class="hi-spark-bar" style="height:55%"></div>
+              <div class="hi-spark-bar" style="height:45%"></div>
+              <div class="hi-spark-bar" style="height:70%"></div>
+              <div class="hi-spark-bar" style="height:60%"></div>
+              <div class="hi-spark-bar" style="height:85%"></div>
+              <div class="hi-spark-bar" style="height:100%; opacity:1;"></div>
+            </div>
+          </div>
+
+          <!-- Active matches card — bottom left -->
+          <div class="hi-card hi-match hi-desktop-card">
+            <div class="hi-match-header">
+              <div class="hi-match-dot"></div>
+              <div class="hi-match-title">Active Matches</div>
+            </div>
+            <div class="hi-match-avatars">
+              <div class="hi-avatar-sm" style="background:linear-gradient(135deg,#3B82F6,#6366F1);">A</div>
+              <div class="hi-avatar-sm" style="background:linear-gradient(135deg,#EC4899,#F43F5E);">M</div>
+              <div class="hi-avatar-sm" style="background:linear-gradient(135deg,#F97316,#EAB308);">Z</div>
+              <div class="hi-avatar-sm" style="background:linear-gradient(135deg,#14B8A6,#22C55E);">+5</div>
+            </div>
+            <div class="hi-match-sub">8 brands waiting for you</div>
+          </div>
+
+          <!-- Central creator profile card -->
+          <div class="hi-card hi-main hi-desktop-card">
+            <div class="hi-main-header">
+              <div class="hi-main-avatar">P</div>
+              <div class="hi-main-info">
+                <div class="hi-main-name">Priya Sharma</div>
+                <div class="hi-main-role">Lifestyle · Mumbai</div>
+              </div>
+              <div class="hi-verified">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+            <div class="hi-stats-row">
+              <div class="hi-stat-box">
+                <div class="hi-stat-num">4.2M</div>
+                <div class="hi-stat-label">Followers</div>
+              </div>
+              <div class="hi-stat-box">
+                <div class="hi-stat-num">8.4%</div>
+                <div class="hi-stat-label">Eng. Rate</div>
+              </div>
+              <div class="hi-stat-box">
+                <div class="hi-stat-num">32</div>
+                <div class="hi-stat-label">Campaigns</div>
+              </div>
+            </div>
+            <div class="hi-progress-wrap">
+              <div class="hi-progress-label">
+                <span class="hi-progress-text">Profile Match Score</span>
+                <span class="hi-progress-pct">94%</span>
+              </div>
+              <div class="hi-progress-bar">
+                <div class="hi-progress-fill" style="width:94%"></div>
+              </div>
+            </div>
+            <div class="hi-progress-wrap">
+              <div class="hi-progress-label">
+                <span class="hi-progress-text">Campaign Completion</span>
+                <span class="hi-progress-pct">87%</span>
+              </div>
+              <div class="hi-progress-bar">
+                <div class="hi-progress-fill" style="width:87%; background:linear-gradient(90deg,#059669,#22C55E);"></div>
+              </div>
+            </div>
+            <button class="hi-match-btn">View Full Profile →</button>
+          </div>
+
+          <!-- Campaign live card — top right -->
+          <div class="hi-card hi-live hi-desktop-card">
+            <div class="hi-live-top">
+              <div class="hi-live-badge">
+                <div class="hi-live-dot"></div>
+                <span class="hi-live-text">LIVE</span>
+              </div>
+            </div>
+            <div class="hi-live-num">12,480</div>
+            <div class="hi-live-sub">Campaign impressions</div>
+            <div class="hi-live-bar">
+              <div class="hi-live-fill"></div>
+            </div>
+          </div>
+
+          <!-- Escrow card — bottom right -->
+          <div class="hi-card hi-escrow hi-desktop-card">
+            <div class="hi-escrow-icon">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <rect x="1" y="7" width="16" height="10" rx="2" stroke="#3B82F6" stroke-width="1.5"/>
+                <path d="M5 7V5a4 4 0 018 0v2" stroke="#3B82F6" stroke-width="1.5"/>
+                <circle cx="9" cy="12" r="1.5" fill="#3B82F6"/>
+              </svg>
+            </div>
+            <div class="hi-escrow-label">Escrow Secured</div>
+            <div class="hi-escrow-val">₹85,000</div>
+            <div class="hi-escrow-status">
+              <div class="hi-escrow-check">
+                <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3 5.5L6.5 2" stroke="#16A34A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <span class="hi-escrow-status-text">Protected & Safe</span>
+            </div>
+          </div>
+
+          <!-- Mobile: auto-cycling carousel (one card visible at a time) -->
+          <div class="hi-mobile-carousel" id="hiCarousel">
+            <div class="hi-carousel-track" id="hiTrack">
+
+              <!-- Slide 1: Profile card -->
+              <div class="hi-carousel-slide">
+                <div class="hi-cmain">
+                  <div class="hi-main-header">
+                    <div class="hi-main-avatar">P</div>
+                    <div class="hi-main-info">
+                      <div class="hi-main-name">Priya Sharma</div>
+                      <div class="hi-main-role">Lifestyle · Mumbai</div>
+                    </div>
+                    <div class="hi-verified">
+                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                  </div>
+                  <div class="hi-stats-row">
+                    <div class="hi-stat-box"><div class="hi-stat-num">4.2M</div><div class="hi-stat-label">Followers</div></div>
+                    <div class="hi-stat-box"><div class="hi-stat-num">8.4%</div><div class="hi-stat-label">Eng. Rate</div></div>
+                    <div class="hi-stat-box"><div class="hi-stat-num">32</div><div class="hi-stat-label">Campaigns</div></div>
+                  </div>
+                  <div class="hi-progress-wrap">
+                    <div class="hi-progress-label"><span class="hi-progress-text">Profile Match Score</span><span class="hi-progress-pct">94%</span></div>
+                    <div class="hi-progress-bar"><div class="hi-progress-fill" style="width:94%"></div></div>
+                  </div>
+                  <div class="hi-progress-wrap">
+                    <div class="hi-progress-label"><span class="hi-progress-text">Campaign Completion</span><span class="hi-progress-pct">87%</span></div>
+                    <div class="hi-progress-bar"><div class="hi-progress-fill" style="width:87%;background:linear-gradient(90deg,#059669,#22C55E);"></div></div>
+                  </div>
+                  <button class="hi-match-btn">View Full Profile →</button>
+                </div>
+              </div>
+
+              <!-- Slide 2: Earnings card -->
+              <div class="hi-carousel-slide">
+                <div class="hi-cearn">
+                  <div class="hi-earn-label">Total Earned</div>
+                  <div class="hi-earn-amount">₹2,40,000</div>
+                  <div class="hi-earn-badge">
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 7L5 3L8 7" stroke="#16A34A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>+24% this month</span>
+                  </div>
+                  <div class="hi-sparkline" style="height:40px;margin-top:14px;">
+                    <div class="hi-spark-bar" style="height:40%"></div>
+                    <div class="hi-spark-bar" style="height:55%"></div>
+                    <div class="hi-spark-bar" style="height:45%"></div>
+                    <div class="hi-spark-bar" style="height:70%"></div>
+                    <div class="hi-spark-bar" style="height:60%"></div>
+                    <div class="hi-spark-bar" style="height:85%"></div>
+                    <div class="hi-spark-bar" style="height:100%;opacity:1;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Slide 3: Live campaign + matches -->
+              <div class="hi-carousel-slide">
+                <div class="hi-clive">
+                  <div class="hi-live-top">
+                    <div class="hi-live-badge"><div class="hi-live-dot"></div><span class="hi-live-text">LIVE</span></div>
+                  </div>
+                  <div class="hi-live-num">12,480</div>
+                  <div class="hi-live-sub">Campaign impressions</div>
+                  <div class="hi-live-bar" style="margin-bottom:20px;"><div class="hi-live-fill"></div></div>
+                  <div class="hi-match-header" style="margin-top:8px;">
+                    <div class="hi-match-dot"></div>
+                    <div class="hi-match-title">Active Matches</div>
+                  </div>
+                  <div class="hi-match-avatars" style="margin-top:8px;">
+                    <div class="hi-avatar-sm" style="background:linear-gradient(135deg,#3B82F6,#6366F1);">A</div>
+                    <div class="hi-avatar-sm" style="background:linear-gradient(135deg,#EC4899,#F43F5E);">M</div>
+                    <div class="hi-avatar-sm" style="background:linear-gradient(135deg,#F97316,#EAB308);">Z</div>
+                    <div class="hi-avatar-sm" style="background:linear-gradient(135deg,#14B8A6,#22C55E);">+5</div>
+                  </div>
+                  <div class="hi-match-sub">8 brands waiting for you</div>
+                </div>
+              </div>
+
+            </div>
+            <!-- Dots -->
+            <div class="hi-carousel-dots">
+              <div class="hi-dot hi-dot-active" onclick="hiGoTo(0)"></div>
+              <div class="hi-dot" onclick="hiGoTo(1)"></div>
+              <div class="hi-dot" onclick="hiGoTo(2)"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── HOW IT WORKS ─── -->
+  <div class="how-section">
+
+    <div class="how-header-block">
+      <div class="how-eyebrow">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#6366F1" stroke-width="1.5"/><path d="M5 2.5v3L6.5 7" stroke="#6366F1" stroke-width="1.3" stroke-linecap="round"/></svg>
+        How It Works
+      </div>
+      <h2 class="how-h2">Three steps to<br><span class="how-grad">Real Collaboration.</span></h2>
+      <p class="how-p">Whether you're a creator, brand, or event organiser — SynkSpace simplifies every step of the process.</p>
+    </div>
+
+    <div class="how-cards-row">
+
+      <!-- Card 1 — Blue -->
+      <div class="how-card how-card-1">
+        <div class="how-card-blob"></div>
+        <div class="how-step-num">01</div>
+        <div class="how-icon-wrap">
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><circle cx="12" cy="12" r="8" stroke="white" stroke-width="2.2"/><path d="M18 18L26 26" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="how-card-title">Discover &amp; Match</div>
+        <div class="how-card-body">Use our AI-powered search to instantly find the perfect creators or brands — filtered by niche, follower count, budget, and real engagement quality. No guesswork, just precision.</div>
+      </div>
+
+      <!-- Card 2 — Purple -->
+      <div class="how-card how-card-2">
+        <div class="how-card-blob"></div>
+        <div class="how-step-num">02</div>
+        <div class="how-icon-wrap">
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><rect x="3" y="13" width="24" height="14" rx="3" stroke="white" stroke-width="2.2"/><path d="M8 13V10a7 7 0 0114 0v3" stroke="white" stroke-width="2.2"/><circle cx="15" cy="20" r="2.5" fill="white"/></svg>
+        </div>
+        <div class="how-card-title">Collaborate Securely</div>
+        <div class="how-card-body">Negotiate terms, sign legally-vetted digital contracts, and manage every deliverable in a real-time shared dashboard. Full transparency, zero middlemen.</div>
+      </div>
+
+      <!-- Card 3 — Pink -->
+      <div class="how-card how-card-3">
+        <div class="how-card-blob"></div>
+        <div class="how-step-num">03</div>
+        <div class="how-icon-wrap">
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><path d="M4 22L10 14L15 19L22 7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 7h4v4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="how-card-title">Pay &amp; Grow</div>
+        <div class="how-card-body">Funds held in secure escrow, released only upon approval. Track performance analytics across platforms and build long-term partnerships that compound over time.</div>
+      </div>
+
+    </div>
+
+    <!-- Mobile scroll-reveal vertical timeline — How It Works -->
+    <div class="how-timeline-wrap" id="howTimeline">
+      <!-- Vertical progress line -->
+      <div class="how-tl-line">
+        <div class="how-tl-line-fill" id="howTlFill"></div>
+      </div>
+
+      <!-- Step 1 -->
+      <div class="how-tl-item" data-step="0">
+        <div class="how-tl-node">
+          <div class="how-tl-node-ring"></div>
+          <div class="how-tl-node-dot">
+            <svg width="14" height="14" viewBox="0 0 30 30" fill="none"><circle cx="12" cy="12" r="8" stroke="white" stroke-width="2.5"/><path d="M18 18L26 26" stroke="white" stroke-width="2.8" stroke-linecap="round"/></svg>
+          </div>
+        </div>
+        <div class="how-tl-card how-tl-c1">
+          <div class="how-tl-card-blob"></div>
+          <div class="how-tl-step-label">Step 01</div>
+          <div class="how-tl-title">Discover &amp; Match</div>
+          <div class="how-tl-body">Use our AI-powered search to instantly find the perfect creators or brands — filtered by niche, follower count, budget, and real engagement quality.</div>
+          <div class="how-tl-tag-row">
+            <span class="how-tl-tag">AI Search</span>
+            <span class="how-tl-tag">Smart Filters</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="how-tl-item" data-step="1">
+        <div class="how-tl-node">
+          <div class="how-tl-node-ring"></div>
+          <div class="how-tl-node-dot">
+            <svg width="14" height="14" viewBox="0 0 30 30" fill="none"><rect x="3" y="13" width="24" height="14" rx="3" stroke="white" stroke-width="2.5"/><path d="M8 13V10a7 7 0 0114 0v3" stroke="white" stroke-width="2.5"/><circle cx="15" cy="20" r="2.5" fill="white"/></svg>
+          </div>
+        </div>
+        <div class="how-tl-card how-tl-c2">
+          <div class="how-tl-card-blob"></div>
+          <div class="how-tl-step-label">Step 02</div>
+          <div class="how-tl-title">Collaborate Securely</div>
+          <div class="how-tl-body">Negotiate terms, sign legally-vetted digital contracts, and manage every deliverable in a real-time shared dashboard. Full transparency, zero middlemen.</div>
+          <div class="how-tl-tag-row">
+            <span class="how-tl-tag">Digital Contracts</span>
+            <span class="how-tl-tag">Live Dashboard</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="how-tl-item" data-step="2">
+        <div class="how-tl-node">
+          <div class="how-tl-node-ring"></div>
+          <div class="how-tl-node-dot">
+            <svg width="14" height="14" viewBox="0 0 30 30" fill="none"><path d="M4 22L10 14L15 19L22 7" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 7h4v4" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="how-tl-card how-tl-c3">
+          <div class="how-tl-card-blob"></div>
+          <div class="how-tl-step-label">Step 03</div>
+          <div class="how-tl-title">Pay &amp; Grow</div>
+          <div class="how-tl-body">Funds held in secure escrow, released only upon approval. Track performance analytics across platforms and build long-term partnerships that compound over time.</div>
+          <div class="how-tl-tag-row">
+            <span class="how-tl-tag">Escrow</span>
+            <span class="how-tl-tag">Analytics</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ─── PLATFORM SUPERPOWERS ─── -->
+  <div class="sp-section">
+    <div class="sp-inner">
+      <div class="sp-header">
+        <div class="sp-eyebrow">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1l1.2 2.5L9 4.1 6.8 6.3l.5 3L5 8l-2.3 1.3.5-3L1 4.1l2.8-.6z" stroke="#94A3B8" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          Platform Superpowers
+        </div>
+        <div class="sp-h2-row"><h2 class="sp-h2">Everything you need to<br><span class="sp-grad">Scale Your Collabs.</span></h2></div>
+        <div class="sp-sub-row"><p class="sp-sub">Built for creators, brands, and event organisers who are serious about growing together.</p></div>
+      </div>
+      <div class="sp-grid" id="spGrid">
+
+        <!-- SP 1 — Blue -->
+        <div class="sp-card sp-c1">
+          <div class="sp-icon">
+            <svg width="22" height="20" viewBox="0 0 22 20" fill="none"><circle cx="6" cy="10" r="4" stroke="white" stroke-width="1.6"/><circle cx="16" cy="10" r="4" stroke="white" stroke-width="1.6"/><path d="M10 10h2" stroke="white" stroke-width="1.6" stroke-linecap="round"/><path d="M4 5.5C5.2 3.3 8 2 11 2s5.8 1.3 7 3.5" stroke="rgba(255,255,255,0.4)" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="sp-col">
+            <div class="sp-title">AI-Powered Matching</div>
+            <div class="sp-desc">Our algorithm finds the perfect creator or brand based on your brand voice and target demographics instantly.</div>
+          </div>
+        </div>
+
+        <!-- SP 2 — Indigo -->
+        <div class="sp-card sp-c2">
+          <div class="sp-icon">
+            <svg width="20" height="22" viewBox="0 0 20 22" fill="none"><rect x="1" y="9" width="18" height="12" rx="2.5" stroke="white" stroke-width="1.6"/><path d="M5 9V6.5a5 5 0 0110 0V9" stroke="white" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="15" r="1.8" fill="white"/></svg>
+          </div>
+          <div class="sp-col">
+            <div class="sp-title">Secure Escrow Payments</div>
+            <div class="sp-desc">Funds are held safely and only released upon deliverable completion. Guaranteed trust on both sides.</div>
+          </div>
+        </div>
+
+        <!-- SP 3 — Blue-Indigo -->
+        <div class="sp-card sp-c3">
+          <div class="sp-icon">
+            <svg width="20" height="18" viewBox="0 0 20 18" fill="none"><polyline points="1,14 5,8 8,11 12,4 19,8" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 17h18" stroke="rgba(255,255,255,0.45)" stroke-width="1.4" stroke-linecap="round"/></svg>
+          </div>
+          <div class="sp-col">
+            <div class="sp-title">Real-time Analytics</div>
+            <div class="sp-desc">Track engagement, clicks, and conversions across all platforms in a unified dashboard.</div>
+          </div>
+        </div>
+
+        <!-- SP 4 — Purple -->
+        <div class="sp-card sp-c4">
+          <div class="sp-icon">
+            <svg width="16" height="20" viewBox="0 0 16 20" fill="none"><rect x="1" y="1" width="14" height="18" rx="2.5" stroke="white" stroke-width="1.6"/><line x1="4" y1="7" x2="12" y2="7" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="4" y1="11" x2="12" y2="11" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="4" y1="15" x2="8" y2="15" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <div class="sp-col">
+            <div class="sp-title">Standard Contracts</div>
+            <div class="sp-desc">Pre-vetted legal templates protecting IP rights and deliverables for both parties, no lawyer needed.</div>
+          </div>
+        </div>
+
+        <!-- SP 5 — Violet-Pink -->
+        <div class="sp-card sp-c5">
+          <div class="sp-icon">
+            <svg width="24" height="14" viewBox="0 0 24 14" fill="none"><circle cx="4" cy="7" r="3" stroke="white" stroke-width="1.6"/><circle cx="12" cy="7" r="3" stroke="white" stroke-width="1.6"/><circle cx="20" cy="7" r="3" stroke="white" stroke-width="1.6"/><path d="M7 7h2M15 7h2" stroke="rgba(255,255,255,0.4)" stroke-width="1.4" stroke-linecap="round"/></svg>
+          </div>
+          <div class="sp-col">
+            <div class="sp-title">Community Events</div>
+            <div class="sp-desc">Exclusive access to creator meetups, brand launch parties, and high-value networking events.</div>
+          </div>
+        </div>
+
+        <!-- SP 6 — Pink -->
+        <div class="sp-card sp-c6">
+          <div class="sp-icon">
+            <svg width="22" height="20" viewBox="0 0 22 20" fill="none"><path d="M11 18s-8-5.1-8-10a5 5 0 0110 0 5 5 0 0110 0c0 4.9-8 10-8 10h-4z" stroke="white" stroke-width="1.6" stroke-linejoin="round"/><path d="M11 8v4M9 10h4" stroke="rgba(255,255,255,0.5)" stroke-width="1.4" stroke-linecap="round"/></svg>
+          </div>
+          <div class="sp-col">
+            <div class="sp-title">24/7 Dedicated Support</div>
+            <div class="sp-desc">Our support team is ready to help resolve disputes and assist with campaign management around the clock.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Mobile stacked card carousel — Platform Superpowers -->
+      <div class="mob-revo-wrap sp-revo" id="spRevo">
+        <div class="mob-revo-scene" id="spRing">
+          <div class="mob-revo-glow"></div>
+          <div class="mob-revo-card c1">
+            <div class="mob-revo-icon"><svg width="20" height="18" viewBox="0 0 22 20" fill="none"><circle cx="6" cy="10" r="4" stroke="white" stroke-width="1.6"/><circle cx="16" cy="10" r="4" stroke="white" stroke-width="1.6"/><path d="M10 10h2" stroke="white" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+            <div class="mob-revo-title">AI-Powered Matching</div>
+            <div class="mob-revo-desc">Our algorithm finds the perfect creator or brand based on your brand voice and target demographics instantly.</div>
+          </div>
+          <div class="mob-revo-card c2">
+            <div class="mob-revo-icon"><svg width="18" height="20" viewBox="0 0 20 22" fill="none"><rect x="1" y="9" width="18" height="12" rx="2.5" stroke="white" stroke-width="1.6"/><path d="M5 9V6.5a5 5 0 0110 0V9" stroke="white" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="15" r="1.8" fill="white"/></svg></div>
+            <div class="mob-revo-title">Secure Escrow Payments</div>
+            <div class="mob-revo-desc">Funds are held safely and only released upon deliverable completion. Guaranteed trust on both sides.</div>
+          </div>
+          <div class="mob-revo-card c3">
+            <div class="mob-revo-icon"><svg width="20" height="16" viewBox="0 0 20 18" fill="none"><polyline points="1,14 5,8 8,11 12,4 19,8" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="mob-revo-title">Real-time Analytics</div>
+            <div class="mob-revo-desc">Track engagement, clicks, and conversions across all platforms in a unified dashboard.</div>
+          </div>
+          <div class="mob-revo-card c4">
+            <div class="mob-revo-icon"><svg width="14" height="18" viewBox="0 0 16 20" fill="none"><rect x="1" y="1" width="14" height="18" rx="2.5" stroke="white" stroke-width="1.6"/><line x1="4" y1="7" x2="12" y2="7" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="4" y1="11" x2="12" y2="11" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            <div class="mob-revo-title">Standard Contracts</div>
+            <div class="mob-revo-desc">Pre-vetted legal templates protecting IP rights and deliverables for both parties, no lawyer needed.</div>
+          </div>
+          <div class="mob-revo-card c5">
+            <div class="mob-revo-icon"><svg width="22" height="12" viewBox="0 0 24 14" fill="none"><circle cx="4" cy="7" r="3" stroke="white" stroke-width="1.6"/><circle cx="12" cy="7" r="3" stroke="white" stroke-width="1.6"/><circle cx="20" cy="7" r="3" stroke="white" stroke-width="1.6"/></svg></div>
+            <div class="mob-revo-title">Community Events</div>
+            <div class="mob-revo-desc">Exclusive access to creator meetups, brand launch parties, and high-value networking events.</div>
+          </div>
+          <div class="mob-revo-card c6">
+            <div class="mob-revo-icon"><svg width="20" height="18" viewBox="0 0 22 20" fill="none"><path d="M11 18s-8-5.1-8-10a5 5 0 0110 0 5 5 0 0110 0c0 4.9-8 10-8 10h-4z" stroke="white" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+            <div class="mob-revo-title">24/7 Dedicated Support</div>
+            <div class="mob-revo-desc">Our support team is ready to help resolve disputes and assist with campaign management around the clock.</div>
+          </div>
+        </div>
+        <div class="mob-revo-dots" id="spDots"></div>
+        <div class="mob-revo-hint">← swipe to browse →</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── FAQ ─── -->
+  <div class="faq-section">
+    <div class="faq-inner">
+
+      <div class="faq-header">
+        <div class="faq-badge">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#A5B4FC" stroke-width="1.5"/><path d="M5 3v2.2L6.2 6.5" stroke="#A5B4FC" stroke-width="1.3" stroke-linecap="round"/></svg>
+          FAQ
+        </div>
+        <h2 class="faq-h2">Got <span>Questions?</span><br>We've Got Answers.</h2>
+        <p class="faq-sub">Everything you need to know about SynkSpace before you join the waitlist.</p>
+      </div>
+
+      <div class="faq-list">
+
+        <div class="faq-card" onclick="toggleFaq(this)">
+          <div class="faq-q">
+            <div class="faq-q-left">
+              <span class="faq-num">01</span>
+              <span class="faq-q-text">Who can join SynkSpace?</span>
+            </div>
+            <button class="faq-toggle" aria-label="Toggle answer">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+          <div class="faq-a">
+            <div class="faq-a-inner">SynkSpace is open to content creators (nano to mega influencers), brands of all sizes, and event organisers across India. Whether you have 1,000 followers or 10 million — if you create authentic content, there's a place for you here.</div>
+          </div>
+        </div>
+
+        <div class="faq-card" onclick="toggleFaq(this)">
+          <div class="faq-q">
+            <div class="faq-q-left">
+              <span class="faq-num">02</span>
+              <span class="faq-q-text">How does the escrow payment system work?</span>
+            </div>
+            <button class="faq-toggle" aria-label="Toggle answer">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+          <div class="faq-a">
+            <div class="faq-a-inner">When a brand hires a creator, funds are locked in our secure escrow vault. The money is only released once deliverables are approved — brands don't pay for work not done, and creators are guaranteed payment for completed work.</div>
+          </div>
+        </div>
+
+        <div class="faq-card" onclick="toggleFaq(this)">
+          <div class="faq-q">
+            <div class="faq-q-left">
+              <span class="faq-num">03</span>
+              <span class="faq-q-text">Is SynkSpace free to join?</span>
+            </div>
+            <button class="faq-toggle" aria-label="Toggle answer">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+          <div class="faq-a">
+            <div class="faq-a-inner">Joining the waitlist and creating a profile is completely free. We operate on a small success-based commission only when a collaboration is successfully completed. No monthly fees, no hidden charges — we only earn when you do.</div>
+          </div>
+        </div>
+
+        <div class="faq-card" onclick="toggleFaq(this)">
+          <div class="faq-q">
+            <div class="faq-q-left">
+              <span class="faq-num">04</span>
+              <span class="faq-q-text">When will SynkSpace launch publicly?</span>
+            </div>
+            <button class="faq-toggle" aria-label="Toggle answer">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+          <div class="faq-a">
+            <div class="faq-a-inner">We're currently in private beta, onboarding our first cohort of creators, brands, and event organisers. Waitlist members get exclusive early access before the public launch — join now to secure your spot and shape the platform from day one.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="faq-bottom">
+        <span class="faq-bottom-text">Still have questions?</span>
+        <a href="#" class="faq-contact-btn" id="faqContactBtn" onclick="this.href='mai'+'lto:'+'info'+'@'+'synkspace'+'.in'; return true;">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="1" y="3" width="13" height="9" rx="1.5" stroke="#E2E8F0" stroke-width="1.4"/><path d="M1 4.5l6.5 4.5L14 4.5" stroke="#E2E8F0" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Contact Us
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  
+</div><!-- end page-wrapper -->
+
+<script>
+function toggleFaq(card) {
+  const isOpen = card.classList.contains('open');
+  document.querySelectorAll('.faq-card.open').forEach(c => c.classList.remove('open'));
+  if (!isOpen) card.classList.add('open');
+}
+function switchTab(el) {
+  document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── Hero mobile carousel ────────────────────────────────────────────
+(function() {
+  var current = 0;
+  var total = 3;
+  var timer;
+
+  function hiGoTo(idx) {
+    current = ((idx % total) + total) % total;
+    var track = document.getElementById('hiTrack');
+    if (!track) return;
+    track.style.transform = 'translateX(' + (-current * 100) + '%)';
+    track.style.transition = 'transform 0.45s cubic-bezier(0.4,0,0.2,1)';
+    // Update dots
+    var dots = document.querySelectorAll('.hi-dot');
+    dots.forEach(function(d, i) {
+      d.classList.toggle('hi-dot-active', i === current);
+    });
+  }
+
+  window.hiGoTo = hiGoTo;
+
+  function startAutoPlay() {
+    clearInterval(timer);
+    timer = setInterval(function() { hiGoTo(current + 1); }, 3200);
+  }
+
+  function init() {
+    var carousel = document.getElementById('hiCarousel');
+    if (!carousel) return;
+    startAutoPlay();
+    carousel.addEventListener('touchstart', function() { clearInterval(timer); }, { passive: true });
+    carousel.addEventListener('touchend', function() { startAutoPlay(); }, { passive: true });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+
+// ── Platform Superpowers entrance animation ────────────────────────
+(function() {
+  function initSpObserver() {
+    const cards = document.querySelectorAll('.sp-card');
+    if (!cards.length) return;
+
+    const isMobile = () => window.innerWidth <= 480;
+
+    // Each card gets its own observer so it fires exactly when that card enters view
+    cards.forEach(function(card, i) {
+      // On mobile: higher threshold so card is well into view before animating
+      // On desktop: lower threshold, slight stagger via animation-delay in CSS
+      const threshold = isMobile() ? 0.35 : 0.12;
+
+      const obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) {
+            // On mobile remove all transition-delays — each card fires at its own scroll position
+            if (isMobile()) {
+              e.target.style.transitionDelay = '0s';
+            }
+            e.target.classList.add('sp-visible');
+            obs.unobserve(e.target);
+          }
+        });
+      }, { threshold: threshold, rootMargin: '0px 0px -60px 0px' });
+
+      obs.observe(card);
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSpObserver);
+  else initSpObserver();
+})();
+
+// ── How It Works: Scroll-Reveal Timeline (mobile) ─────────────────
+(function() {
+  function initHowTimeline() {
+    var items = document.querySelectorAll('.how-tl-item');
+    var fill  = document.getElementById('howTlFill');
+    if (!items.length) return;
+
+    // Only active on mobile (<=480px)
+    if (window.innerWidth > 480) return;
+
+    var revealed = 0;
+    var total = items.length;
+
+    function updateLine() {
+      if (!fill) return;
+      // progress = fraction of steps revealed
+      var pct = total > 1 ? (revealed / (total - 1)) * 100 : (revealed > 0 ? 100 : 0);
+      fill.style.height = Math.min(pct, 100) + '%';
+    }
+
+    items.forEach(function(item, idx) {
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) {
+            if (!item.classList.contains('tl-revealed')) {
+              item.classList.add('tl-revealed');
+              revealed = Math.max(revealed, idx + 1);
+              updateLine();
+            }
+          } else {
+            if (item.classList.contains('tl-revealed')) {
+              item.classList.remove('tl-revealed');
+              // Recount based on remaining revealed items
+              revealed = 0;
+              items.forEach(function(it, i) {
+                if (it.classList.contains('tl-revealed')) revealed = Math.max(revealed, i + 1);
+              });
+              updateLine();
+            }
+          }
+        });
+      }, {
+        threshold: 0.25,
+        rootMargin: '0px 0px -40px 0px'
+      });
+      obs.observe(item);
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initHowTimeline);
+  else initHowTimeline();
+})();
+(function() {
+  function initRevo(sceneId, dotsId) {
+    var scene = document.getElementById(sceneId);
+    var dotsEl = document.getElementById(dotsId);
+    if (!scene || !dotsEl) return;
+
+    var cards = Array.from(scene.querySelectorAll('.mob-revo-card'));
+    var n = cards.length;
+    var active = 0;
+    var autoTimer = null;
+    var touchStartX = 0;
+    var touchStartY = 0;
+    var isSwiping = false;
+
+    // Build dots
+    dotsEl.innerHTML = '';
+    cards.forEach(function(_, i) {
+      var d = document.createElement('div');
+      d.className = 'mob-revo-dot' + (i === 0 ? ' active' : '');
+      d.addEventListener('click', function() { goTo(i); });
+      dotsEl.appendChild(d);
+    });
+
+    function applyStates() {
+      cards.forEach(function(card, i) {
+        card.classList.remove('revo-active', 'revo-next', 'revo-next2');
+        var offset = (i - active + n) % n;
+        if (offset === 0)          card.classList.add('revo-active');
+        else if (offset === 1)     card.classList.add('revo-next');
+        else if (offset === 2)     card.classList.add('revo-next2');
+        // others stay invisible (opacity:0)
+      });
+      // Update dots
+      dotsEl.querySelectorAll('.mob-revo-dot').forEach(function(d, i) {
+        d.classList.toggle('active', i === active);
+      });
+    }
+
+    function goTo(idx) {
+      active = ((idx % n) + n) % n;
+      applyStates();
+    }
+
+    function next() { goTo(active + 1); }
+
+    function startAuto() {
+      stopAuto();
+      autoTimer = setInterval(next, 3800); // 3.8s — enough time to read each card
+    }
+    function stopAuto() { clearInterval(autoTimer); }
+
+    applyStates();
+    startAuto();
+
+    // Touch swipe
+    scene.addEventListener('touchstart', function(e) {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      isSwiping = false;
+      stopAuto();
+    }, { passive: true });
+
+    scene.addEventListener('touchmove', function(e) {
+      var dx = Math.abs(e.touches[0].clientX - touchStartX);
+      var dy = Math.abs(e.touches[0].clientY - touchStartY);
+      if (dx > dy && dx > 8) isSwiping = true;
+    }, { passive: true });
+
+    scene.addEventListener('touchend', function(e) {
+      if (!isSwiping) { startAuto(); return; }
+      var dx = e.changedTouches[0].clientX - touchStartX;
+      if (dx < -30)      goTo(active + 1);  // swipe left → next
+      else if (dx > 30)  goTo(active - 1);  // swipe right → prev
+      setTimeout(startAuto, 1200);
+    });
+  }
+
+  function tryInit() {
+    initRevo('howRing', 'howDots');
+    initRevo('spRing',  'spDots');
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tryInit);
+  else tryInit();
+})();
+
+
+
+
+// ── Registration Modal ──────────────────────────────────────────────────────
+
+const REG_META = {
+  creator: { title: 'Join as Creator',    sub: 'Tell us a bit about yourself to get started.' },
+  brand:   { title: 'Join as Brand',      sub: 'Set up your brand account in under 2 minutes.' },
+  event:   { title: 'Join as Organiser',  sub: 'Connect your events with India\'s top creators.' },
+};
+
+function openReg(role) {
+  role = role || 'creator';
+  const overlay = document.getElementById('reg-overlay');
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  // activate correct tab
+  document.querySelectorAll('.reg-role-tab').forEach((t,i) => {
+    const roles = ['creator','brand','event'];
+    t.classList.toggle('active', roles[i] === role);
+  });
+  activatePanel(role);
+}
+
+function closeReg() {
+  document.getElementById('reg-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  // Reset success after close animation
+  setTimeout(() => {
+    document.getElementById('reg-success').classList.remove('show');
+    document.querySelectorAll('.reg-panel').forEach(p => p.style.display = '');
+    document.getElementById('panel-creator').classList.add('active');
+  }, 350);
+}
+
+function switchRole(role, btn) {
+  document.querySelectorAll('.reg-role-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  activatePanel(role);
+}
+
+function activatePanel(role) {
+  document.querySelectorAll('.reg-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + role).classList.add('active');
+  document.getElementById('reg-title').textContent = REG_META[role].title;
+  document.getElementById('reg-sub').textContent   = REG_META[role].sub;
+}
+
+async function submitForm(role) {
+
+  const panel = document.getElementById('panel-' + role);
+  const btn = panel.querySelector('.reg-submit');
+
+  let email = "";
+  let name = "";
+
+  // Get fields based on role
+  if (role === "creator") {
+    email = document.getElementById("c-email")?.value || "";
+    name = document.getElementById("c-name")?.value || "";
+  }
+
+  if (role === "brand") {
+    email = document.getElementById("b-email")?.value || "";
+    name = document.getElementById("b-founder")?.value || "";
+  }
+
+  if (role === "event") {
+    email = document.getElementById("e-email")?.value || "";
+    name = document.getElementById("e-contact")?.value || "";
+  }
+
+  email = email.trim().toLowerCase();
+  name = name.trim();
+
+  // Email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailRegex.test(email)) {
+    alert("Please enter a valid email address");
+    return;
+  }
+
+  // Convert role to backend enum
+  let backendRole = "";
+
+  if (role === "creator") backendRole = "CREATOR";
+  if (role === "brand") backendRole = "BRAND";
+  if (role === "event") backendRole = "ORGANISER";
+
+  const payload = {
+    email: email,
+    role: backendRole,
+    name: name || null
+  };
+
+  btn.disabled = true;
+  btn.textContent = "Submitting...";
+
+  try {
+
+    const res = await fetch(
+      "/api/waitlist",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    const result = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(result.message || "Server error");
+    }
+
+    // Success UI — show welcome popup then congratulations screen
+    var refCode = result.data && result.data.referralCode ? result.data.referralCode : null;
+    panel.classList.remove("active");
+    showWelcomePopup(function() { showSuccessScreen(refCode); });
+
+  } catch (err) {
+
+    console.error("[SynkSpace] Waitlist error:", err);
+
+    alert("Submission failed: " + err.message);
+
+    btn.disabled = false;
+
+    if (role === "creator") btn.textContent = "Join as Creator";
+    if (role === "brand") btn.textContent = "Join as Brand";
+    if (role === "event") btn.textContent = "Join as Organiser";
+  }
+}
+
+(function() {
+  var navCta = document.getElementById('navCta');
+  var heroCta = document.getElementById('heroCtaRow');
+
+  function onScroll() {
+    var heroBottom = heroCta.getBoundingClientRect().bottom;
+    if (heroBottom < 0) {
+      navCta.style.opacity = '1';
+      navCta.style.pointerEvents = 'auto';
+    } else {
+      navCta.style.opacity = '0';
+      navCta.style.pointerEvents = 'none';
+    }
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+})();
+
+
+
+function showWelcomePopup(onClose) {
+  var overlay = document.getElementById('welcomeOverlay');
+  overlay.classList.add('show');
+  document.body.style.overflow = 'hidden';
+
+  var colors = ['#3B82F6','#8B5CF6','#EC4899','#60A5FA','#A78BFA','#FCA5A5'];
+  var container = document.getElementById('welcomeConfetti');
+  container.innerHTML = '';
+  for (var i = 0; i < 40; i++) {
+    var el = document.createElement('div');
+    el.style.cssText = 'position:absolute;left:'+Math.random()*100+'%;top:-10px;width:'+(5+Math.random()*5)+'px;height:'+(5+Math.random()*5)+'px;background:'+colors[Math.floor(Math.random()*colors.length)]+';border-radius:'+(Math.random()>0.5?'50%':'2px')+';animation:synkConfetti '+(1.8+Math.random()*2)+'s '+(Math.random()*1.4)+'s linear forwards;pointer-events:none;';
+    container.appendChild(el);
+  }
+
+  overlay.onclick = function(e) { if (e.target === overlay) closeWelcomePopup(onClose); };
+  // close handled by overlay click and Got it button only
+}
+
+function closeWelcomePopup(onClose) {
+  var overlay = document.getElementById('welcomeOverlay');
+  var modal = document.getElementById('welcomeModal');
+  modal.style.transition = 'opacity 0.2s,transform 0.2s';
+  modal.style.opacity = '0';
+  modal.style.transform = 'scale(0.92)';
+  overlay.style.transition = 'opacity 0.25s';
+  overlay.style.opacity = '0';
+  setTimeout(function() {
+    overlay.classList.remove('show');
+    overlay.style.opacity = '';
+    modal.style.opacity = '';
+    modal.style.transform = '';
+    document.body.style.overflow = '';
+    if (typeof onClose === 'function') onClose();
+  }, 280);
+}
+
+</script>
+
+
+<!-- ═══════════════════════════════════════════════
+     REGISTRATION MODAL
+═══════════════════════════════════════════════ -->
+<div id="reg-overlay" role="dialog" aria-modal="true" aria-labelledby="reg-title">
+
+  <div class="reg-modal">
+
+    <!-- Header -->
+    <div class="reg-header">
+      <button class="reg-close" onclick="closeReg()" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M1 1l12 12M13 1L1 13" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <!-- Role tabs -->
+      <div class="reg-role-tabs">
+        <button class="reg-role-tab active" onclick="switchRole('creator', this)">
+          <div class="rt-dot" style="background:#3B82F6;"></div> Creator
+        </button>
+        <button class="reg-role-tab" onclick="switchRole('brand', this)">
+          <div class="rt-dot" style="background:#8B5CF6;"></div> Brand
+        </button>
+        <button class="reg-role-tab" onclick="switchRole('event', this)">
+          <div class="rt-dot" style="background:#F97316;"></div> Organiser
+        </button>
+      </div>
+
+      <div id="reg-title" class="reg-header-title">Join as Creator</div>
+      <div class="reg-header-sub" id="reg-sub">Tell us a bit about yourself to get started.</div>
+    </div>
+
+    <!-- Body -->
+    <div class="reg-body">
+
+      <!-- ── CREATOR FORM ── -->
+      <div class="reg-panel active" id="panel-creator">
+        <div class="reg-section-label">Personal Info</div>
+
+        <div class="reg-field">
+          <label>Full Name <span class="req">*</span></label>
+          <input class="reg-input" type="text" placeholder="e.g. Priya Sharma" id="c-name">
+        </div>
+        <div class="reg-field">
+  <label>Email Address <span class="req">*</span></label>
+  <input class="reg-input" type="email" placeholder="you@gmail.com" id="c-email">
+</div>
+
+        <div class="reg-row">
+          <div class="reg-field">
+            <label>Mobile Number <span class="req">*</span></label>
+            <div class="phone-wrap">
+              <span class="phone-prefix">+91</span>
+              <input class="reg-input" type="tel" placeholder="98765 43210" id="c-phone" maxlength="10">
+            </div>
+          </div>
+          <div class="reg-field">
+            <label>State <span class="req">*</span></label>
+            <div class="reg-select-wrap">
+              <select class="reg-select" id="c-city">
+                <option value="" disabled selected>Select state</option>
+                <option>Andhra Pradesh</option>
+                <option>Arunachal Pradesh</option>
+                <option>Assam</option>
+                <option>Bihar</option>
+                <option>Chhattisgarh</option>
+                <option>Delhi</option>
+                <option>Goa</option>
+                <option>Gujarat</option>
+                <option>Haryana</option>
+                <option>Himachal Pradesh</option>
+                <option>Jammu &amp; Kashmir</option>
+                <option>Jharkhand</option>
+                <option>Karnataka</option>
+                <option>Kerala</option>
+                <option>Madhya Pradesh</option>
+                <option>Maharashtra</option>
+                <option>Manipur</option>
+                <option>Meghalaya</option>
+                <option>Mizoram</option>
+                <option>Nagaland</option>
+                <option>Odisha</option>
+                <option>Pan India</option>
+                <option>Punjab</option>
+                <option>Rajasthan</option>
+                <option>Sikkim</option>
+                <option>Tamil Nadu</option>
+                <option>Telangana</option>
+                <option>Tripura</option>
+                <option>Uttar Pradesh</option>
+                <option>Uttarakhand</option>
+                <option>West Bengal</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="reg-divider"></div>
+        <div class="reg-section-label">Social Presence</div>
+
+        <div class="reg-field">
+          <label>Primary Social Media Handle <span class="req">*</span></label>
+          <input class="reg-input" type="text" placeholder="@yourhandle" id="c-handle">
+        </div>
+
+        <div class="reg-row">
+          <div class="reg-field">
+            <label>Follower Count <span class="req">*</span></label>
+            <div class="reg-select-wrap">
+              <select class="reg-select" id="c-followers">
+                <option value="" disabled selected>Select range</option>
+                <option value="1k-10k">1K – 10K (Nano)</option>
+                <option value="10k-50k">10K – 50K (Micro)</option>
+                <option value="50k-200k">50K – 200K (Mid-tier)</option>
+                <option value="200k-1m">200K – 1M (Macro)</option>
+                <option value="1m+">1M+ (Mega)</option>
+              </select>
+            </div>
+          </div>
+          <div class="reg-field">
+            <label>Primary Niche <span class="req">*</span></label>
+            <div class="reg-select-wrap">
+              <select class="reg-select" id="c-niche">
+                <option value="" disabled selected>Select niche</option>
+                <optgroup label="Lifestyle">
+                  <option>Lifestyle & Vlogs</option>
+                  <option>Fashion & Style</option>
+                  <option>Beauty & Skincare</option>
+                  <option>Home & Decor</option>
+                </optgroup>
+                <optgroup label="Health">
+                  <option>Fitness & Wellness</option>
+                  <option>Food & Nutrition</option>
+                  <option>Mental Health</option>
+                  <option>Yoga & Meditation</option>
+                </optgroup>
+                <optgroup label="Entertainment">
+                  <option>Comedy & Memes</option>
+                  <option>Music & Dance</option>
+                  <option>Gaming</option>
+                  <option>Movies & OTT Reviews</option>
+                </optgroup>
+                <optgroup label="Knowledge">
+                  <option>Tech & Gadgets</option>
+                  <option>Finance & Investing</option>
+                  <option>Education & Career</option>
+                  <option>Business & Entrepreneurship</option>
+                </optgroup>
+                <optgroup label="Niche">
+                  <option>Travel & Adventure</option>
+                  <option>Parenting & Family</option>
+                  <option>Sports & Cricket</option>
+                  <option>Sustainability & Environment</option>
+                  <option>Spirituality & Culture</option>
+                  <option>Automotive</option>
+                  <option>Photography & Art</option>
+                </optgroup>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <button class="reg-submit" onclick="submitForm('creator')">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 1.5v15M1.5 9h15" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+          Join as Creator
+        </button>
+        <p class="reg-note">By signing up you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a></p>
+      </div>
+
+      <!-- ── BRAND FORM ── -->
+      <div class="reg-panel" id="panel-brand">
+        <div class="reg-section-label">Company Info</div>
+
+        <div class="reg-field">
+          <label>Company Name <span class="req">*</span></label>
+          <input class="reg-input" type="text" placeholder="e.g. Myntra Fashion Pvt Ltd" id="b-company">
+        </div>
+
+        <div class="reg-row">
+          <div class="reg-field">
+            <label>Founder / Point of Contact <span class="req">*</span></label>
+            <input class="reg-input" type="text" placeholder="Full name" id="b-founder">
+          </div>
+          <div class="reg-field">
+            <label>Industry <span class="req">*</span></label>
+            <div class="reg-select-wrap">
+              <select class="reg-select" id="b-industry">
+                <option value="" disabled selected>Select industry</option>
+                <optgroup label="Consumer">
+                  <option>Fashion & Apparel</option>
+                  <option>Beauty & Personal Care</option>
+                  <option>FMCG & Food & Beverage</option>
+                  <option>Health & Wellness</option>
+                  <option>Home & Lifestyle</option>
+                  <option>Baby & Kids</option>
+                  <option>Pets</option>
+                </optgroup>
+                <optgroup label="Tech & Digital">
+                  <option>Consumer Electronics & Gadgets</option>
+                  <option>Software & SaaS</option>
+                  <option>Gaming & Esports</option>
+                  <option>Fintech & BFSI</option>
+                  <option>EdTech</option>
+                  <option>HealthTech</option>
+                </optgroup>
+                <optgroup label="Services">
+                  <option>E-commerce & D2C</option>
+                  <option>Travel & Hospitality</option>
+                  <option>Real Estate</option>
+                  <option>Automotive</option>
+                  <option>Entertainment & OTT</option>
+                  <option>Sports & Fitness</option>
+                </optgroup>
+                <optgroup label="Other">
+                  <option>NGO & Social Impact</option>
+                  <option>Government & PSU</option>
+                  <option>Other</option>
+                </optgroup>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="reg-divider"></div>
+        <div class="reg-section-label">Contact Details</div>
+
+        <div class="reg-field">
+          <label>Official Email <span class="req">*</span></label>
+          <input class="reg-input" type="email" placeholder="hello@yourcompany.com" id="b-email">
+        </div>
+
+        <div class="reg-field">
+          <label>Mobile Number <span class="req">*</span></label>
+          <div class="phone-wrap">
+            <span class="phone-prefix">+91</span>
+            <input class="reg-input" type="tel" placeholder="98765 43210" id="b-phone" maxlength="10">
+          </div>
+        </div>
+
+        <button class="reg-submit" style="background:linear-gradient(135deg,#1E1B4B 0%,#4C1D95 50%,#3730A3 100%);" onclick="submitForm('brand')">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 1.5v15M1.5 9h15" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+          Join as Brand
+        </button>
+        <p class="reg-note">By signing up you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a></p>
+      </div>
+
+      <!-- ── EVENT ORGANISER FORM ── -->
+      <div class="reg-panel" id="panel-event">
+        <div class="reg-section-label">Organisation Info</div>
+
+        <div class="reg-field">
+          <label>Organisation Name <span class="req">*</span></label>
+          <input class="reg-input" type="text" placeholder="e.g. Sunburn Festival Pvt Ltd" id="e-org">
+        </div>
+
+        <div class="reg-row">
+          <div class="reg-field">
+            <label>Person of Contact <span class="req">*</span></label>
+            <input class="reg-input" type="text" placeholder="Full name" id="e-contact">
+          </div>
+          <div class="reg-field">
+            <label>State <span class="req">*</span></label>
+            <div class="reg-select-wrap">
+              <select class="reg-select" id="e-city">
+                <option value="" disabled selected>Select state</option>
+                <option>Andhra Pradesh</option>
+                <option>Arunachal Pradesh</option>
+                <option>Assam</option>
+                <option>Bihar</option>
+                <option>Chhattisgarh</option>
+                <option>Delhi</option>
+                <option>Goa</option>
+                <option>Gujarat</option>
+                <option>Haryana</option>
+                <option>Himachal Pradesh</option>
+                <option>Jammu &amp; Kashmir</option>
+                <option>Jharkhand</option>
+                <option>Karnataka</option>
+                <option>Kerala</option>
+                <option>Madhya Pradesh</option>
+                <option>Maharashtra</option>
+                <option>Manipur</option>
+                <option>Meghalaya</option>
+                <option>Mizoram</option>
+                <option>Nagaland</option>
+                <option>Odisha</option>
+                <option>Pan India</option>
+                <option>Punjab</option>
+                <option>Rajasthan</option>
+                <option>Sikkim</option>
+                <option>Tamil Nadu</option>
+                <option>Telangana</option>
+                <option>Tripura</option>
+                <option>Uttar Pradesh</option>
+                <option>Uttarakhand</option>
+                <option>West Bengal</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="reg-divider"></div>
+        <div class="reg-section-label">Contact & Event Info</div>
+
+        <div class="reg-field">
+          <label>Official Email <span class="req">*</span></label>
+          <input class="reg-input" type="email" placeholder="hello@yourevents.com" id="e-email">
+        </div>
+
+        <div class="reg-field">
+          <label>Mobile Number <span class="req">*</span></label>
+          <div class="phone-wrap">
+            <span class="phone-prefix">+91</span>
+            <input class="reg-input" type="tel" placeholder="98765 43210" id="e-phone" maxlength="10">
+          </div>
+        </div>
+
+        <button class="reg-submit" style="background:linear-gradient(135deg,#EA580C 0%,#F97316 60%,#FB923C 100%);" onclick="submitForm('event')">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 1.5v15M1.5 9h15" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+          Join as Organiser
+        </button>
+        <p class="reg-note">By signing up you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a></p>
+      </div>
+
+      <!-- ── SUCCESS STATE ── -->
+
+      <!-- ── SUCCESS STATE (kept minimal, full-screen overlay handles it) ── -->
+      <div class="reg-success" id="reg-success">
+        <p style="color:#64748B;font-size:13px;text-align:center;padding:8px 0;">Redirecting...</p>
+      </div>
+
+    </div><!-- end reg-body -->
+  </div><!-- end reg-modal -->
+</div><!-- end reg-overlay -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════════════════ -->
+<style>
+/* ── FOOTER ── */
+.sf * { box-sizing: border-box; }
+
+.sf {
+  width: 100%;
+  background: #FFFFFF;
+  border-top: 1px solid #E2E8F0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 32px 0;
+  font-family: 'Manrope', sans-serif;
+}
+
+.sf-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  max-width: 1216px;
+}
+
+/* ── TOP BODY ── */
+.sf-top {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 48px;
+  width: 100%;
+  padding-bottom: 36px;
+}
+
+/* Brand left column */
+.sf-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  width: 320px;
+  flex-shrink: 0;
+}
+
+.sf-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.sf-logo-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sf-logo-name {
+  font-weight: 800;
+  font-size: 22px;
+  line-height: 28px;
+  color: #0F172A;
+  letter-spacing: -0.3px;
+}
+
+.sf-tagline {
+  font-size: 13px;
+  line-height: 20px;
+  color: #64748B;
+  margin: 0;
+  max-width: 300px;
+}
+
+.sf-socials {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.sf-social {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  border-radius: 9999px;
+  color: #64748B;
+  text-decoration: none;
+  transition: border-color 0.15s, color 0.15s, box-shadow 0.15s;
+  flex-shrink: 0;
+}
+.sf-social:hover {
+  border-color: #94A3B8;
+  color: #0F172A;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+}
+
+/* Nav columns */
+.sf-nav-wrap {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 56px;
+}
+
+.sf-nav-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex-shrink: 0;
+  min-width: 130px;
+}
+
+.sf-col-heading {
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 22px;
+  color: #0F172A;
+}
+
+.sf-col-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sf-col-list a {
+  font-size: 13.5px;
+  line-height: 20px;
+  color: #64748B;
+  text-decoration: none;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+.sf-col-list a:hover { color: #0F172A; }
+
+/* Careers + Hiring badge row */
+.sf-careers-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sf-careers-row a {
+  font-size: 13.5px;
+  line-height: 20px;
+  color: #64748B;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.sf-careers-row a:hover { color: #0F172A; }
+
+.sf-hiring-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  background: #EFF6FF;
+  border: 1px solid #DBEAFE;
+  border-radius: 4px;
+}
+.sf-hiring-badge span {
+  font-weight: 700;
+  font-size: 10px;
+  line-height: 18px;
+  color: #3B82F6;
+  letter-spacing: 0.02em;
+}
+
+/* ── BOTTOM BAR ── */
+.sf-bottom {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  border-top: 1px solid #E2E8F0;
+  gap: 16px;
+}
+
+.sf-copyright {
+  font-size: 13px;
+  line-height: 20px;
+  color: #64748B;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sf-bottom-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.sf-bottom-links {
+  display: flex;
+  gap: 20px;
+}
+.sf-bottom-links a {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  color: #64748B;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+.sf-bottom-links a:hover { color: #0F172A; }
+
+.sf-locale-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sf-locale-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border: 1px solid #CBD5E1;
+  border-radius: 4px;
+  background: transparent;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.sf-locale-btn:hover { border-color: #94A3B8; }
+.sf-locale-btn span {
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 18px;
+  color: #0F172A;
+  white-space: nowrap;
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+  .sf-nav-wrap { gap: 32px; }
+  .sf-brand { width: 260px; }
+}
+@media (max-width: 780px) {
+  .sf-top { flex-direction: column; gap: 32px; }
+  .sf-brand { width: 100%; }
+  .sf-nav-wrap { justify-content: flex-start; flex-wrap: wrap; gap: 28px 40px; }
+}
+@media (max-width: 600px) {
+  .sf { padding: 32px 20px 0; }
+  .sf-bottom { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .sf-bottom-right { flex-direction: column; align-items: flex-start; gap: 10px; }
+}
+</style>
+
+<footer class="sf" role="contentinfo">
+  <div class="sf-inner">
+
+    <!-- TOP -->
+    <div class="sf-top">
+
+      <!-- Brand -->
+      <div class="sf-brand">
+        <a class="sf-logo" href="/">
+          <div class="sf-logo-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <circle cx="10" cy="10" r="2.8" fill="white"/>
+              <circle cx="10"   cy="3.2"  r="1.8" fill="white" opacity="0.9"/>
+              <circle cx="16.8" cy="6.6"  r="1.8" fill="white" opacity="0.9"/>
+              <circle cx="16.8" cy="13.4" r="1.8" fill="white" opacity="0.9"/>
+              <circle cx="10"   cy="16.8" r="1.8" fill="white" opacity="0.9"/>
+              <circle cx="3.2"  cy="13.4" r="1.8" fill="white" opacity="0.9"/>
+              <circle cx="3.2"  cy="6.6"  r="1.8" fill="white" opacity="0.9"/>
+              <line x1="10"   y1="5"    x2="10"   y2="7.2"  stroke="white" stroke-width="1.2" stroke-linecap="round" opacity="0.6"/>
+              <line x1="15.4" y1="7.6"  x2="12.8" y2="8.7"  stroke="white" stroke-width="1.2" stroke-linecap="round" opacity="0.6"/>
+              <line x1="15.4" y1="12.4" x2="12.8" y2="11.3" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity="0.6"/>
+              <line x1="10"   y1="15"   x2="10"   y2="12.8" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity="0.6"/>
+              <line x1="4.6"  y1="12.4" x2="7.2"  y2="11.3" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity="0.6"/>
+              <line x1="4.6"  y1="7.6"  x2="7.2"  y2="8.7"  stroke="white" stroke-width="1.2" stroke-linecap="round" opacity="0.6"/>
+            </svg>
+          </div>
+          <span class="sf-logo-name">SynkSpace</span>
+        </a>
+
+        <p class="sf-tagline">Empowering India's creator economy by building the most trusted bridge between creators, brands, and experiences.</p>
+
+        <div class="sf-socials">
+          <!-- Twitter / X -->
+          <a class="sf-social" href="#" target="_blank" rel="noopener" aria-label="Twitter / X">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M12.18 1.5h2.27L9.37 7.42l5.94 7.58h-4.1l-3.47-4.54-3.97 4.54H1.5l5.37-6.14L1.1 1.5h4.22l3.14 4.16 3.72-4.16zm-.8 12.16h1.26L4.37 2.76H3.01l8.37 10.9z"/>
+            </svg>
+          </a>
+          <!-- Instagram -->
+          <a class="sf-social" href="#" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4">
+              <rect x="2" y="2" width="12" height="12" rx="3.5"/>
+              <circle cx="8" cy="8" r="3"/>
+              <circle cx="11.5" cy="4.5" r="0.8" fill="currentColor" stroke="none"/>
+            </svg>
+          </a>
+          <!-- LinkedIn -->
+          <a class="sf-social" href="#" target="_blank" rel="noopener" aria-label="LinkedIn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4">
+              <rect x="2" y="2" width="12" height="12" rx="2.5"/>
+              <path d="M5.2 7.5v4.5M5.2 5.5V5" stroke-linecap="round"/>
+              <path d="M8 12V9.5a2 2 0 014 0V12M8 7.5V7" stroke-linecap="round"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Nav -->
+      <div class="sf-nav-wrap">
+
+        <div class="sf-nav-col">
+          <span class="sf-col-heading">Platform</span>
+          <div class="sf-col-list">
+            <a href="#">Browse Creators</a>
+            <a href="#">Brand Campaigns</a>
+            <a href="#">Event Calendar</a>
+            <a href="#">Pricing</a>
+          </div>
+        </div>
+
+        <div class="sf-nav-col">
+          <span class="sf-col-heading">Company</span>
+          <div class="sf-col-list">
+            <a href="#">About Us</a>
+            <div class="sf-careers-row">
+              <a href="#">Careers</a>
+              <div class="sf-hiring-badge"><span>Hiring</span></div>
+            </div>
+            <a href="#">Success Stories</a>
+            <a href="#">Contact</a>
+          </div>
+        </div>
+
+        <div class="sf-nav-col">
+          <span class="sf-col-heading">Resources</span>
+          <div class="sf-col-list">
+            <a href="#">Creator Academy</a>
+            <a href="#">Influencer Calculator</a>
+            <a href="#">Blog</a>
+            <a href="#">Help Center</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- BOTTOM BAR -->
+    <div class="sf-bottom">
+      <span class="sf-copyright">© 2025 SynkSpace. All rights reserved.</span>
+
+      <div class="sf-bottom-right">
+        <div class="sf-bottom-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+        </div>
+
+        <div class="sf-locale-row">
+          <a class="sf-locale-btn" href="#" aria-label="Language">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+              <circle cx="5.5" cy="5.5" r="4.75" stroke="#0F172A" stroke-width="1.1"/>
+              <ellipse cx="5.5" cy="5.5" rx="1.9" ry="4.75" stroke="#0F172A" stroke-width="1.1"/>
+              <line x1="0.75" y1="5.5" x2="10.25" y2="5.5" stroke="#0F172A" stroke-width="1"/>
+              <line x1="1.3" y1="3.3" x2="9.7" y2="3.3" stroke="#0F172A" stroke-width="0.8"/>
+              <line x1="1.3" y1="7.7" x2="9.7" y2="7.7" stroke="#0F172A" stroke-width="0.8"/>
+            </svg>
+            <span>English (IN)</span>
+          </a>
+          <a class="sf-locale-btn" href="#" aria-label="Currency">
+            <span>INR (₹)</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SYNKSPACE — CONGRATULATIONS / REFERRAL SCREEN
+═══════════════════════════════════════════════════════════ -->
+<style>
+/* ── Base overlay ── */
+#success-screen {
+  position: fixed; inset: 0; z-index: 20000;
+  display: none; flex-direction: column;
+  background: #020617;
+  overflow-y: auto;
+  font-family: 'Manrope', sans-serif;
+}
+#success-screen.show { display: flex; }
+
+/* Ambient background blobs */
+#success-screen::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 700px 500px at 80% -10%, rgba(139,92,246,0.22) 0%, transparent 65%),
+    radial-gradient(ellipse 600px 400px at -10% 90%, rgba(59,130,246,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 400px 400px at 50% 50%, rgba(15,23,42,0.6) 0%, transparent 80%);
+}
+
+/* ── Top bar ── */
+.ss-topbar {
+  position: relative; z-index: 1;
+  width: 100%; padding: 20px 36px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.ss-home-btn {
+  width: 42px; height: 42px; border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; text-decoration: none;
+  transition: all 0.2s ease;
+}
+.ss-home-btn:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(99,102,241,0.4);
+  transform: translateY(-1px);
+}
+.ss-topbar-logo {
+  display: flex; align-items: center; gap: 4px;
+}
+.ss-topbar-logo-text {
+  font-weight: 800; font-size: 18px; letter-spacing: -0.4px; color: #FFFFFF;
+}
+.ss-topbar-badge {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 14px;
+  background: rgba(34,197,94,0.12);
+  border: 1px solid rgba(34,197,94,0.25);
+  border-radius: 9999px;
+}
+.ss-topbar-badge-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #22C55E;
+  animation: pulse 2s infinite;
+}
+.ss-topbar-badge-text {
+  font-weight: 700; font-size: 12px; letter-spacing: 0.5px;
+  text-transform: uppercase; color: #4ADE80;
+}
+
+/* ── Hero block ── */
+.ss-hero {
+  position: relative; z-index: 1;
+  text-align: center; padding: 12px 24px 48px;
+  flex-shrink: 0;
+}
+.ss-congrats {
+  font-size: 72px; font-weight: 800;
+  line-height: 1.05; letter-spacing: -2.5px;
+  background: linear-gradient(135deg, #FFFFFF 0%, #C4B5FD 40%, #F9A8D4 75%, #FFFFFF 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 16px;
+}
+.ss-subtitle {
+  font-weight: 600; font-size: 20px; color: #94A3B8;
+  letter-spacing: -0.2px;
+}
+.ss-subtitle .ss-sub-highlight {
+  color: #FFFFFF; font-weight: 800;
+}
+.ss-subtitle .ss-sub-confirmed {
+  background: linear-gradient(90deg, #3B82F6, #8B5CF6);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  font-weight: 800;
+  border-bottom: 2px solid rgba(139,92,246,0.5);
+  padding-bottom: 1px;
+}
+
+/* ── Divider ── */
+.ss-divider {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 900px; margin: 0 auto 40px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(99,102,241,0.3) 30%, rgba(236,72,153,0.3) 70%, transparent);
+}
+
+/* ── Two-column grid ── */
+.ss-grid {
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  width: 100%; max-width: 940px;
+  margin: 0 auto;
+  padding: 0 32px 72px;
+  box-sizing: border-box;
+}
+
+/* ── Card base ── */
+.ss-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 24px;
+  padding: 32px;
+  box-sizing: border-box;
+  backdrop-filter: blur(12px);
+}
+
+/* ── Left card ── */
+.ss-card-left {}
+.ss-card-title {
+  font-weight: 800; font-size: 22px; line-height: 30px;
+  letter-spacing: -0.4px; color: #FFFFFF; margin-bottom: 10px;
+}
+.ss-card-title .ss-brand-name {
+  background: linear-gradient(90deg, #3B82F6, #8B5CF6);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.ss-card-sub {
+  font-weight: 400; font-size: 14px; line-height: 22px;
+  color: #64748B; margin-bottom: 32px;
+}
+
+/* Reward tiers */
+.ss-tiers { display: flex; flex-direction: column; gap: 0; margin-bottom: 28px; }
+.ss-tier {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.ss-tier:last-child { border-bottom: none; }
+.ss-tier-left {
+  display: flex; align-items: center; gap: 12px;
+  min-width: 110px; flex-shrink: 0;
+}
+.ss-tier-num-badge {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 13px; flex-shrink: 0;
+}
+.ss-tier-num-badge.t1 {
+  background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.2);
+  color: #60A5FA;
+}
+.ss-tier-num-badge.t2 {
+  background: rgba(139,92,246,0.12); border: 1px solid rgba(139,92,246,0.2);
+  color: #A78BFA;
+}
+.ss-tier-num-badge.t3 {
+  background: linear-gradient(135deg, rgba(249,115,22,0.15), rgba(234,179,8,0.15));
+  border: 1px solid rgba(249,115,22,0.3);
+  color: #FB923C;
+}
+.ss-tier-count {
+  font-weight: 800; font-size: 16px;
+}
+.ss-tier-count.t1 { color: #E2E8F0; }
+.ss-tier-count.t2 { color: #E2E8F0; }
+.ss-tier-count.t3 {
+  background: linear-gradient(90deg, #F97316, #EAB308);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.ss-tier-reward {
+  font-size: 14px; font-weight: 500; color: #94A3B8; line-height: 1.4;
+}
+.ss-tier-reward strong { color: #CBD5E1; font-weight: 700; }
+.ss-tier-reward .ss-pro-badge {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 6px;
+  font-size: 11px; font-weight: 800; letter-spacing: 0.5px;
+  background: linear-gradient(90deg, #3B82F6, #8B5CF6);
+  color: #FFFFFF; margin-left: 4px; vertical-align: middle;
+}
+.ss-tier-reward .ss-founder-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 10px; border-radius: 6px;
+  font-size: 11px; font-weight: 800; letter-spacing: 0.5px;
+  background: linear-gradient(90deg, #F97316, #EAB308);
+  color: #FFFFFF; margin-left: 4px; vertical-align: middle;
+}
+
+/* Founder note */
+.ss-founder-note {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 14px 16px;
+  background: rgba(99,102,241,0.06);
+  border: 1px solid rgba(99,102,241,0.15);
+  border-radius: 12px;
+  font-size: 12px; color: #64748B; line-height: 1.6;
+}
+.ss-founder-note a { color: #818CF8; text-decoration: underline; text-underline-offset: 2px; }
+
+/* ── Right card ── */
+.ss-card-right {}
+.ss-invite-title {
+  font-weight: 800; font-size: 22px; letter-spacing: -0.4px;
+  color: #FFFFFF; margin-bottom: 6px;
+}
+.ss-invite-sub {
+  font-size: 14px; color: #64748B; margin-bottom: 24px; line-height: 1.5;
+}
+.ss-invite-sub strong { color: #818CF8; font-weight: 600; }
+
+/* Link box */
+.ss-link-wrap {
+  display: flex; gap: 10px; align-items: center; margin-bottom: 20px;
+}
+.ss-link-input {
+  flex: 1; height: 48px; padding: 0 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px; outline: none;
+  font-family: 'Liberation Mono', monospace; font-size: 12px;
+  color: #CBD5E1;
+  transition: border-color 0.2s;
+}
+.ss-link-input:focus { border-color: rgba(99,102,241,0.5); }
+.ss-copy-btn {
+  display: flex; align-items: center; gap: 8px;
+  height: 48px; padding: 0 20px; flex-shrink: 0;
+  background: linear-gradient(135deg, #1E293B, #0F172A);
+  border: 1px solid rgba(99,102,241,0.35);
+  border-radius: 12px; cursor: pointer;
+  font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 14px;
+  color: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.08);
+  transition: all 0.25s ease;
+  position: relative; overflow: visible;
+}
+.ss-copy-btn::before {
+  content: '';
+  position: absolute; inset: -2px; border-radius: 14px; padding: 2px;
+  background: conic-gradient(from var(--angle), #3B82F6, #8B5CF6, #EC4899, #3B82F6);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity: 0; transition: opacity 0.3s ease;
+  animation: rotateBorder 2s linear infinite; animation-play-state: paused;
+}
+.ss-copy-btn:hover::before { opacity: 1; animation-play-state: running; }
+.ss-copy-btn:hover {
+  border-color: rgba(99,102,241,0.6);
+  box-shadow: 0 0 0 4px rgba(99,102,241,0.12), 0 4px 14px rgba(15,23,42,0.3);
+  transform: translateY(-1px);
+}
+
+/* OR divider */
+.ss-or-row {
+  display: flex; align-items: center; gap: 14px;
+  font-size: 12px; color: #334155; margin-bottom: 20px;
+}
+.ss-or-row::before, .ss-or-row::after {
+  content: ''; flex: 1; height: 1px;
+  background: rgba(255,255,255,0.06);
+}
+
+/* Share section */
+.ss-share-label {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
+  text-transform: uppercase; color: #475569; margin-bottom: 14px;
+}
+.ss-share-icons {
+  display: flex; gap: 10px; margin-bottom: 32px; flex-wrap: wrap;
+}
+.ss-share-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; text-decoration: none;
+  transition: all 0.2s ease;
+}
+.ss-share-icon:hover {
+  background: rgba(99,102,241,0.12);
+  border-color: rgba(99,102,241,0.35);
+  transform: translateY(-2px);
+}
+
+/* Progress tracker */
+.ss-progress-section {}
+.ss-progress-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 12px;
+}
+.ss-progress-label-text {
+  font-size: 12px; font-weight: 600; color: #475569;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.ss-progress-count {
+  font-size: 12px; font-weight: 700; color: #818CF8;
+}
+.ss-progress-track {
+  width: 100%; height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 9999px; overflow: visible;
+  position: relative; margin-bottom: 16px;
+}
+.ss-progress-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, #3B82F6, #8B5CF6, #EC4899);
+  border-radius: 9999px;
+  transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+  position: relative;
+}
+.ss-progress-fill::after {
+  content: '';
+  position: absolute; right: -5px; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(139,92,246,0.5), 0 0 12px rgba(139,92,246,0.4);
+}
+.ss-milestones {
+  display: flex; justify-content: space-between;
+}
+.ss-milestone {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.ss-milestone-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  margin-bottom: 2px;
+}
+.ss-milestone-dot.reached { background: #8B5CF6; border-color: #8B5CF6; }
+.ss-milestone-dot.active {
+  background: linear-gradient(135deg, #F97316, #EAB308);
+  border-color: #F97316;
+  box-shadow: 0 0 8px rgba(249,115,22,0.5);
+}
+.ss-milestone-label {
+  font-size: 11px; font-weight: 700; color: #334155; text-align: center;
+}
+.ss-milestone-label.reached { color: #818CF8; }
+.ss-milestone-label.active {
+  background: linear-gradient(90deg, #F97316, #EAB308);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.ss-milestone-reward {
+  font-size: 10px; font-weight: 500; color: #1E293B; text-align: center;
+}
+.ss-milestone-reward.reached { color: #4C1D95; }
+.ss-milestone-reward.active { color: #7C2D12; }
+
+/* ── Responsive ── */
+@media (max-width: 860px) {
+  .ss-grid { grid-template-columns: 1fr; padding: 0 24px 60px; gap: 20px; }
+  .ss-congrats { font-size: 52px; }
+}
+@media (max-width: 480px) {
+  .ss-congrats { font-size: 38px; letter-spacing: -1.5px; }
+  .ss-subtitle { font-size: 16px; }
+  .ss-topbar { padding: 16px 20px; }
+  .ss-hero { padding: 8px 16px 36px; }
+  .ss-grid { padding: 0 16px 48px; }
+  .ss-card { padding: 24px 20px; }
+  .ss-card-title { font-size: 18px; }
+  .ss-invite-title { font-size: 18px; }
+}
+</style>
+
+<div id="success-screen">
+
+  <!-- Top bar -->
+  <div class="ss-topbar">
+    <a href="#" class="ss-home-btn" onclick="event.preventDefault();closeSuccessScreen()" title="Back to home">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M1.5 7L8 1.5L14.5 7V14.5H10V10H6V14.5H1.5V7Z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+      </svg>
+    </a>
+    <div class="ss-topbar-logo">
+      <img src="assets/synkspace-logo.png" width="28" height="28" style="object-fit:contain;" alt="SynkSpace">
+      <span class="ss-topbar-logo-text">SynkSpace</span>
+    </div>
+    <div class="ss-topbar-badge">
+      <div class="ss-topbar-badge-dot"></div>
+      <span class="ss-topbar-badge-text">Waitlist Active</span>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div class="ss-hero">
+    <div class="ss-congrats">Congratulations</div>
+    <div class="ss-subtitle">
+      <span class="ss-sub-highlight">You're In.</span>&nbsp;
+      Early Access <span class="ss-sub-confirmed">Confirmed</span>
+    </div>
+  </div>
+
+  <div class="ss-divider"></div>
+
+  <!-- Grid -->
+  <div class="ss-grid">
+
+    <!-- LEFT CARD — Tiers -->
+    <div class="ss-card ss-card-left">
+      <div class="ss-card-title">
+        Unlock more by inviting people<br>who'd love <span class="ss-brand-name">SynkSpace</span>
+      </div>
+      <div class="ss-card-sub">Invite friends who'd genuinely find this helpful — and unlock exclusive benefits along the way.</div>
+
+      <div class="ss-tiers">
+        <div class="ss-tier">
+          <div class="ss-tier-left">
+            <div class="ss-tier-num-badge t1">3</div>
+            <span class="ss-tier-count t1">invites</span>
+          </div>
+          <div class="ss-tier-reward">
+            1 month <span class="ss-pro-badge">PRO</span>
+          </div>
+        </div>
+        <div class="ss-tier">
+          <div class="ss-tier-left">
+            <div class="ss-tier-num-badge t2">6</div>
+            <span class="ss-tier-count t2">invites</span>
+          </div>
+          <div class="ss-tier-reward">
+            3 months <span class="ss-pro-badge">PRO</span>
+          </div>
+        </div>
+        <div class="ss-tier">
+          <div class="ss-tier-left">
+            <div class="ss-tier-num-badge t3">10</div>
+            <span class="ss-tier-count t3">invites</span>
+          </div>
+          <div class="ss-tier-reward">
+            <span class="ss-founder-badge">🏆 Founder Seat</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ss-founder-note">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;margin-top:1px">
+          <path d="M7 1l1.5 4H13l-3.5 2.5 1.3 4L7 9 3.2 11.5 4.5 7.5 1 5h4.5z" fill="#6366F1"/>
+        </svg>
+        <span>Lifetime <a href="#">Founder pricing</a>, early feature access, and a real voice in shaping SynkSpace.</span>
+      </div>
+    </div>
+
+    <!-- RIGHT CARD — Invite & Earn -->
+    <div class="ss-card ss-card-right">
+      <div class="ss-invite-title">Invite &amp; Earn</div>
+      <div class="ss-invite-sub">Invite others. <strong>Unlock exclusive access</strong></div>
+
+      <div class="ss-link-wrap">
+        <input class="ss-link-input" id="ssRefLink" type="text" readonly placeholder="https://synkspace.in?ref=...">
+        <button class="ss-copy-btn" onclick="copySsRef(this)">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <rect x="4" y="4" width="9" height="9" rx="1.5" stroke="white" stroke-width="1.4"/>
+            <path d="M1 10V2a1 1 0 011-1h8" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          Copy
+        </button>
+      </div>
+
+      <div class="ss-or-row">or</div>
+
+      <div class="ss-share-label">Share your invite link via</div>
+      <div class="ss-share-icons">
+        <!-- Instagram -->
+        <a class="ss-share-icon" id="ss-ig" href="#" target="_blank" title="Instagram">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <rect x="2" y="2" width="14" height="14" rx="4" stroke="white" stroke-width="1.4"/>
+            <circle cx="9" cy="9" r="3.5" stroke="white" stroke-width="1.4"/>
+            <circle cx="13.2" cy="4.8" r="1" fill="white"/>
+          </svg>
+        </a>
+        <!-- WhatsApp -->
+        <a class="ss-share-icon" id="ss-wa" href="#" target="_blank" title="WhatsApp">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M9 1.5A7.5 7.5 0 0116.5 9c0 4.14-3.36 7.5-7.5 7.5a7.47 7.47 0 01-3.75-1L1.5 16.5l1.05-3.15A7.47 7.47 0 011.5 9 7.5 7.5 0 019 1.5z" stroke="white" stroke-width="1.4"/>
+            <path d="M6.5 7.3c0 2.7 2.2 4.8 4.8 4.8l.6-1.4-1.4-.5c-.3.3-.7.7-.9.7C8.2 10.7 7.3 9.5 7.1 8.7c-.2-.5-.1-.9.3-1.1L6.5 7.3z" fill="white"/>
+          </svg>
+        </a>
+        <!-- Snapchat -->
+        <a class="ss-share-icon" id="ss-sc" href="#" target="_blank" title="Snapchat">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M9 2C6.5 2 4.5 4 4.5 6.5c0 .9-.15 1.5-.5 1.8-.45.3-1.5.5-1.5 1 0 .4.5.65 1 .85.2.1.3.3.2.5-.2.6-.8 1.2-1.2 1.5 1 .3 2.2.5 3 1C6 14 7.2 16 9 16s3-2 3.5-2.5c.8-.5 2-.7 3-1-.4-.3-1-1-1.2-1.5-.1-.2 0-.4.2-.5.5-.2 1-.45 1-.85 0-.5-1.05-.7-1.5-1-.35-.3-.5-.9-.5-1.8C13.5 4 11.5 2 9 2z" stroke="white" stroke-width="1.4" fill="none"/>
+          </svg>
+        </a>
+        <!-- LinkedIn -->
+        <a class="ss-share-icon" id="ss-li" href="#" target="_blank" title="LinkedIn">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <rect x="2" y="2" width="14" height="14" rx="2.5" stroke="white" stroke-width="1.4"/>
+            <path d="M5.5 8v5M5.5 6v-.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M8.5 13V10a2 2 0 014 0v3M8.5 8.5V8" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </a>
+        <!-- X / Twitter -->
+        <a class="ss-share-icon" id="ss-tw" href="#" target="_blank" title="X / Twitter">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="white">
+            <path d="M12.6 1.5h2.3L9.9 7.2l5.9 7.8h-4.4l-3.5-4.6-4 4.6H1.6l5.4-6.1L1.3 1.5h4.5l3.2 4.2 3.6-4.2zm-.8 13.5h1.3L4.4 2.8H3l8.8 12.2z"/>
+          </svg>
+        </a>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="ss-progress-section">
+        <div class="ss-progress-header">
+          <span class="ss-progress-label-text">Your Progress</span>
+          <span class="ss-progress-count" id="ssProgressCount">0 / 10 invites</span>
+        </div>
+        <div class="ss-progress-track">
+          <div class="ss-progress-fill" id="ssProgressFill"></div>
+        </div>
+        <div class="ss-milestones">
+          <div class="ss-milestone">
+            <div class="ss-milestone-dot" id="ssDot1"></div>
+            <span class="ss-milestone-label" id="ssLabel1">3 invites</span>
+            <span class="ss-milestone-reward" id="ssReward1">1mo Pro</span>
+          </div>
+          <div class="ss-milestone">
+            <div class="ss-milestone-dot" id="ssDot2"></div>
+            <span class="ss-milestone-label" id="ssLabel2">6 invites</span>
+            <span class="ss-milestone-reward" id="ssReward2">3mo Pro</span>
+          </div>
+          <div class="ss-milestone">
+            <div class="ss-milestone-dot active" id="ssDot3"></div>
+            <span class="ss-milestone-label active" id="ssLabel3">10 invites</span>
+            <span class="ss-milestone-reward" id="ssReward3">Founder</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showSuccessScreen(refCode) {
+  var link = refCode ? "https://synkspace.in?ref=" + refCode : "https://synkspace.in";
+
+  // Populate inputs
+  document.getElementById("ssRefLink").value = link;
+  document.getElementById("referLink").value = link;
+
+  // Social share links
+  var msg = encodeURIComponent("Join me on SynkSpace — India's #1 Creator Marketplace! Get early access here: " + link);
+  var enc = encodeURIComponent(link);
+  document.getElementById("ss-wa").href = "https://wa.me/?text=" + msg;
+  document.getElementById("ss-tw").href = "https://twitter.com/intent/tweet?text=" + msg;
+  document.getElementById("ss-li").href = "https://www.linkedin.com/sharing/share-offsite/?url=" + enc;
+  document.getElementById("ss-ig").href = link;
+  document.getElementById("ss-sc").href = link;
+
+  // Animate progress from 0
+  setTimeout(function() {
+    document.getElementById("ssProgressFill").style.width = "2%";
+  }, 600);
+
+  // Show screen, lock scroll
+  document.getElementById("success-screen").classList.add("show");
+  document.getElementById("reg-overlay").classList.remove("open");
+  document.body.style.overflow = "hidden";
+  window.scrollTo(0,0);
+}
+
+function closeSuccessScreen() {
+  document.getElementById("success-screen").classList.remove("show");
+  document.body.style.overflow = "";
+}
+
+function copySsRef(btn) {
+  var val = document.getElementById("ssRefLink").value;
+  navigator.clipboard.writeText(val).then(function() {
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l4 4 6-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Copied!';
+    setTimeout(function() {
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="4" y="4" width="9" height="9" rx="1.5" stroke="white" stroke-width="1.4"/><path d="M1 10V2a1 1 0 011-1h8" stroke="white" stroke-width="1.4" stroke-linecap="round"/></svg> Copy';
+    }, 2000);
+  });
+}
+</script>
+
+<!-- ── WELCOME POPUP ── -->
+<div id="welcomeOverlay">
+  <div id="welcomeConfetti" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;"></div>
+  <div id="welcomeModal">
+
+    <div style="position:absolute;top:-40px;right:-40px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(249,115,22,.12) 0%,transparent 70%);pointer-events:none;"></div>
+    <div style="position:absolute;bottom:-40px;left:-40px;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(34,197,94,.1) 0%,transparent 70%);pointer-events:none;"></div>
+
+    <div style="position:relative;z-index:1;">
+
+      <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#2563EB);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;animation:synkFloat 3s ease-in-out infinite;box-shadow:0 6px 24px rgba(59,130,246,0.45);">
+        <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+          <path d="M7 17l7 7 13-13" stroke="white" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <div class="synk-eyebrow">
+        <div style="position:relative;width:8px;height:8px;">
+          <div style="position:absolute;inset:0;background:#6366F1;border-radius:50%;opacity:.75;animation:synkPulse 2s infinite;"></div>
+          <div style="width:8px;height:8px;background:#6366F1;border-radius:50%;position:relative;z-index:1;"></div>
+        </div>
+        Early Access Confirmed
+      </div>
+
+      <h2 style="font-family:'Manrope',sans-serif;font-weight:800;font-size:20px;line-height:1.35;letter-spacing:-.4px;margin:0 0 10px;background:linear-gradient(90deg,#F9A8D4 0%,#FFFFFF 50%,#C4B5FD 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Welcome to the Exclusive<br>SynkSpace Waitlist</h2>
+
+      <p style="font-size:12px;color:#64748B;line-height:1.6;margin:0 0 24px;font-family:'Manrope',sans-serif;">You're on the early access list. We'll reach out when it's your turn — stay tuned.</p>
+
+      <div class="synk-got-it" onclick="closeWelcomePopup()">
+        <div class="synk-shimmer"></div>
+        Got it
+      </div>
+
+      <p style="font-size:12px;color:#334155;margin:14px 0 0;font-family:'Manrope',sans-serif;cursor:pointer;" onclick="closeWelcomePopup()">Click outside to dismiss</p>
+    </div>
+  </div>
+</div>
+
+<script>
+var synkRocketThemes = [
+  { bg:'linear-gradient(135deg,rgba(249,115,22,.2),rgba(234,179,8,.2))',  border:'rgba(249,115,22,.35)', body:'#FCD34D', flame:'#F97316', wings:'#FCD34D' },
+  { bg:'linear-gradient(135deg,rgba(236,72,153,.2),rgba(139,92,246,.2))', border:'rgba(236,72,153,.35)', body:'#F9A8D4', flame:'#EC4899', wings:'#F9A8D4' },
+  { bg:'linear-gradient(135deg,rgba(34,197,94,.2),rgba(16,185,129,.2))',  border:'rgba(34,197,94,.35)',  body:'#86EFAC', flame:'#22C55E', wings:'#86EFAC' },
+  { bg:'linear-gradient(135deg,rgba(59,130,246,.2),rgba(99,102,241,.2))', border:'rgba(59,130,246,.35)', body:'#93C5FD', flame:'#3B82F6', wings:'#93C5FD' },
+  { bg:'linear-gradient(135deg,rgba(234,179,8,.2),rgba(249,115,22,.2))',  border:'rgba(234,179,8,.35)',  body:'#FDE68A', flame:'#EAB308', wings:'#FDE68A' },
+];
+var synkRocketIdx = 0;
+function synkCycleRocket() {
+  synkRocketIdx = (synkRocketIdx + 1) % synkRocketThemes.length;
+  var t = synkRocketThemes[synkRocketIdx];
+  var bg = document.getElementById('synkRocketBg');
+  bg.style.background = t.bg;
+  bg.style.border = '1px solid ' + t.border;
+  document.getElementById('synkRocketBody').setAttribute('fill', t.body);
+  document.getElementById('synkRocketFlame').setAttribute('fill', t.flame);
+  document.getElementById('synkRocketWings').setAttribute('stroke', t.wings);
+}
+</script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-# Sync — India's Creator-Brand-Event Marketplace (Backend)
+# Synk Space — India's #1 Marketplace
 
 Production-ready Node.js backend for the Sync marketplace: creators, brands, and organisers; campaigns, applications, contracts, escrow, referrals, and AI-powered campaign recommendations.
 
@@ -156,4 +156,4 @@ npm run test
 
 ## License
 
-Proprietary.
+All Rights Reserved by the company Synk Space.

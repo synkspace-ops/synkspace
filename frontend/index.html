@@ -3224,6 +3224,7 @@ function closeWelcomePopup(onClose) {
     modal.style.transform = '';
     document.body.style.overflow = '';
     if (typeof onClose === 'function') onClose();
+    if (typeof closeReg === 'function') closeReg();
   }, 280);
 }
 

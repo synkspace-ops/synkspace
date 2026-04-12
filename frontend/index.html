@@ -3155,7 +3155,7 @@ async function submitForm(role) {
     // Success UI — show welcome popup then congratulations screen
     var refCode = result.data && result.data.referralCode ? result.data.referralCode : null;
     panel.classList.remove("active");
-    showWelcomePopup(function() { showSuccessScreen(refCode); });
+    showWelcomePopup(function() { closeReg(); });
 
   } catch (err) {
 

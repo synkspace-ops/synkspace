@@ -1782,26 +1782,36 @@ body {
   .nav-logo-text       { font-size: 20px; }
   .nav-logo-img        { width: 52px; height: 52px; }
 
-  /* Hero — stack vertically */
+  /* Hero — natural top-to-bottom flow, even spacing */
   .header              { padding: 0; min-height: calc(100svh - 60px); justify-content: center; }
-  .header-content-wrap { justify-content: center; }
-  .header-content-wrap { height: auto; }
+  .header-content-wrap { display: flex; flex-direction: column; justify-content: center; width: 100%; }
   .header-row          {
     flex-direction: column;
     align-items: stretch;
-    padding: 0 20px;
+    padding: 56px 24px 56px;
     height: auto;
-    gap: 32px;
+    gap: 0;
   }
-  .header-left         { max-width: 100%; width: 100%; text-align: left; align-items: flex-start; display: flex; flex-direction: column; order: 1; }
-  .hero-badge-pill     { align-self: flex-start; }
-  .hero-h1 h1          { font-size: 38px; line-height: 46px; letter-spacing: -1px; text-align: left; }
-  .hero-subtitle-wrap p{ font-size: 16px; max-width: 100%; text-align: left; }
-  .hero-buttons-row    { flex-wrap: wrap; gap: 10px; justify-content: flex-start; }
-  .hero-trust-row      { justify-content: flex-start; gap: 12px 20px; }
-  .trust-label         { font-size: 13px; }
-  .btn-creator, .btn-brand, .btn-event { height: 52px; padding: 12px 22px; }
+  .header-left         { max-width: 100%; width: 100%; display: flex; flex-direction: column; order: 1; }
+  .hero-badge-pill     { align-self: flex-start; margin-bottom: 24px; }
+  .hero-h1             { margin-bottom: 18px; }
+  .hero-h1 h1          { font-size: 38px; line-height: 46px; letter-spacing: -1px; }
+  .hero-subtitle-wrap  { margin-bottom: 36px; }
+  .hero-subtitle-wrap p{ font-size: 16px; max-width: 100%; line-height: 26px; }
+  .hero-cta-area       { width: 100%; display: flex; flex-direction: column; gap: 0; }
+  .hero-buttons-row    { flex-direction: column; gap: 10px; width: 100%; margin-bottom: 24px; }
+  .btn-creator, .btn-brand, .btn-event { height: 56px; padding: 12px 22px; width: 100%; justify-content: center; }
   .b-text              { font-size: 15px; }
+  /* Always-on rotating border animation on mobile (no hover needed on touch) */
+  .btn-creator::before { opacity: 1; animation-play-state: running; }
+  /* Trust badges — natural flow after button */
+  .hero-trust-row      {
+    display: flex; flex-direction: row; flex-wrap: wrap;
+    gap: 12px 24px; justify-content: flex-start; align-items: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(15,23,42,0.09);
+  }
+  .trust-label         { font-size: 13px; }
 
   /* Hero illustration — hidden on mobile */
   .hero-illustration   { display: none !important; }
@@ -1836,24 +1846,34 @@ body {
   .nav-logo-img        { width: 44px; height: 44px; }
   .nav-cta-btn         { padding: 8px 14px; font-size: 13px; height: 36px; }
 
-  /* Hero — full screen on mobile */
+  /* Hero — natural flow, even spacing on phone (≤480px) */
   .header              { padding: 0; min-height: calc(100svh - 60px); justify-content: center; }
-  .header-content-wrap { justify-content: center; height: 100%; }
-  .header-row          { padding: 32px 16px; gap: 28px; }
-  .hero-badge-pill     { margin-bottom: 14px; }
-  .hero-h1 h1          { font-size: 30px; line-height: 38px; letter-spacing: -0.8px; }
-  .hero-subtitle-wrap  { margin-bottom: 20px; }
-  .hero-subtitle-wrap p{ font-size: 15px; line-height: 22px; }
-  .hero-cta-area       { gap: 16px; width: 100%; }
-  .hero-buttons-row    { flex-direction: column; gap: 8px; width: 100%; }
+  .header-content-wrap { display: flex; flex-direction: column; justify-content: center; width: 100%; }
+  .header-row          { padding: 48px 20px 52px; gap: 0; }
+  .header-left         { max-width: 100%; width: 100%; display: flex; flex-direction: column; }
+  .hero-badge-pill     { margin-bottom: 20px; }
+  .hero-h1             { margin-bottom: 16px; }
+  .hero-h1 h1          { font-size: 32px; line-height: 40px; letter-spacing: -0.8px; }
+  .hero-subtitle-wrap  { margin-bottom: 32px; }
+  .hero-subtitle-wrap p{ font-size: 15px; line-height: 23px; }
+  .hero-cta-area       { width: 100%; display: flex; flex-direction: column; gap: 0; }
+  .hero-buttons-row    { flex-direction: column; gap: 10px; width: 100%; margin-bottom: 22px; }
   .btn-creator, .btn-brand, .btn-event {
-    width: 100%; height: 52px; padding: 12px 20px; justify-content: center;
+    width: 100%; height: 54px; padding: 12px 20px; justify-content: center;
   }
   .b-text              { font-size: 15px; }
-  .hero-trust-row      { gap: 10px 16px; justify-content: flex-start; }
+  /* Always-on rotating border on phone */
+  .btn-creator::before { opacity: 1; animation-play-state: running; }
+  /* Trust badges */
+  .hero-trust-row      {
+    display: flex; flex-direction: row; flex-wrap: wrap;
+    gap: 10px 20px; justify-content: flex-start; align-items: center;
+    padding-top: 18px;
+    border-top: 1px solid rgba(15,23,42,0.09);
+  }
   .trust-label         { font-size: 12px; }
 
-  /* Hero illustration — carousel already handles layout */
+  /* Hero illustration — hidden on phone */
   .hero-illustration   { max-width: 340px; }
 
   /* Refer */

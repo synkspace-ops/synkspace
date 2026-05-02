@@ -1,140 +1,52 @@
-import { useCallback, useEffect, useState } from "react";
-import "./App.css";
+import { Routes, Route } from "react-router-dom";
 
-const apiBase = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
+// Role selection
+import SelectRole from "./pages/SelectRole";
 
-type Health = { ok?: boolean; service?: string };
+// Creator onboarding
+import Step1_CreateAccount from "./pages/creator/Step1_CreateAccount";
+import Step2_Creator_Social from "./pages/creator/Step2_Creator_Social";
+import Step3_Creator_Value from "./pages/creator/Step3_Creator_Value";
+import Step4_Creator_Final from "./pages/creator/Step4_Creator_Final";
+
+// Brand onboarding
+import Step2_Brand_Registration from "./pages/brand/Step2_Brand_Registration";
+import Step3_Brand_Goals from "./pages/brand/Step3_Brand_Goals";
+import Step4_Brand_Team from "./pages/brand/Step4_Brand_Team";
+import Step5_Finalize_Onboarding from "./pages/brand/Step5_Finalize_Onboarding";
+
+// Event onboarding
+import Event_Step1_CreateAccount from "./pages/event/Event_Step1_CreateAccount";
+import Event_Step2_Goals from "./pages/event/Event_Step2_Goals";
+import Event_Step3_Team from "./pages/event/Event_Step3_Team";
+import Event_Step4_Finalize from "./pages/event/Event_Step4_Finalize";
 
 export default function App() {
-  const [health, setHealth] = useState<Health | null>(null);
-  const [healthErr, setHealthErr] = useState<string | null>(null);
-  const [email, setEmail] = useState("");
-  const [role, setRole] = useState<"CREATOR" | "BRAND" | "ORGANISER">("CREATOR");
-  const [name, setName] = useState("");
-  const [waitlistMsg, setWaitlistMsg] = useState<string | null>(null);
-  const [waitlistErr, setWaitlistErr] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-
-  const loadHealth = useCallback(async () => {
-    setHealthErr(null);
-    try {
-      const r = await fetch(`${apiBase}/health`);
-      if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
-      const j = (await r.json()) as Health;
-      setHealth(j);
-    } catch (e) {
-      setHealth(null);
-      setHealthErr(e instanceof Error ? e.message : "Could not reach API");
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadHealth();
-  }, [loadHealth]);
-
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setWaitlistMsg(null);
-    setWaitlistErr(null);
-    setSubmitting(true);
-    try {
-      const r = await fetch(`${apiBase}/api/waitlist`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          role,
-          ...(name.trim() ? { name: name.trim() } : {}),
-        }),
-      });
-      const j = (await r.json()) as { message?: string; error?: string };
-      if (!r.ok) throw new Error(j.error ?? j.message ?? r.statusText);
-      setWaitlistMsg(j.message ?? "Success");
-      setEmail("");
-      setName("");
-    } catch (e) {
-      setWaitlistErr(e instanceof Error ? e.message : "Request failed");
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  const apiOk = health?.ok === true;
-
   return (
-    <div className="page">
-      <header className="hero">
-        <p className="eyebrow">Local dev</p>
-        <h1>Sync</h1>
-        <p className="lede">
-          Frontend + API running together. Below, the UI talks to your Fastify backend on{" "}
-          <code>{apiBase}</code>.
-        </p>
-      </header>
+    <Routes>
+      {/* TEMP: make React control homepage for debugging */}
+      <Route path="/" element={<SelectRole />} />
 
-      <section className="card">
-        <h2>API status</h2>
-        <p className="hint">
-          <button type="button" className="linkish" onClick={() => void loadHealth()}>
-            Refresh
-          </button>
-        </p>
-        {healthErr && (
-          <p className="banner error">
-            <strong>Offline.</strong> {healthErr} — start the API with <code>npm run dev</code> in the
-            repo root (and Docker for Postgres/Redis if needed).
-          </p>
-        )}
-        {apiOk && (
-          <p className="banner ok">
-            <strong>Connected.</strong> <code>/health</code> returned{" "}
-            <code>{JSON.stringify(health)}</code>
-          </p>
-        )}
-        {!healthErr && !apiOk && health && (
-          <p className="banner">Unexpected response: {JSON.stringify(health)}</p>
-        )}
-      </section>
+      {/* Role Selection */}
+      <Route path="/select-role" element={<SelectRole />} />
 
-      <section className="card">
-        <h2>Join waitlist</h2>
-        <p className="hint">POST <code>/api/waitlist</code> — requires DB tables (run <code>npx prisma db push</code>).</p>
-        <form onSubmit={(e) => void onSubmit(e)} className="form">
-          <label>
-            Email
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-            />
-          </label>
-          <label>
-            Role
-            <select value={role} onChange={(e) => setRole(e.target.value as typeof role)}>
-              <option value="CREATOR">Creator</option>
-              <option value="BRAND">Brand</option>
-              <option value="ORGANISER">Organiser</option>
-            </select>
-          </label>
-          <label>
-            Name <span className="optional">(optional)</span>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} maxLength={200} />
-          </label>
-          <button type="submit" disabled={submitting || !apiOk}>
-            {submitting ? "Sending…" : "Submit"}
-          </button>
-        </form>
-        {waitlistMsg && <p className="banner ok">{waitlistMsg}</p>}
-        {waitlistErr && <p className="banner error">{waitlistErr}</p>}
-      </section>
+      {/* Creator */}
+      <Route path="/creator/step1" element={<Step1_CreateAccount />} />
+      <Route path="/creator/step2" element={<Step2_Creator_Social />} />
+      <Route path="/creator/step3" element={<Step3_Creator_Value />} />
+      <Route path="/creator/step4" element={<Step4_Creator_Final />} />
 
-      <footer className="foot">
-        <span>Vite dev server →</span> <a href="http://localhost:5173">http://localhost:5173</a>
-        <span className="sep">·</span>
-        <span>API →</span> <a href={apiBase}>{apiBase}</a>
-      </footer>
-    </div>
+      {/* Brand */}
+      <Route path="/brand/step1" element={<Step2_Brand_Registration />} />
+      <Route path="/brand/step2" element={<Step3_Brand_Goals />} />
+      <Route path="/brand/step3" element={<Step4_Brand_Team />} />
+      <Route path="/brand/step4" element={<Step5_Finalize_Onboarding />} />
+
+      {/* Event */}
+      <Route path="/event/step1" element={<Event_Step1_CreateAccount />} />
+      <Route path="/event/step2" element={<Event_Step2_Goals />} />
+      <Route path="/event/step3" element={<Event_Step3_Team />} />
+      <Route path="/event/step4" element={<Event_Step4_Finalize />} />
+    </Routes>
   );
 }

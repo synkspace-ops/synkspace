@@ -5,6 +5,7 @@ import cookie from "@fastify/cookie";
 import { getEnv } from "./config/env.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { waitlistRoutes } from "./modules/waitlist/waitlist.routes.js";
+import { authRoutes } from "./modules/auth/auth.routes.js";
 
 export async function buildApp() {
   const env = getEnv();
@@ -42,6 +43,7 @@ export async function buildApp() {
   });
 
   app.register(waitlistRoutes, { prefix: "/api/waitlist" });
+  app.register(authRoutes, { prefix: "/api/auth" }); // ✅ ADD THIS LINE
 
   return app;
 }

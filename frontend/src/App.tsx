@@ -30,7 +30,7 @@ export default function App() {
   return (
     <Routes>
       {/* Home */}
-      <Route path="/" element={<SelectRole />} />
+      <Route path="/" element={null} />
 
       {/* Role Selection */}
       <Route path="/select-role" element={<SelectRole />} />

@@ -3,6 +3,46 @@ import { motion } from "framer-motion";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useApp } from '../context/AppContext';
 
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function buildCampaignPerformanceData(campaigns, serverRows = []) {
+  const currentMonth = new Date().getMonth();
+  const recentMonths = Array.from({ length: 6 }, (_, idx) => monthNames[(currentMonth - 5 + idx + 12) % 12]);
+  const rowsByMonth = new Map(
+    recentMonths.map((month) => [month, { name: month, month, campaigns: 0, applications: 0 }])
+  );
+
+  for (const row of serverRows || []) {
+    const month = row.month || row.name;
+    if (!rowsByMonth.has(month)) continue;
+    rowsByMonth.set(month, {
+      ...rowsByMonth.get(month),
+      ...row,
+      name: month,
+      month,
+      campaigns: Number(row.campaigns || 0),
+      applications: Number(row.applications || 0),
+    });
+  }
+
+  const campaignCounts = new Map();
+  for (const campaign of campaigns || []) {
+    const createdAt = campaign.createdAt ? new Date(campaign.createdAt) : null;
+    if (!createdAt || Number.isNaN(createdAt.getTime())) continue;
+    const month = monthNames[createdAt.getMonth()];
+    if (rowsByMonth.has(month)) {
+      campaignCounts.set(month, (campaignCounts.get(month) || 0) + 1);
+    }
+  }
+
+  for (const [month, count] of campaignCounts.entries()) {
+    const row = rowsByMonth.get(month);
+    row.campaigns = Math.max(Number(row.campaigns || 0), count);
+  }
+
+  return recentMonths.map((month) => rowsByMonth.get(month));
+}
+
 export function DashboardPage() {
   const { campaigns, payments, navigate, currentUser, analytics, loadingDashboard, dashboardError } = useApp();
   
@@ -21,11 +61,7 @@ export function DashboardPage() {
     { label: 'Applications', value: String(statsData.totalApplications ?? 0), helper: `${statsData.completionRate ?? 0}% accepted`, trend: 'up', icon: Eye },
   ];
 
-  const engagementData = (analytics?.performanceData || []).map((row) => ({
-    name: row.month,
-    campaigns: row.campaigns,
-    applications: row.applications,
-  }));
+  const engagementData = buildCampaignPerformanceData(campaigns, analytics?.performanceData);
 
   const categoryData = (analytics?.topCategories || []).map((category, index) => ({
     ...category,

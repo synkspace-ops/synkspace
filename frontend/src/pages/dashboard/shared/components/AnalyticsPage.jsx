@@ -2,9 +2,49 @@ import { TrendingUp, Eye, Heart, DollarSign, Users } from 'lucide-react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useApp } from '../context/AppContext';
 
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function buildCampaignPerformanceData(campaigns, serverRows = []) {
+  const currentMonth = new Date().getMonth();
+  const recentMonths = Array.from({ length: 6 }, (_, idx) => monthNames[(currentMonth - 5 + idx + 12) % 12]);
+  const rowsByMonth = new Map(
+    recentMonths.map((month) => [month, { id: month, month, campaigns: 0, applications: 0, spend: 0 }])
+  );
+
+  for (const row of serverRows || []) {
+    const month = row.month || row.name;
+    if (!rowsByMonth.has(month)) continue;
+    rowsByMonth.set(month, {
+      ...rowsByMonth.get(month),
+      ...row,
+      month,
+      campaigns: Number(row.campaigns || 0),
+      applications: Number(row.applications || 0),
+      spend: Number(row.spend || 0),
+    });
+  }
+
+  const campaignCounts = new Map();
+  for (const campaign of campaigns || []) {
+    const createdAt = campaign.createdAt ? new Date(campaign.createdAt) : null;
+    if (!createdAt || Number.isNaN(createdAt.getTime())) continue;
+    const month = monthNames[createdAt.getMonth()];
+    if (rowsByMonth.has(month)) {
+      campaignCounts.set(month, (campaignCounts.get(month) || 0) + 1);
+    }
+  }
+
+  for (const [month, count] of campaignCounts.entries()) {
+    const row = rowsByMonth.get(month);
+    row.campaigns = Math.max(Number(row.campaigns || 0), count);
+  }
+
+  return recentMonths.map((month) => rowsByMonth.get(month));
+}
+
 export function AnalyticsPage() {
-  const { analytics, applications } = useApp();
-  const performanceData = analytics?.performanceData || [];
+  const { analytics, applications, campaigns } = useApp();
+  const performanceData = buildCampaignPerformanceData(campaigns, analytics?.performanceData);
   const budgetDistribution = analytics?.budgetDistribution || [];
   const creatorPerformance = applications
     .filter((app) => app.status === 'accepted')

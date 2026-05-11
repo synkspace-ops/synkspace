@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { apiPost } from '../lib/api';
 
 const roleDashboardPath = {
@@ -11,6 +11,7 @@ const roleDashboardPath = {
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,7 +27,9 @@ export default function Login() {
       if (!token || !user) throw new Error('Invalid login response');
       localStorage.setItem('token', token);
       localStorage.setItem('currentUser', JSON.stringify(user));
-      navigate(roleDashboardPath[user.role] || '/dashboard', { replace: true });
+      const requestedPath = location.state?.from;
+      const role = String(user.role || '').toUpperCase();
+      navigate(requestedPath || roleDashboardPath[role] || '/dashboard', { replace: true });
     } catch {
       setError('Invalid email or password.');
     } finally {
@@ -63,6 +66,13 @@ export default function Login() {
         <button disabled={loading} className="w-full h-12 bg-[#050B18] text-white rounded-xl font-bold disabled:opacity-60">
           {loading ? 'Logging in...' : 'Log in'}
         </button>
+
+        <p className="text-center text-sm text-slate-500 mt-6">
+          New here?{' '}
+          <Link to="/select-role" className="font-bold text-[#050B18] hover:underline">
+            Create an account
+          </Link>
+        </p>
       </form>
     </div>
   );

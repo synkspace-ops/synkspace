@@ -422,7 +422,7 @@ const Step1_CreateAccount = () => {
           </form>
 
           <p className="text-center text-sm text-gray-500 mt-10">
-            Already have an account? <a href="#" className="text-[#050B18] font-bold hover:underline">Log in</a>
+            Already have an account? <button type="button" onClick={() => navigate('/login')} className="text-[#050B18] font-bold hover:underline">Log in</button>
           </p>
         </div>
       </div>

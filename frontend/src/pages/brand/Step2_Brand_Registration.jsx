@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiPost } from '../../lib/api';
+import { saveOnboardingStep } from '../../lib/onboardingProgress';
 
 const Step2_Brand_Registration = () => {
   const navigate = useNavigate();
@@ -9,10 +10,14 @@ const Step2_Brand_Registration = () => {
   const [form, setForm] = useState({
     companyName: '',
     website: '',
+    email: '',
+    password: '',
     industry: '',
     companySize: '',
-    location: ''
+    location: '',
+    logo: null
   });
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -22,20 +27,102 @@ const Step2_Brand_Registration = () => {
     });
   };
 
+  const readImageFile = (file) => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Unable to read image"));
+    reader.readAsDataURL(file);
+  });
+
+  const loadImage = (src) => new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("Unable to load image"));
+    image.src = src;
+  });
+
+  const compressLogo = async (file) => {
+    const source = await readImageFile(file);
+    const image = await loadImage(source);
+    const maxSize = 512;
+    const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
+    const width = Math.max(1, Math.round(image.width * scale));
+    const height = Math.max(1, Math.round(image.height * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(image, 0, 0, width, height);
+    return canvas.toDataURL('image/webp', 0.82);
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setErrors((prev) => ({ ...prev, logo: 'Please upload an image file' }));
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors((prev) => ({ ...prev, logo: 'Max file size is 5MB' }));
+      return;
+    }
+
+    try {
+      const logo = await compressLogo(file);
+      setForm((prev) => ({ ...prev, logo }));
+      setErrors((prev) => ({ ...prev, logo: undefined }));
+    } catch (error) {
+      console.error("Error processing logo:", error);
+      setErrors((prev) => ({ ...prev, logo: 'Could not process image' }));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validation
+    const newErrors = {};
+    if (!form.companyName) newErrors.companyName = "Required";
+    if (!form.website) newErrors.website = "Required";
+    if (!form.email) newErrors.email = "Required";
+    if (!form.password || form.password.length < 8) newErrors.password = "Password must be at least 8 characters";
+    if (!form.industry) newErrors.industry = "Required";
+    if (!form.companySize) newErrors.companySize = "Required";
+    if (!form.location) newErrors.location = "Required";
+    if (!form.logo) newErrors.logo = "Logo required";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
     setLoading(true);
     try {
-      const response = await apiPost("/api/auth/register", {
-  role: "brand",
-  email: form.email,
-  password: form.password,
-});
-      console.log("Success:", response);
+      await saveOnboardingStep("brand", "step2", { ...form });
+      const registerRes = await apiPost("/api/auth/register", {
+        role: "BRAND",
+        email: form.email,
+        password: form.password,
+      });
+      const loginRes = await apiPost("/api/auth/login", {
+        email: form.email,
+        password: form.password,
+      });
+      if (loginRes?.data?.accessToken) localStorage.setItem("token", loginRes.data.accessToken);
+      if (registerRes?.data?.user) localStorage.setItem("currentUser", JSON.stringify(registerRes.data.user));
+
       // Assuming next step is step3
-      navigate('/brand/step3');
+      navigate('/brand/step2'); // Correcting navigation to match App.tsx routes (/brand/step1 -> /brand/step2)
     } catch (error) {
       console.error("Error saving data:", error);
+      setErrors((prev) => ({
+        ...prev,
+        logo: "Could not save image. Try a smaller logo file.",
+      }));
     } finally {
       setLoading(false);
     }
@@ -175,15 +262,32 @@ const Step2_Brand_Registration = () => {
             <div className="space-y-3">
               <label className="text-gray-600 text-[13px] font-bold ml-1">Company Logo</label>
               <div className="flex items-center gap-6">
-                <div className="w-24 h-24 border-2 border-dashed border-gray-100 rounded-2xl flex flex-col items-center justify-center bg-gray-50/50 hover:bg-gray-50 transition-colors cursor-pointer group">
-                  <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-                  </div>
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Upload</span>
+                <div 
+                  onClick={() => document.getElementById('logoInput').click()}
+                  className={`w-24 h-24 border-2 border-dashed ${errors.logo ? 'border-red-500' : 'border-gray-100'} rounded-2xl flex flex-col items-center justify-center bg-gray-50/50 hover:bg-gray-50 transition-colors cursor-pointer group overflow-hidden`}
+                >
+                  {form.logo ? (
+                    <img src={form.logo} alt="Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <>
+                      <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                      </div>
+                      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Upload</span>
+                    </>
+                  )}
                 </div>
+                <input 
+                  id="logoInput"
+                  type="file" 
+                  className="hidden" 
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                />
                 <div>
                   <h4 className="text-[#050B18] text-sm font-bold mb-1">Upload your brand mark</h4>
                   <p className="text-gray-300 text-[11px] leading-relaxed max-w-[220px] font-medium">Recommended size: 400x400px.<br />Supported formats: JPG, PNG. Max file size: 5MB.</p>
+                  {errors.logo && <p className="text-red-500 text-[10px] mt-1 font-bold uppercase">{errors.logo}</p>}
                 </div>
               </div>
             </div>
@@ -201,8 +305,9 @@ const Step2_Brand_Registration = () => {
                   value={form.companyName}
                   onChange={handleChange}
                   placeholder="e.g. Acme Corp"
-                  className="w-full h-12 bg-white border border-gray-100 rounded-lg pl-12 pr-4 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/20 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm"
+                  className={`w-full h-12 bg-white border ${errors.companyName ? 'border-red-500' : 'border-gray-100'} rounded-lg pl-12 pr-4 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/20 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm`}
                 />
+                {errors.companyName && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.companyName}</p>}
               </div>
             </div>
 
@@ -219,8 +324,36 @@ const Step2_Brand_Registration = () => {
                   value={form.website}
                   onChange={handleChange}
                   placeholder="https://www.example.com"
-                  className="w-full h-12 bg-white border border-gray-100 rounded-lg pl-12 pr-4 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/20 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm"
+                  className={`w-full h-12 bg-white border ${errors.website ? 'border-red-500' : 'border-gray-100'} rounded-lg pl-12 pr-4 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/20 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm`}
                 />
+                {errors.website && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.website}</p>}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-2.5">
+                <label className="text-gray-600 text-[13px] font-bold ml-1">Account Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  placeholder="brand@company.com"
+                  className={`w-full h-12 bg-white border ${errors.email ? 'border-red-500' : 'border-gray-100'} rounded-lg px-4 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/20 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm`}
+                />
+                {errors.email && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.email}</p>}
+              </div>
+              <div className="space-y-2.5">
+                <label className="text-gray-600 text-[13px] font-bold ml-1">Password</label>
+                <input
+                  type="password"
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  placeholder="Minimum 8 characters"
+                  className={`w-full h-12 bg-white border ${errors.password ? 'border-red-500' : 'border-gray-100'} rounded-lg px-4 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/20 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm`}
+                />
+                {errors.password && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.password}</p>}
               </div>
             </div>
 
@@ -236,7 +369,7 @@ const Step2_Brand_Registration = () => {
                     name="industry"
                     value={form.industry}
                     onChange={handleChange}
-                    className="w-full h-12 bg-white border border-gray-100 rounded-lg pl-12 pr-10 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/20 transition-all text-gray-600 font-medium appearance-none shadow-sm"
+                    className={`w-full h-12 bg-white border ${errors.industry ? 'border-red-500' : 'border-gray-100'} rounded-lg pl-12 pr-10 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/20 transition-all text-gray-600 font-medium appearance-none shadow-sm`}
                   >
                     <option value="">Select industry</option>
                     <option value="ecommerce">E-Commerce</option>
@@ -244,6 +377,7 @@ const Step2_Brand_Registration = () => {
                     <option value="fashion">Fashion & Apparel</option>
                     <option value="health">Health & Wellness</option>
                   </select>
+                  {errors.industry && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.industry}</p>}
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-300">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="7 10 12 15 17 10"></polyline></svg>
                   </div>
@@ -259,7 +393,7 @@ const Step2_Brand_Registration = () => {
                     name="companySize"
                     value={form.companySize}
                     onChange={handleChange}
-                    className="w-full h-12 bg-white border border-gray-100 rounded-lg pl-12 pr-10 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/20 transition-all text-gray-600 font-medium appearance-none shadow-sm"
+                    className={`w-full h-12 bg-white border ${errors.companySize ? 'border-red-500' : 'border-gray-100'} rounded-lg pl-12 pr-10 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/20 transition-all text-gray-600 font-medium appearance-none shadow-sm`}
                   >
                     <option value="">Select size</option>
                     <option value="1-10">1-10 employees</option>
@@ -267,6 +401,7 @@ const Step2_Brand_Registration = () => {
                     <option value="51-200">51-200 employees</option>
                     <option value="201+">201+ employees</option>
                   </select>
+                  {errors.companySize && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.companySize}</p>}
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-300">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="7 10 12 15 17 10"></polyline></svg>
                   </div>
@@ -287,8 +422,9 @@ const Step2_Brand_Registration = () => {
                   value={form.location}
                   onChange={handleChange}
                   placeholder="City, Country"
-                  className="w-full h-12 bg-white border border-gray-100 rounded-lg pl-12 pr-4 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/20 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm"
+                  className={`w-full h-12 bg-white border ${errors.location ? 'border-red-500' : 'border-gray-100'} rounded-lg pl-12 pr-4 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/20 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm`}
                 />
+                {errors.location && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.location}</p>}
               </div>
             </div>
 

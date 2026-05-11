@@ -40,6 +40,7 @@ CREATE TABLE "User" (
 CREATE TABLE "CreatorProfile" (
     "userId" TEXT NOT NULL,
     "displayName" TEXT NOT NULL,
+    "username" TEXT,
     "bio" TEXT,
     "niche" TEXT NOT NULL,
     "state" TEXT NOT NULL,
@@ -49,6 +50,7 @@ CREATE TABLE "CreatorProfile" (
     "kycStatus" "KYCStatus" NOT NULL DEFAULT 'NONE',
     "bankDetails" TEXT,
     "avatarUrl" TEXT,
+    "agreements" JSONB,
 
     CONSTRAINT "CreatorProfile_pkey" PRIMARY KEY ("userId")
 );
@@ -61,6 +63,7 @@ CREATE TABLE "BrandProfile" (
     "industry" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
     "avatarUrl" TEXT,
+    "agreements" JSONB,
 
     CONSTRAINT "BrandProfile_pkey" PRIMARY KEY ("userId")
 );
@@ -72,7 +75,21 @@ CREATE TABLE "OrganiserProfile" (
     "contactName" TEXT NOT NULL,
     "state" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
+    "phoneCode" TEXT,
+    "phoneCountry" TEXT,
     "avatarUrl" TEXT,
+    "country" TEXT,
+    "city" TEXT,
+    "eventType" TEXT,
+    "selectedReqs" TEXT[],
+    "selectedGoal" TEXT,
+    "footfall" TEXT,
+    "budget" TEXT,
+    "jobTitle" TEXT,
+    "workEmail" TEXT,
+    "website" TEXT,
+    "instagram" TEXT,
+    "agreements" JSONB,
 
     CONSTRAINT "OrganiserProfile_pkey" PRIMARY KEY ("userId")
 );
@@ -207,8 +224,29 @@ CREATE TABLE "Waitlist" (
     CONSTRAINT "Waitlist_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "OnboardingProgress" (
+    "id" TEXT NOT NULL,
+    "sessionId" TEXT NOT NULL,
+    "userId" TEXT,
+    "role" "Role" NOT NULL,
+    "data" JSONB NOT NULL,
+    "lastCompletedStep" TEXT,
+    "completed" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "OnboardingProgress_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "OnboardingProgress_sessionId_key" ON "OnboardingProgress"("sessionId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "OnboardingProgress_userId_key" ON "OnboardingProgress"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Application_campaignId_creatorId_key" ON "Application"("campaignId", "creatorId");
@@ -239,6 +277,9 @@ ALTER TABLE "BrandProfile" ADD CONSTRAINT "BrandProfile_userId_fkey" FOREIGN KEY
 
 -- AddForeignKey
 ALTER TABLE "OrganiserProfile" ADD CONSTRAINT "OrganiserProfile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "OnboardingProgress" ADD CONSTRAINT "OnboardingProgress_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Campaign" ADD CONSTRAINT "Campaign_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

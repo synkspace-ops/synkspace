@@ -1,8 +1,60 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { saveOnboardingStep } from '../../lib/onboardingProgress';
 
 const Event_Step3_Team = () => {
   const navigate = useNavigate();
+  const [form, setForm] = useState({
+    fullName: '',
+    jobTitle: '',
+    workEmail: '',
+    website: '',
+    instagram: '',
+  });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  useEffect(() => {
+    try {
+      const existing = JSON.parse(localStorage.getItem("onboardingData") || "{}");
+      localStorage.setItem(
+        "onboardingData",
+        JSON.stringify({
+          ...(existing && typeof existing === "object" ? existing : {}),
+          event: {
+            ...((existing && typeof existing === "object" && existing.event && typeof existing.event === "object")
+              ? existing.event
+              : {}),
+            step3: {
+              ...((existing && typeof existing === "object" && existing.event && typeof existing.event === "object" && existing.event.step3 && typeof existing.event.step3 === "object")
+                ? existing.event.step3
+                : {}),
+              ...form,
+            },
+          },
+        })
+      );
+    } catch (_) {}
+  }, [form]);
+
+  const handleNext = async () => {
+    setLoading(true);
+    setErrors({});
+    try {
+      await saveOnboardingStep("event", "step3", { ...form });
+      navigate('/event/step4');
+    } catch (error) {
+      console.error("Error saving event step 3:", error);
+      setErrors({ submit: "Could not save this step. Please try again." });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-[#F8FAFC] font-['Inter',sans-serif] flex flex-col items-center py-20 px-4">
       {/* Top Header */}
@@ -53,7 +105,10 @@ const Event_Step3_Team = () => {
             <div className="space-y-8">
               <div className="space-y-2.5">
                 <label className="text-gray-600 text-[13px] font-bold ml-1">Full Name</label>
-                <input 
+                <input
+                  name="fullName"
+                  value={form.fullName}
+                  onChange={handleChange}
                   type="text" 
                   placeholder="e.g. Jane Doe" 
                   className="w-full h-12 bg-white border border-gray-100 rounded-lg px-4 text-sm focus:outline-none focus:border-blue-500 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm"
@@ -63,7 +118,10 @@ const Event_Step3_Team = () => {
               <div className="grid grid-cols-2 gap-8">
                 <div className="space-y-2.5">
                   <label className="text-gray-600 text-[13px] font-bold ml-1">Job Title</label>
-                  <input 
+                  <input
+                    name="jobTitle"
+                    value={form.jobTitle}
+                    onChange={handleChange}
                     type="text" 
                     placeholder="e.g. Event Director" 
                     className="w-full h-12 bg-white border border-gray-100 rounded-lg px-4 text-sm focus:outline-none focus:border-blue-500 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm"
@@ -71,7 +129,10 @@ const Event_Step3_Team = () => {
                 </div>
                 <div className="space-y-2.5">
                   <label className="text-gray-600 text-[13px] font-bold ml-1">Official Email Address</label>
-                  <input 
+                  <input
+                    name="workEmail"
+                    value={form.workEmail}
+                    onChange={handleChange}
                     type="email" 
                     placeholder="e.g. jane@eventcompany.com" 
                     className="w-full h-12 bg-white border border-gray-100 rounded-lg px-4 text-sm focus:outline-none focus:border-blue-500 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm"
@@ -94,7 +155,10 @@ const Event_Step3_Team = () => {
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
                   </div>
-                  <input 
+                  <input
+                    name="website"
+                    value={form.website}
+                    onChange={handleChange}
                     type="text" 
                     placeholder="https://..." 
                     className="w-full h-12 bg-white border border-gray-100 rounded-lg pl-12 pr-4 text-sm focus:outline-none focus:border-blue-500 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm"
@@ -107,7 +171,10 @@ const Event_Step3_Team = () => {
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300">
                     <span className="text-[14px] font-bold">@</span>
                   </div>
-                  <input 
+                  <input
+                    name="instagram"
+                    value={form.instagram}
+                    onChange={handleChange}
                     type="text" 
                     placeholder="eventhandle" 
                     className="w-full h-12 bg-white border border-gray-100 rounded-lg pl-12 pr-4 text-sm focus:outline-none focus:border-blue-500 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm"
@@ -148,11 +215,13 @@ const Event_Step3_Team = () => {
             >
               Back
             </button>
-            <button 
-              onClick={() => navigate('/event/step4')}
+            <button
+              type="button"
+              onClick={handleNext}
+              disabled={loading}
               className="flex-1 h-16 bg-[#010B1F] text-white rounded-[12px] font-bold text-[16px] flex items-center justify-center gap-3 hover:bg-[#02152a] transition-all shadow-[0_12px_24px_-8px_rgba(1,11,31,0.5)] active:scale-[0.99] border-none outline-none"
             >
-              Save & Continue
+              {loading ? "Saving..." : "Save & Continue"}
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </button>
           </div>

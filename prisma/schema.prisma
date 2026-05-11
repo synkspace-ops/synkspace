@@ -7,8 +7,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum Role {
@@ -75,6 +76,7 @@ model User {
   creatorProfile   CreatorProfile?
   brandProfile     BrandProfile?
   organiserProfile OrganiserProfile?
+  onboardingProgress OnboardingProgress?
   campaignsAsBrand Campaign[]        @relation("CampaignBrand")
   applications     Application[]
   contractsSigned  Contract[]        @relation("ContractCreator")
@@ -84,11 +86,27 @@ model User {
   notifications    Notification[]
   reviewsGiven     Review[]          @relation("Reviewer")
   reviewsReceived  Review[]          @relation("Reviewee")
+  messagesSent     Message[]
+}
+
+model OnboardingProgress {
+  id                String   @id @default(cuid())
+  sessionId         String   @unique
+  userId            String?  @unique
+  role              Role
+  data              Json
+  lastCompletedStep String?
+  completed         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model CreatorProfile {
   userId         String    @id
   displayName    String
+  username       String?
   bio            String?
   niche          String
   state          String
@@ -98,17 +116,61 @@ model CreatorProfile {
   kycStatus      KYCStatus @default(NONE)
   bankDetails    String?
   avatarUrl      String?
+  createdAt      DateTime  @default(now())
+
+  // Step 1 Fields
+  country        String?
+  city           String?
+  phone          String?
+
+  // Step 2 Fields
+  youtube        String?
+  linkedin       String?
+  website        String?
+  genderDist     Int?
+  selectedAge    String?
+
+  // Step 3 Fields
+  categories     String[]
+  openToBarter   Boolean   @default(false)
+  openToLongTerm Boolean   @default(false)
+  openToTravel   Boolean   @default(false)
+  rateReel       String?
+  rateStory      String?
+  rateEvent      String?
+  agreements     Json?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model BrandProfile {
-  userId      String @id
-  companyName String
-  founderName String
-  industry    String
-  phone       String
-  avatarUrl   String?
+  userId            String   @id
+  companyName       String
+  founderName       String
+  industry          String
+  phone             String
+  avatarUrl         String?
+
+  // Step 2 Fields
+  website           String?
+  companySize       String?
+  location          String?
+
+  // Step 3 Fields
+  targetTypes       String[]
+  primaryObjective  String?
+  targetAudiences   String[]
+  audienceOther     String?
+  primaryAgeGroup   String?
+  nicheInterests    String?
+
+  // Step 4 Fields
+  jobTitle          String?
+  workEmail         String?
+  phoneCode         String?
+  linkedin          String?
+  agreements        Json?
+  createdAt         DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -119,7 +181,22 @@ model OrganiserProfile {
   contactName String
   state       String
   phone       String
+  phoneCode   String?
+  phoneCountry String?
   avatarUrl   String?
+  country     String?
+  city        String?
+  eventType   String?
+  selectedReqs String[]
+  selectedGoal String?
+  footfall    String?
+  budget      String?
+  jobTitle    String?
+  workEmail   String?
+  website     String?
+  instagram   String?
+  agreements  Json?
+  createdAt   DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -158,8 +235,21 @@ model Application {
   campaign Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   creator  User      @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   contract Contract?
+  messages Message[]
 
   @@unique([campaignId, creatorId])
+}
+
+model Message {
+  id            String      @id @default(cuid())
+  applicationId String
+  senderId      String
+  body          String
+  readAt        DateTime?
+  createdAt     DateTime    @default(now())
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  sender      User        @relation(fields: [senderId], references: [id], onDelete: Cascade)
 }
 
 model Contract {

@@ -6,6 +6,10 @@ import { getEnv } from "./config/env.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { waitlistRoutes } from "./modules/waitlist/waitlist.routes.js";
 import { authRoutes } from "./modules/auth/auth.routes.js";
+import { onboardingRoutes } from "./modules/onboarding/onboarding.routes.js";
+import { campaignRoutes } from "./modules/campaigns/campaigns.routes.js";
+import { escrowRoutes } from "./modules/escrow/escrow.routes.js";
+import { dashboardRoutes } from "./modules/dashboard/dashboard.routes.js";
 
 export async function buildApp() {
   const env = getEnv();
@@ -44,6 +48,10 @@ export async function buildApp() {
 
   app.register(waitlistRoutes, { prefix: "/api/waitlist" });
   app.register(authRoutes, { prefix: "/api/auth" }); // ✅ ADD THIS LINE
+  app.register(onboardingRoutes, { prefix: "/api/onboarding" });
+  app.register(campaignRoutes, { prefix: "/api/campaigns" });
+  app.register(escrowRoutes, { prefix: "/api/escrow" });
+  app.register(dashboardRoutes, { prefix: "/api/dashboard" });
 
   return app;
 }

@@ -1,10 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { saveOnboardingStep } from '../../lib/onboardingProgress';
 
 const Event_Step2_Goals = () => {
   const navigate = useNavigate();
   const [selectedReqs, setSelectedReqs] = useState(['Local Micro-Influencers']);
   const [selectedGoal, setSelectedGoal] = useState('Increase Ticket Sales');
+  const [form, setForm] = useState({
+    footfall: '',
+    budget: ''
+  });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const requirements = [
     'Local Micro-Influencers', 'Lifestyle Creators', 
@@ -64,6 +75,46 @@ const Event_Step2_Goals = () => {
       setSelectedReqs(selectedReqs.filter(r => r !== req));
     } else {
       setSelectedReqs([...selectedReqs, req]);
+    }
+  };
+
+  useEffect(() => {
+    try {
+      const existing = JSON.parse(localStorage.getItem("onboardingData") || "{}");
+      localStorage.setItem(
+        "onboardingData",
+        JSON.stringify({
+          ...(existing && typeof existing === "object" ? existing : {}),
+          event: {
+            ...((existing && typeof existing === "object" && existing.event && typeof existing.event === "object")
+              ? existing.event
+              : {}),
+            step2: { selectedReqs, selectedGoal, ...form },
+          },
+        })
+      );
+    } catch (_) {}
+  }, [selectedReqs, selectedGoal, form]);
+
+  const handleNext = async () => {
+    const newErrors = {};
+    if (!form.footfall) newErrors.footfall = "Required";
+    if (!form.budget) newErrors.budget = "Required";
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    setErrors({});
+    setLoading(true);
+    try {
+      await saveOnboardingStep("event", "step2", { selectedReqs, selectedGoal, ...form });
+      navigate('/event/step3');
+    } catch (error) {
+      console.error("Error saving event step 2:", error);
+      setErrors((prev) => ({ ...prev, submit: "Could not save this step. Please try again." }));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -157,6 +208,7 @@ const Event_Step2_Goals = () => {
                   }`}>{goal.title}</h5>
                 </div>
               ))}
+            {errors.goal && <p className="text-red-500 text-[10px] mt-4 ml-1">{errors.goal}</p>}
             </div>
           </div>
 
@@ -176,9 +228,13 @@ const Event_Step2_Goals = () => {
                   </div>
                   <input 
                     type="text" 
+                    name="footfall"
+                    value={form.footfall}
+                    onChange={handleChange}
                     placeholder="e.g. 5000" 
-                    className="w-full h-12 bg-white border border-gray-100 rounded-lg pl-12 pr-4 text-sm focus:outline-none focus:border-blue-500 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm"
+                    className={`w-full h-12 bg-white border ${errors.footfall ? 'border-red-500' : 'border-gray-100'} rounded-lg pl-12 pr-4 text-sm focus:outline-none focus:border-blue-500 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm`}
                   />
+                  {errors.footfall && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.footfall}</p>}
                 </div>
               </div>
               <div className="space-y-2.5">
@@ -189,9 +245,13 @@ const Event_Step2_Goals = () => {
                   </div>
                   <input 
                     type="text" 
+                    name="budget"
+                    value={form.budget}
+                    onChange={handleChange}
                     placeholder="e.g. 50,000" 
-                    className="w-full h-12 bg-white border border-gray-100 rounded-lg pl-12 pr-4 text-sm focus:outline-none focus:border-blue-500 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm"
+                    className={`w-full h-12 bg-white border ${errors.budget ? 'border-red-500' : 'border-gray-100'} rounded-lg pl-12 pr-4 text-sm focus:outline-none focus:border-blue-500 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm`}
                   />
+                  {errors.budget && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.budget}</p>}
                 </div>
               </div>
             </div>
@@ -206,10 +266,11 @@ const Event_Step2_Goals = () => {
               Back
             </button>
             <button 
-              onClick={() => navigate('/event/step3')}
+              onClick={handleNext}
+              disabled={loading}
               className="flex-1 h-16 bg-[#010B1F] text-white rounded-[12px] font-bold text-[16px] flex items-center justify-center gap-3 hover:bg-[#02152a] transition-all shadow-[0_12px_24px_-8px_rgba(1,11,31,0.5)] active:scale-[0.99] border-none outline-none"
             >
-              Save & Continue
+              {loading ? "Saving..." : "Save & Continue"}
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </button>
           </div>

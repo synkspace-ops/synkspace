@@ -2218,7 +2218,7 @@ body {
       <img src="assets/synkspace-logo.png" class="nav-logo-img" alt="SynkSpace Logo">
       <span class="nav-logo-text">SynkSpace</span>
     </div>
-    <a href="/select-role" class="nav-cta-btn" id="navCta" style="opacity:0;pointer-events:none;transition:opacity 0.3s ease;" onclick="event.preventDefault(); history.pushState({}, '', '/select-role');">Get Early Access</a>
+    <a href="/select-role" class="nav-cta-btn" id="navCta" style="opacity:0;pointer-events:none;transition:opacity 0.3s ease;" onclick="event.preventDefault(); window.location.assign('/select-role'); return false;">Get Early Access</a>
   </div>
 </nav>
 
@@ -2253,7 +2253,7 @@ body {
 
           <div class="hero-cta-area">
             <div class="hero-buttons-row" id="heroCtaRow">
-              <a href="/select-role" class="btn-creator" id="heroCta" onclick="event.preventDefault(); history.pushState({}, '', '/select-role');">
+              <a href="/select-role" class="btn-creator" id="heroCta" onclick="event.preventDefault(); window.location.assign('/select-role'); return false;">
                 <div class="b-icon">
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                     <circle cx="10" cy="7" r="4.5" stroke="#E2E8F0" stroke-width="1.6"/>

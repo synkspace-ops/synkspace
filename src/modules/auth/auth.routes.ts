@@ -55,6 +55,13 @@ export async function authRoutes(app: FastifyInstance, _opts: FastifyPluginOptio
     }
   });
 
+  app.post("/refresh", async (_request, reply) => {
+    return reply.status(401).send({
+      success: false,
+      error: { code: "AUTH_INVALID_CREDENTIALS" },
+    });
+  });
+
   app.get("/me", async (request, reply) => {
     try {
       const authHeader = request.headers.authorization;

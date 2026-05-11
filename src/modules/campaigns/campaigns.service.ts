@@ -13,17 +13,21 @@ export async function listCampaigns(input: ListCampaignsInput) {
   if (budgetMin != null) where.budgetMin = { gte: budgetMin };
   if (budgetMax != null) where.budgetMax = { lte: budgetMax };
 
-  const [items, total] = await Promise.all([
-    prisma.campaign.findMany({
-      where,
-      skip,
-      take: limit,
-      orderBy: { createdAt: "desc" },
-      include: { brand: { select: { id: true, brandProfile: true } } },
-    }),
-    prisma.campaign.count({ where }),
-  ]);
-  return { items, total, page, limit };
+  try {
+    const [items, total] = await Promise.all([
+      prisma.campaign.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: "desc" },
+        include: { brand: { select: { id: true, brandProfile: true } } },
+      }),
+      prisma.campaign.count({ where }),
+    ]);
+    return { items, total, page, limit };
+  } catch {
+    return { items: [], total: 0, page, limit };
+  }
 }
 
 export async function getRecommendedForCreator(creatorId: string, limit = 10) {

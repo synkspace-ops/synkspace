@@ -1,6 +1,5 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import jwt from "jsonwebtoken";
-import { getEnv } from "../config/env.js";
+import { verifyAccessToken } from "../modules/auth/auth.service.js";
 
 export interface JwtPayload {
   sub: string;
@@ -37,12 +36,9 @@ export async function authGuard(
     return;
   }
   try {
-    const env = getEnv();
-    const decoded = jwt.verify(token, env.JWT_PUBLIC_KEY, {
-      algorithms: ["RS256"],
-    }) as JwtPayload;
+    const decoded = verifyAccessToken(token);
     request.user = {
-      id: decoded.sub,
+      id: decoded.id,
       email: decoded.email,
       role: decoded.role,
     };

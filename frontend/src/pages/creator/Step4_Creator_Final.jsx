@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiPost } from '../../lib/api';
+import { persistDashboardUser } from '../../lib/dashboardUser';
+import { buildOnboardingCompletePayload, clearOnboardingSession, saveOnboardingStep } from '../../lib/onboardingProgress';
 
 const Step4_Creator_Final = () => {
   const navigate = useNavigate();
@@ -9,9 +12,58 @@ const Step4_Creator_Final = () => {
     escrow: false,
     conduct: false
   });
+  const [errors, setErrors] = useState({});
 
   const toggleAgreement = (key) => {
     setAgreements(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  useEffect(() => {
+    try {
+      const existing = JSON.parse(localStorage.getItem("onboardingData") || "{}");
+      const next = {
+        ...(existing && typeof existing === "object" ? existing : {}),
+        creator: {
+          ...((existing && typeof existing === "object" && existing.creator && typeof existing.creator === "object")
+            ? existing.creator
+            : {}),
+          step4: { agreements },
+        },
+      };
+      localStorage.setItem("onboardingData", JSON.stringify(next));
+    } catch (_) {}
+  }, [agreements]);
+
+  const handleSubmit = async (e) => {
+    e?.preventDefault?.();
+
+    const newErrors = {};
+    if (!agreements.influencer) newErrors.influencer = "Please accept the agreement";
+    if (!agreements.commission) newErrors.commission = "Please accept the commission structure";
+    if (!agreements.escrow) newErrors.escrow = "Please accept the escrow system";
+    if (!agreements.conduct) newErrors.conduct = "Please accept the code of conduct";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    setErrors({});
+
+    try {
+      await saveOnboardingStep("creator", "step4", { agreements });
+      const stored = JSON.parse(localStorage.getItem("onboardingData"));
+      const payload = buildOnboardingCompletePayload("creator");
+      const res = await apiPost("/api/onboarding/complete", payload);
+      
+      persistDashboardUser("creator", stored, res?.data?.user);
+
+      localStorage.removeItem("onboardingData");
+      clearOnboardingSession();
+      navigate("/creator/dashboard");
+    } catch (error) {
+      console.error("Error completing onboarding via API:", error);
+      setErrors((prev) => ({ ...prev, submit: "Could not verify saved database details. Please try again." }));
+    }
   };
 
   return (
@@ -113,6 +165,7 @@ const Step4_Creator_Final = () => {
                 <p className="text-gray-400 text-[13px] font-medium leading-relaxed">
                   I agree to the <span className="text-[#050B18] font-bold">Standard Influencer Agreement</span>, which governs the overall relationship with SynkSpace.
                 </p>
+                {errors.influencer && <p className="text-red-500 text-[10px] mt-1">{errors.influencer}</p>}
               </div>
 
               {/* Checkbox 2 */}
@@ -123,6 +176,7 @@ const Step4_Creator_Final = () => {
                 <p className="text-gray-400 text-[13px] font-medium leading-relaxed">
                   I acknowledge the <span className="text-[#050B18] font-bold">10-20% commission structure</span> applied to successful brand deals.
                 </p>
+                {errors.commission && <p className="text-red-500 text-[10px] mt-1">{errors.commission}</p>}
               </div>
 
               {/* Checkbox 3 */}
@@ -133,6 +187,7 @@ const Step4_Creator_Final = () => {
                 <p className="text-gray-400 text-[13px] font-medium leading-relaxed">
                   I agree to use the secure <span className="text-[#050B18] font-bold">Escrow system</span> for all payments to ensure safe transactions.
                 </p>
+                {errors.escrow && <p className="text-red-500 text-[10px] mt-1">{errors.escrow}</p>}
               </div>
 
               {/* Checkbox 4 */}
@@ -143,9 +198,16 @@ const Step4_Creator_Final = () => {
                 <p className="text-gray-400 text-[13px] font-medium leading-relaxed">
                   I consent to the <span className="text-[#050B18] font-bold">Creator Code of Conduct</span> and community guidelines.
                 </p>
+                {errors.conduct && <p className="text-red-500 text-[10px] mt-1">{errors.conduct}</p>}
               </div>
             </div>
           </div>
+
+          {errors.submit && (
+            <p className="mt-8 text-sm font-semibold text-red-500">
+              {errors.submit}
+            </p>
+          )}
 
           {/* Actions */}
           <div className="flex items-center gap-12 mt-16 pt-10 border-t border-gray-50">
@@ -156,7 +218,7 @@ const Step4_Creator_Final = () => {
               Back
             </button>
             <button 
-              onClick={() => navigate('/')}
+              onClick={handleSubmit}
               className="flex-1 h-16 bg-[#010B1F] text-white rounded-[12px] font-bold text-[16px] flex items-center justify-center gap-3 hover:bg-[#02152a] transition-all shadow-[0_12px_24px_-8px_rgba(1,11,31,0.5)] active:scale-[0.99] border-none outline-none"
             >
               Complete Onboarding

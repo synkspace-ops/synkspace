@@ -2,7 +2,38 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from "react";
+import { Country, State } from 'country-state-city';
 import { apiPost } from '../../lib/api';
+import { saveOnboardingStep } from '../../lib/onboardingProgress';
+import { COUNTRIES } from '../../lib/constants';
+import { COUNTRY_PHONE_OPTIONS } from '../brand/Step4_Brand_Team';
+
+const COUNTRY_NAME_ALIASES = {
+  UAE: 'United Arab Emirates',
+  'Palestinian Territory': 'Palestine',
+  Macedonia: 'North Macedonia',
+  'Republic of the Congo': 'Congo',
+  'East Timor': 'Timor-Leste',
+  Curacao: 'Curaçao',
+  'Ivory Coast': "Côte d'Ivoire",
+};
+
+const countryIsoByName = new Map(
+  Country.getAllCountries().flatMap((country) => [
+    [country.name, country.isoCode],
+    [country.name.toLowerCase(), country.isoCode],
+  ])
+);
+
+const getCountryIsoCode = (countryName) => {
+  const normalizedName = COUNTRY_NAME_ALIASES[countryName] || countryName;
+  return countryIsoByName.get(normalizedName) || countryIsoByName.get(normalizedName.toLowerCase()) || '';
+};
+
+const getStatesForCountry = (countryName) => {
+  const isoCode = getCountryIsoCode(countryName);
+  return isoCode ? State.getStatesOfCountry(isoCode) : [];
+};
 
 const Event_Step1_CreateAccount = () => {
   const navigate = useNavigate();
@@ -11,15 +42,44 @@ const Event_Step1_CreateAccount = () => {
     fullName: '',
     company: '',
     email: '',
+    password: '',
+    phoneCountry: 'India',
+    phoneCode: '+91',
     phone: '',
     eventType: '',
-    country: '',
+    country: 'India',
     state: '',
     city: ''
   });
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const selectedPhoneCountry =
+    COUNTRY_PHONE_OPTIONS.find((country) => country.name === form.phoneCountry) ||
+    COUNTRY_PHONE_OPTIONS.find((country) => country.name === 'India');
+  const stateOptions = getStatesForCountry(form.country);
+
+  const handlePhoneCountryChange = (e) => {
+    const country = COUNTRY_PHONE_OPTIONS.find((item) => item.name === e.target.value);
+    if (!country) return;
+    setForm({
+      ...form,
+      phoneCountry: country.name,
+      phoneCode: country.dialCode,
+      phone: '',
+    });
+  };
 
   const handleChange = (e) => {
+    if (e.target.name === 'country') {
+      setForm({
+        ...form,
+        country: e.target.value,
+        state: '',
+        city: '',
+      });
+      return;
+    }
+
     setForm({
       ...form,
       [e.target.name]: e.target.value
@@ -28,17 +88,48 @@ const Event_Step1_CreateAccount = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validation
+    const newErrors = {};
+    if (!form.fullName) newErrors.fullName = "Required";
+    if (!form.company) newErrors.company = "Required";
+    if (!form.email) {
+      newErrors.email = "Required";
+    } else if (!form.email.includes('@') || !form.email.includes('.')) {
+      newErrors.email = "Invalid email format";
+    }
+    if (!form.password || form.password.length < 8) newErrors.password = "Password must be at least 8 characters";
+    if (!form.phone) newErrors.phone = "Required";
+    if (!form.eventType) newErrors.eventType = "Required";
+    if (!form.country) newErrors.country = "Required";
+    if (!form.state) newErrors.state = "Required";
+    if (!form.city) newErrors.city = "Required";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
     setLoading(true);
     try {
-      const response = await apiPost("/api/auth/register", {
-  role: "event",
-  email: form.email,
-  password: form.password,
-});
-      console.log("Success:", response);
+      await saveOnboardingStep("event", "step1", { ...form });
+      const registerRes = await apiPost("/api/auth/register", {
+        role: "ORGANISER",
+        email: form.email,
+        password: form.password,
+      });
+      const loginRes = await apiPost("/api/auth/login", {
+        email: form.email,
+        password: form.password,
+      });
+      if (loginRes?.data?.accessToken) localStorage.setItem("token", loginRes.data.accessToken);
+      if (registerRes?.data?.user) localStorage.setItem("currentUser", JSON.stringify(registerRes.data.user));
+
       navigate('/event/step2');
     } catch (error) {
       console.error("Error saving data:", error);
+      setErrors((prev) => ({ ...prev, submit: "Could not save this step. Please try again." }));
     } finally {
       setLoading(false);
     }
@@ -175,9 +266,10 @@ const Event_Step1_CreateAccount = () => {
                     value={form.fullName}
                     onChange={handleChange}
                     placeholder="John Smith"
-                    className="w-full h-12 bg-white border border-gray-100 rounded-lg px-4 pr-10 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/20 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm"
+                    className={`w-full h-12 bg-white border ${errors.fullName ? 'border-red-500' : 'border-gray-100'} rounded-lg px-4 pr-10 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/20 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm`}
                   />
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300">
+                  {errors.fullName && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.fullName}</p>}
+                  <div className="absolute right-4 top-6 -translate-y-1/2 text-gray-300">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                   </div>
                 </div>
@@ -191,16 +283,17 @@ const Event_Step1_CreateAccount = () => {
                     value={form.company}
                     onChange={handleChange}
                     placeholder="Acme Events LLC"
-                    className="w-full h-12 bg-white border border-gray-100 rounded-lg px-4 pr-10 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/20 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm"
+                    className={`w-full h-12 bg-white border ${errors.company ? 'border-red-500' : 'border-gray-100'} rounded-lg px-4 pr-10 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/20 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm`}
                   />
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300">
+                  {errors.company && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.company}</p>}
+                  <div className="absolute right-4 top-6 -translate-y-1/2 text-gray-300">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"></path><path d="M3 7v1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7H3l2-4h14l2 4"></path><line x1="9" y1="21" x2="9" y2="14"></line><line x1="15" y1="21" x2="15" y2="14"></line></svg>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6">
               <div className="space-y-2.5">
                 <label className="text-gray-600 text-[13px] font-bold ml-1">Work Email</label>
                 <div className="relative group">
@@ -210,28 +303,62 @@ const Event_Step1_CreateAccount = () => {
                     value={form.email}
                     onChange={handleChange}
                     placeholder="john@company.com"
-                    className="w-full h-12 bg-white border border-gray-100 rounded-lg px-4 pr-10 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/20 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm"
+                    className={`w-full h-12 bg-white border ${errors.email ? 'border-red-500' : 'border-gray-100'} rounded-lg px-4 pr-10 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/20 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm`}
                   />
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300">
+                  {errors.email && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.email}</p>}
+                  <div className="absolute right-4 top-6 -translate-y-1/2 text-gray-300">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                   </div>
                 </div>
               </div>
               <div className="space-y-2.5">
+                <label className="text-gray-600 text-[13px] font-bold ml-1">Password</label>
+                <input
+                  type="password"
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  placeholder="Minimum 8 characters"
+                  className={`w-full h-12 bg-white border ${errors.password ? 'border-red-500' : 'border-gray-100'} rounded-lg px-4 pr-10 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/20 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm`}
+                />
+                {errors.password && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.password}</p>}
+              </div>
+              <div className="space-y-2.5 min-w-0">
                 <label className="text-gray-600 text-[13px] font-bold ml-1">Phone Number</label>
-                <div className="relative group">
+                <div className="grid grid-cols-[minmax(0,150px)_minmax(0,1fr)] gap-2">
+                  <div className="relative min-w-0">
+                    <select
+                      name="phoneCountry"
+                      value={form.phoneCountry}
+                      onChange={handlePhoneCountryChange}
+                      className={`w-full min-w-0 h-12 bg-white border ${errors.phone ? 'border-red-500' : 'border-gray-100'} rounded-lg px-3 pr-8 appearance-none text-sm text-gray-600 font-medium focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/20 transition-all shadow-sm truncate`}
+                    >
+                      {COUNTRY_PHONE_OPTIONS.map((country) => (
+                        <option key={`${country.name}-${country.dialCode}`} value={country.name}>
+                          {country.name} ({country.dialCode})
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-300">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="7 10 12 15 17 10"></polyline></svg>
+                    </div>
+                  </div>
+                  <div className="relative group min-w-0">
                   <input
                     type="tel"
                     name="phone"
                     value={form.phone}
                     onChange={handleChange}
-                    placeholder="+1 (555) 000-0000"
-                    className="w-full h-12 bg-white border border-gray-100 rounded-lg px-4 pr-10 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/20 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm"
+                    placeholder={selectedPhoneCountry?.placeholder || 'Local phone number'}
+                    className={`w-full min-w-0 h-12 bg-white border ${errors.phone ? 'border-red-500' : 'border-gray-100'} rounded-lg px-4 pr-10 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/20 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm`}
                   />
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300">
+                  <div className="absolute right-4 top-6 -translate-y-1/2 text-gray-300">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                   </div>
+                  </div>
                 </div>
+                <input type="hidden" name="phoneCode" value={form.phoneCode} readOnly />
+                {errors.phone && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.phone}</p>}
               </div>
             </div>
 
@@ -242,13 +369,14 @@ const Event_Step1_CreateAccount = () => {
                   name="eventType"
                   value={form.eventType}
                   onChange={handleChange}
-                  className="w-full h-12 bg-white border border-gray-100 rounded-lg px-4 appearance-none text-sm text-gray-400 font-medium focus:outline-none focus:border-blue-500 transition-all shadow-sm"
+                  className={`w-full h-12 bg-white border ${errors.eventType ? 'border-red-500' : 'border-gray-100'} rounded-lg px-4 appearance-none text-sm text-gray-400 font-medium focus:outline-none focus:border-blue-500 transition-all shadow-sm`}
                 >
                   <option value="">Select event category</option>
                   <option value="music">Music & Festival</option>
                   <option value="tech">Tech & Business</option>
                   <option value="sports">Sports & Outdoor</option>
                 </select>
+                {errors.eventType && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.eventType}</p>}
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="7 10 12 15 17 10"></polyline></svg>
                 </div>
@@ -265,30 +393,46 @@ const Event_Step1_CreateAccount = () => {
                     onChange={handleChange}
                     className="w-full h-12 bg-white border border-gray-100 rounded-lg px-3 appearance-none text-sm text-gray-400 font-medium focus:outline-none focus:border-blue-500 transition-all shadow-sm"
                   >
-                    <option value="">Country</option>
-                    <option value="US">United States</option>
-                    <option value="UK">United Kingdom</option>
-                    <option value="CA">Canada</option>
+                    {COUNTRIES.map((country) => (
+                      <option key={country} value={country}>
+                        {country}
+                      </option>
+                    ))}
                   </select>
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-300">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="7 10 12 15 17 10"></polyline></svg>
                   </div>
                 </div>
                 <div className="relative">
-                  <select
-                    name="state"
-                    value={form.state}
-                    onChange={handleChange}
-                    className="w-full h-12 bg-white border border-gray-100 rounded-lg px-3 appearance-none text-sm text-gray-400 font-medium focus:outline-none focus:border-blue-500 transition-all shadow-sm"
-                  >
-                    <option value="">State</option>
-                    <option value="NY">New York</option>
-                    <option value="CA">California</option>
-                    <option value="TX">Texas</option>
-                  </select>
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-300">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="7 10 12 15 17 10"></polyline></svg>
-                  </div>
+                  {stateOptions.length > 0 ? (
+                    <>
+                      <select
+                        name="state"
+                        value={form.state}
+                        onChange={handleChange}
+                        className="w-full h-12 bg-white border border-gray-100 rounded-lg px-3 appearance-none text-sm text-gray-400 font-medium focus:outline-none focus:border-blue-500 transition-all shadow-sm"
+                      >
+                        <option value="">State</option>
+                        {stateOptions.map((state) => (
+                          <option key={state.isoCode || state.name} value={state.name}>
+                            {state.name}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-300">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="7 10 12 15 17 10"></polyline></svg>
+                      </div>
+                    </>
+                  ) : (
+                    <input
+                      type="text"
+                      name="state"
+                      value={form.state}
+                      onChange={handleChange}
+                      placeholder="State / Region"
+                      className={`w-full h-12 bg-white border ${errors.state ? 'border-red-500' : 'border-gray-100'} rounded-lg px-3 text-sm focus:outline-none focus:border-blue-500 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm`}
+                    />
+                  )}
                 </div>
                 <input
                   type="text"
@@ -296,8 +440,13 @@ const Event_Step1_CreateAccount = () => {
                   value={form.city}
                   onChange={handleChange}
                   placeholder="City"
-                  className="w-full h-12 bg-white border border-gray-100 rounded-lg px-4 text-sm focus:outline-none focus:border-blue-500 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm"
+                  className={`w-full h-12 bg-white border ${errors.city ? 'border-red-500' : 'border-gray-100'} rounded-lg px-4 text-sm focus:outline-none focus:border-blue-500 transition-all placeholder:text-gray-200 font-medium text-gray-600 shadow-sm`}
                 />
+              </div>
+              <div className="flex gap-4">
+                {errors.country && <p className="text-red-500 text-[10px] mt-1 flex-1">{errors.country}</p>}
+                {errors.state && <p className="text-red-500 text-[10px] mt-1 flex-1">{errors.state}</p>}
+                {errors.city && <p className="text-red-500 text-[10px] mt-1 flex-1">{errors.city}</p>}
               </div>
             </div>
 

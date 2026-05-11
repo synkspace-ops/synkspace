@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { saveOnboardingStep } from '../../lib/onboardingProgress';
 
 const Step3_Creator_Value = () => {
   const navigate = useNavigate();
@@ -9,10 +10,25 @@ const Step3_Creator_Value = () => {
     longTerm: true,
     travel: false
   });
+  const [form, setForm] = useState({
+    primaryNiche: '',
+    rateReel: '',
+    rateStory: '',
+    rateEvent: ''
+  });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const categories = [
     'Photography', 'Video Production', 'Blogging', 
-    'UGC', 'Live Streaming', 'Reviews'
+    'UGC', 'Live Streaming', 'Reviews',
+    'Podcasting', 'Vlogging', 'Tutorials & How-tos',
+    'Unboxing', 'Short-form Video', 'Long-form Video',
+    'News & Commentary', 'Interviews', 'Live Events'
   ];
 
   const toggleCategory = (cat) => {
@@ -25,6 +41,47 @@ const Step3_Creator_Value = () => {
 
   const togglePreference = (key) => {
     setPreferences(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  useEffect(() => {
+    try {
+      const existing = JSON.parse(localStorage.getItem("onboardingData") || "{}");
+      localStorage.setItem(
+        "onboardingData",
+        JSON.stringify({
+          ...(existing && typeof existing === "object" ? existing : {}),
+          creator: {
+            ...((existing && typeof existing === "object" && existing.creator && typeof existing.creator === "object")
+              ? existing.creator
+              : {}),
+            step3: { selectedCategories, preferences, ...form },
+          },
+        })
+      );
+    } catch (_) {}
+  }, [selectedCategories, preferences, form]);
+
+  const handleNext = async () => {
+    const newErrors = {};
+    if (!form.primaryNiche || form.primaryNiche === 'Select your main category') newErrors.primaryNiche = "Required";
+    if (selectedCategories.length === 0) newErrors.categories = "Select at least one";
+    if (!form.rateReel) newErrors.rateReel = "Required";
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    setErrors({});
+    setLoading(true);
+    try {
+      await saveOnboardingStep("creator", "step3", { selectedCategories, preferences, ...form });
+      navigate('/creator/step4');
+    } catch (error) {
+      console.error("Error saving creator step 3:", error);
+      setErrors((prev) => ({ ...prev, submit: "Could not save this step. Please try again." }));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -78,12 +135,27 @@ const Step3_Creator_Value = () => {
               <div className="space-y-2">
                 <label className="text-[#050B18] text-xs font-bold">Primary Niche</label>
                 <div className="relative">
-                  <select className="w-full h-12 bg-white border border-gray-200 rounded-lg px-4 appearance-none text-sm text-gray-400 font-medium focus:outline-none focus:border-blue-500 transition-all">
-                    <option>Select your main category</option>
-                    <option>Tech & Gaming</option>
-                    <option>Lifestyle & Fashion</option>
-                    <option>Fitness & Wellness</option>
+                  <select 
+                    name="primaryNiche"
+                    value={form.primaryNiche}
+                    onChange={handleChange}
+                    className={`w-full h-12 bg-white border ${errors.primaryNiche ? 'border-red-500' : 'border-gray-200'} rounded-lg px-4 appearance-none text-sm text-gray-400 font-medium focus:outline-none focus:border-blue-500 transition-all`}
+                  >
+                    <option value="">Select your main category</option>
+                    <option value="Tech & Gaming">Tech & Gaming</option>
+                    <option value="Lifestyle & Fashion">Lifestyle & Fashion</option>
+                    <option value="Fitness & Wellness">Fitness & Wellness</option>
+                    <option value="Beauty & Makeup">Beauty & Makeup</option>
+                    <option value="Travel & Leisure">Travel & Leisure</option>
+                    <option value="Food & Beverage">Food & Beverage</option>
+                    <option value="Business & Finance">Business & Finance</option>
+                    <option value="Education & Learning">Education & Learning</option>
+                    <option value="Entertainment & Comedy">Entertainment & Comedy</option>
+                    <option value="Art & Design">Art & Design</option>
+                    <option value="Parenting & Family">Parenting & Family</option>
+                    <option value="Home & Decor">Home & Decor</option>
                   </select>
+                  {errors.primaryNiche && <p className="text-red-500 text-[10px] mt-1 ml-1">{errors.primaryNiche}</p>}
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                   </div>
@@ -95,6 +167,7 @@ const Step3_Creator_Value = () => {
                   <label className="text-[#050B18] text-xs font-bold">Content Categories</label>
                   <span className="text-gray-300 text-[10px] font-medium">(Select all that apply)</span>
                 </div>
+                {errors.categories && <p className="text-red-500 text-[10px] ml-1">{errors.categories}</p>}
                 <div className="flex flex-wrap gap-3">
                   {categories.map((cat) => (
                     <button
@@ -124,23 +197,45 @@ const Step3_Creator_Value = () => {
             <div className="grid grid-cols-3 gap-6 mb-4">
               <div className="space-y-2">
                 <label className="text-[#050B18] text-xs font-bold">Rate per Reel</label>
-                <div className="flex items-center border border-gray-100 rounded-lg overflow-hidden focus-within:border-blue-500">
+                <div className={`flex items-center border ${errors.rateReel ? 'border-red-500' : 'border-gray-100'} rounded-lg overflow-hidden focus-within:border-blue-500`}>
                   <div className="w-10 h-12 bg-gray-50 flex items-center justify-center text-gray-400 text-sm font-bold border-r border-gray-50">$</div>
-                  <input type="text" placeholder="0.00" className="flex-1 px-4 h-12 text-sm focus:outline-none placeholder:text-gray-200 text-gray-600 font-medium" />
+                  <input 
+                    type="text" 
+                    name="rateReel"
+                    value={form.rateReel}
+                    onChange={handleChange}
+                    placeholder="0.00" 
+                    className="flex-1 px-4 h-12 text-sm focus:outline-none placeholder:text-gray-200 text-gray-600 font-medium" 
+                  />
                 </div>
+                {errors.rateReel && <p className="text-red-500 text-[10px] mt-1">{errors.rateReel}</p>}
               </div>
               <div className="space-y-2">
                 <label className="text-[#050B18] text-xs font-bold">Rate per Story</label>
                 <div className="flex items-center border border-gray-100 rounded-lg overflow-hidden focus-within:border-blue-500">
                   <div className="w-10 h-12 bg-gray-50 flex items-center justify-center text-gray-400 text-sm font-bold border-r border-gray-50">$</div>
-                  <input type="text" placeholder="0.00" className="flex-1 px-4 h-12 text-sm focus:outline-none placeholder:text-gray-200 text-gray-600 font-medium" />
+                  <input 
+                    type="text" 
+                    name="rateStory"
+                    value={form.rateStory}
+                    onChange={handleChange}
+                    placeholder="0.00" 
+                    className="flex-1 px-4 h-12 text-sm focus:outline-none placeholder:text-gray-200 text-gray-600 font-medium" 
+                  />
                 </div>
               </div>
               <div className="space-y-2">
                 <label className="text-[#050B18] text-xs font-bold">Event Appearance Fee</label>
                 <div className="flex items-center border border-gray-100 rounded-lg overflow-hidden focus-within:border-blue-500">
                   <div className="w-10 h-12 bg-gray-50 flex items-center justify-center text-gray-400 text-sm font-bold border-r border-gray-50">$</div>
-                  <input type="text" placeholder="0.00" className="flex-1 px-4 h-12 text-sm focus:outline-none placeholder:text-gray-200 text-gray-600 font-medium" />
+                  <input 
+                    type="text" 
+                    name="rateEvent"
+                    value={form.rateEvent}
+                    onChange={handleChange}
+                    placeholder="0.00" 
+                    className="flex-1 px-4 h-12 text-sm focus:outline-none placeholder:text-gray-200 text-gray-600 font-medium" 
+                  />
                 </div>
               </div>
             </div>
@@ -155,7 +250,6 @@ const Step3_Creator_Value = () => {
             </div>
 
             <div className="space-y-4">
-              {/* Toggle Row 1 */}
               <div className="bg-[#f8fafc] rounded-xl p-6 flex items-center justify-between border border-gray-50">
                 <div>
                   <h5 className="text-[#050B18] text-[14px] font-bold mb-0.5 tracking-tight">Open to Barter</h5>
@@ -169,7 +263,6 @@ const Step3_Creator_Value = () => {
                 </button>
               </div>
 
-              {/* Toggle Row 2 */}
               <div className="bg-[#f8fafc] rounded-xl p-6 flex items-center justify-between border border-gray-50">
                 <div>
                   <h5 className="text-[#050B18] text-[14px] font-bold mb-0.5 tracking-tight">Open to Long-term Partnerships</h5>
@@ -183,11 +276,10 @@ const Step3_Creator_Value = () => {
                 </button>
               </div>
 
-              {/* Toggle Row 3 */}
               <div className="bg-[#f8fafc] rounded-xl p-6 flex items-center justify-between border border-gray-50">
                 <div>
-                  <h5 className="text-[#050B18] text-[14px] font-bold mb-0.5 tracking-tight">Available for Travel</h5>
-                  <p className="text-gray-400 text-[10px] font-medium">Willing to travel for events and shoots</p>
+                  <h5 className="text-[#050B18] text-[14px] font-bold mb-0.5 tracking-tight">Open to Travel</h5>
+                  <p className="text-gray-400 text-[10px] font-medium">Available for events and campaigns outside current city</p>
                 </div>
                 <button 
                   onClick={() => togglePreference('travel')}
@@ -208,10 +300,11 @@ const Step3_Creator_Value = () => {
               Back
             </button>
             <button 
-              onClick={() => navigate('/creator/step4')}
+              onClick={handleNext}
+              disabled={loading}
               className="flex-1 h-16 bg-[#010B1F] text-white rounded-[12px] font-bold text-[16px] flex items-center justify-center gap-3 hover:bg-[#02152a] transition-all shadow-[0_12px_24px_-8px_rgba(1,11,31,0.5)] active:scale-[0.99] border-none outline-none"
             >
-              Save & Continue
+              {loading ? "Saving..." : "Save & Continue"}
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </button>
           </div>

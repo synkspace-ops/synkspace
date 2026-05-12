@@ -138,6 +138,13 @@ export function AppProvider({ children, navigate }) {
     await refreshDashboard();
   };
 
+  const applyToCampaign = async (campaignId, application) => {
+    if (!userId) throw new Error("Missing dashboard user");
+    const response = await apiPost(`/api/campaigns/${campaignId}/applications`, application);
+    await refreshDashboard();
+    return response.data;
+  };
+
   const addMessage = async (conversationId, text) => {
     const response = await apiPost(`/api/dashboard/messages/${conversationId}`, { text });
     setDashboard((prev) => ({
@@ -147,7 +154,17 @@ export function AppProvider({ children, navigate }) {
       ),
     }));
   };
-  const markRead = () => {};
+
+  const markRead = async (conversationId) => {
+    if (!conversationId) return;
+    const response = await apiPatch(`/api/dashboard/messages/${conversationId}/read`, {});
+    setDashboard((prev) => ({
+      ...prev,
+      conversations: prev.conversations.map((conversation) =>
+        conversation.id === conversationId ? response.data : conversation
+      ),
+    }));
+  };
   const releasePayment = () => {};
   const addEvent = addCampaign;
 
@@ -162,6 +179,7 @@ export function AppProvider({ children, navigate }) {
     updateCampaignStatus,
     deleteCampaign,
     applications: dashboard.applications,
+    applyToCampaign,
     updateApplication,
     conversations: dashboard.conversations,
     notifications: dashboard.notifications,

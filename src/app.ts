@@ -8,8 +8,11 @@ import { waitlistRoutes } from "./modules/waitlist/waitlist.routes.js";
 import { authRoutes } from "./modules/auth/auth.routes.js";
 import { onboardingRoutes } from "./modules/onboarding/onboarding.routes.js";
 import { campaignRoutes } from "./modules/campaigns/campaigns.routes.js";
+import { applicationRoutes } from "./modules/applications/applications.routes.js";
 import { escrowRoutes } from "./modules/escrow/escrow.routes.js";
 import { dashboardRoutes } from "./modules/dashboard/dashboard.routes.js";
+import { notificationRoutes } from "./modules/notifications/notifications.routes.js";
+import { adminRoutes } from "./modules/admin/admin.routes.js";
 
 export async function buildApp() {
   const env = getEnv();
@@ -27,7 +30,7 @@ export async function buildApp() {
       "https://www.synkspace.in"
 
     ],
-    methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+    methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
     credentials: true,
   });
 
@@ -50,8 +53,11 @@ export async function buildApp() {
   app.register(authRoutes, { prefix: "/api/auth" }); // ✅ ADD THIS LINE
   app.register(onboardingRoutes, { prefix: "/api/onboarding" });
   app.register(campaignRoutes, { prefix: "/api/campaigns" });
+  app.register(applicationRoutes, { prefix: "/api/campaigns" });
   app.register(escrowRoutes, { prefix: "/api/escrow" });
   app.register(dashboardRoutes, { prefix: "/api/dashboard" });
+  app.register(notificationRoutes, { prefix: "/api/notifications" });
+  app.register(adminRoutes, { prefix: "/api/admin" });
 
   return app;
 }

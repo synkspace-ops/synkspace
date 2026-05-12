@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyPluginOptions } from "fastify";
 import { authGuard } from "../../middleware/authGuard.js";
 import { roleGuard } from "../../middleware/roleGuard.js";
 import * as adminService from "./admin.service.js";
-import { listUsersSchema, updateUserStatusSchema, resolveDisputeSchema } from "./admin.schemas.js";
+import { listUsersSchema, updateUserStatusSchema, resolveDisputeSchema, listMessageAuditSchema } from "./admin.schemas.js";
 
 export async function adminRoutes(app: FastifyInstance, _opts: FastifyPluginOptions) {
   app.get(
@@ -30,6 +30,16 @@ export async function adminRoutes(app: FastifyInstance, _opts: FastifyPluginOpti
     { preHandler: [authGuard, roleGuard("ADMIN")] },
     async (request, reply) => {
       const data = await adminService.listDisputes();
+      return reply.send({ data, message: "OK" });
+    }
+  );
+
+  app.get(
+    "/messages",
+    { preHandler: [authGuard, roleGuard("ADMIN")] },
+    async (request, reply) => {
+      const query = listMessageAuditSchema.parse(request.query);
+      const data = await adminService.listMessageAudit(query);
       return reply.send({ data, message: "OK" });
     }
   );

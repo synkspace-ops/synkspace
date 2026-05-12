@@ -1,10 +1,17 @@
-import { Calendar, DollarSign, MapPin, Search, Share2, Target, Users } from 'lucide-react';
+import { Calendar, CheckCircle2, DollarSign, Loader2, MapPin, Search, Share2, Target, Users, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useApp } from '../../shared/context/AppContext';
 
 export function OpportunitiesScreen() {
-  const { availableCampaigns = [], loadingDashboard } = useApp() || {};
+  const { availableCampaigns = [], loadingDashboard, applyToCampaign } = useApp() || {};
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeCampaign, setActiveCampaign] = useState(null);
+  const [proposal, setProposal] = useState('');
+  const [proposedRate, setProposedRate] = useState('');
+  const [applying, setApplying] = useState(false);
+  const [applyError, setApplyError] = useState('');
+  const [applySuccess, setApplySuccess] = useState('');
+
   const filteredCampaigns = useMemo(() => {
     const term = searchQuery.trim().toLowerCase();
     if (!term) return availableCampaigns;
@@ -43,11 +50,71 @@ export function OpportunitiesScreen() {
       ) : filteredCampaigns.length ? (
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
           {filteredCampaigns.map((campaign) => (
-            <CampaignCard key={campaign.id} campaign={campaign} />
+            <CampaignCard
+              key={campaign.id}
+              campaign={campaign}
+              onApply={() => {
+                setActiveCampaign(campaign);
+                setProposedRate(campaign.budgetMin ? String(campaign.budgetMin) : '');
+                setProposal('');
+                setApplyError('');
+                setApplySuccess('');
+              }}
+            />
           ))}
         </div>
       ) : (
         <Empty title="No open opportunities" body="There are no database campaigns available for this creator right now." />
+      )}
+
+      {activeCampaign && (
+        <ApplyModal
+          campaign={activeCampaign}
+          proposal={proposal}
+          proposedRate={proposedRate}
+          applying={applying}
+          error={applyError}
+          success={applySuccess}
+          onProposalChange={setProposal}
+          onRateChange={setProposedRate}
+          onClose={() => {
+            if (applying) return;
+            setActiveCampaign(null);
+            setApplyError('');
+            setApplySuccess('');
+          }}
+          onSubmit={async () => {
+            const numericRate = Number(proposedRate);
+            if (!Number.isFinite(numericRate) || numericRate <= 0) {
+              setApplyError('Enter a valid proposed rate before applying.');
+              return;
+            }
+
+            setApplying(true);
+            setApplyError('');
+            setApplySuccess('');
+            try {
+              if (typeof applyToCampaign !== 'function') {
+                throw new Error('Application service is unavailable. Please sign in again.');
+              }
+              await applyToCampaign(activeCampaign.id, {
+                proposedRate: numericRate,
+                message: proposal.trim() || undefined,
+              });
+              setApplySuccess('Application submitted and saved in the database.');
+              setTimeout(() => {
+                setActiveCampaign(null);
+                setProposal('');
+                setProposedRate('');
+                setApplySuccess('');
+              }, 700);
+            } catch (error) {
+              setApplyError(error?.message || 'Could not submit application.');
+            } finally {
+              setApplying(false);
+            }
+          }}
+        />
       )}
     </div>
   );
@@ -63,7 +130,7 @@ function Empty({ title, body }) {
   );
 }
 
-function CampaignCard({ campaign }) {
+function CampaignCard({ campaign, onApply }) {
   const title = campaign.title || campaign.name;
   return (
     <div className="rounded-3xl border border-white/60 bg-white/50 p-5 shadow-2xl backdrop-blur-2xl transition hover:scale-[1.01]">
@@ -87,12 +154,93 @@ function CampaignCard({ campaign }) {
         ))}
       </div>
       <div className="mt-5 flex gap-2">
-        <button className="flex-1 rounded-xl bg-gray-900 py-3 text-sm font-bold text-white opacity-70" disabled>
-          Apply flow pending
+        <button
+          onClick={onApply}
+          className="flex-1 rounded-xl bg-gray-900 py-3 text-sm font-bold text-white transition hover:bg-purple-700"
+        >
+          Apply
         </button>
         <button className="rounded-xl border border-white/60 bg-white/80 px-4 text-gray-700">
           <Share2 className="h-4 w-4" />
         </button>
+      </div>
+    </div>
+  );
+}
+
+function ApplyModal({
+  campaign,
+  proposal,
+  proposedRate,
+  applying,
+  error,
+  success,
+  onProposalChange,
+  onRateChange,
+  onClose,
+  onSubmit,
+}) {
+  const title = campaign.title || campaign.name || 'Campaign';
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/45 px-4 backdrop-blur-sm">
+      <div className="w-full max-w-xl rounded-3xl border border-white/70 bg-white p-6 shadow-2xl">
+        <div className="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wide text-purple-700">Apply to campaign</p>
+            <h3 className="mt-1 text-2xl font-black text-gray-950">{title}</h3>
+            <p className="mt-2 text-sm leading-6 text-gray-600">{campaign.description}</p>
+          </div>
+          <button onClick={onClose} className="rounded-xl border border-gray-200 p-2 text-gray-600 transition hover:bg-gray-100">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Info icon={DollarSign} label={campaign.budget || 'Budget not set'} />
+          <Info icon={Calendar} label={campaign.deadline || 'Deadline not set'} />
+        </div>
+
+        <label className="mt-5 block">
+          <span className="text-sm font-bold text-gray-800">Your proposed rate</span>
+          <input
+            type="number"
+            min="1"
+            value={proposedRate}
+            onChange={(event) => onRateChange(event.target.value)}
+            placeholder={campaign.budgetMin ? String(campaign.budgetMin) : '25000'}
+            className="mt-2 w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-950 outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100"
+          />
+        </label>
+
+        <label className="mt-4 block">
+          <span className="text-sm font-bold text-gray-800">Proposal message</span>
+          <textarea
+            value={proposal}
+            onChange={(event) => onProposalChange(event.target.value)}
+            rows={5}
+            maxLength={2000}
+            placeholder="Tell the brand why you are a good fit and what you will deliver."
+            className="mt-2 w-full resize-none rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-950 outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100"
+          />
+        </label>
+
+        {error && <p className="mt-3 rounded-2xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</p>}
+        {success && (
+          <p className="mt-3 flex items-center gap-2 rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
+            <CheckCircle2 className="h-4 w-4" />
+            {success}
+          </p>
+        )}
+
+        <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+          <button onClick={onClose} disabled={applying} className="rounded-2xl border border-gray-200 px-5 py-3 font-bold text-gray-700 transition hover:bg-gray-50 disabled:opacity-60">
+            Cancel
+          </button>
+          <button onClick={onSubmit} disabled={applying} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gray-950 px-5 py-3 font-bold text-white transition hover:bg-purple-700 disabled:opacity-60">
+            {applying && <Loader2 className="h-4 w-4 animate-spin" />}
+            Submit Application
+          </button>
+        </div>
       </div>
     </div>
   );

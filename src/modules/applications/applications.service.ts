@@ -1,7 +1,6 @@
 import { prisma } from "../../db/client.js";
 import type { AppStatus } from "@prisma/client";
 import type { ApplyInput, UpdateStatusInput } from "./applications.schemas.js";
-import { notificationService } from "../notifications/notifications.service.js";
 
 export async function apply(
   campaignId: string,
@@ -32,17 +31,30 @@ export async function apply(
         status: "APPLIED",
       },
     });
+
+    if (input.message?.trim()) {
+      await tx.message.create({
+        data: {
+          applicationId: app.id,
+          senderId: creatorId,
+          body: input.message.trim(),
+        },
+      });
+    }
+
     const brand = await tx.campaign.findUnique({
       where: { id: campaignId },
       select: { brandId: true },
     });
     if (brand) {
-      await notificationService.create(
-        brand.brandId,
-        "application_received",
-        "New application",
-        `A creator applied to your campaign.`
-      );
+      await tx.notification.create({
+        data: {
+          userId: brand.brandId,
+          type: "application_received",
+          title: "New application",
+          body: "A creator applied to your campaign.",
+        },
+      });
     }
     return app;
   });
@@ -82,10 +94,12 @@ export async function updateStatus(
   if (!app || app.campaign.brandId !== brandId) throw new Error("Application not found");
 
   const status = input.status as AppStatus;
-  await prisma.application.update({
-    where: { id: appId },
-    data: { status },
-  });
+  if (status === "ACCEPTED" && app.status !== "ACCEPTED") {
+    const acceptedCount = await prisma.application.count({
+      where: { campaignId, status: "ACCEPTED" },
+    });
+    if (acceptedCount >= app.campaign.totalSlots) throw new Error("No slots left");
+  }
 
   const notifType =
     status === "SHORTLISTED"
@@ -93,19 +107,31 @@ export async function updateStatus(
       : status === "ACCEPTED"
         ? "accepted"
         : "rejected";
-  await notificationService.create(
-    app.creatorId,
-    notifType,
-    `Application ${status.toLowerCase()}`,
-    `Your application was ${status.toLowerCase()}.`
-  );
-
-  if (status === "ACCEPTED") {
-    await prisma.campaign.update({
-      where: { id: campaignId },
-      data: { filledSlots: { increment: 1 } },
+  await prisma.$transaction(async (tx) => {
+    await tx.application.update({
+      where: { id: appId },
+      data: { status },
     });
-  }
+
+    const acceptedCount = await tx.application.count({
+      where: { campaignId, status: "ACCEPTED" },
+    });
+    await tx.campaign.update({
+      where: { id: campaignId },
+      data: { filledSlots: Math.min(acceptedCount, app.campaign.totalSlots) },
+    });
+
+    if (app.status !== status) {
+      await tx.notification.create({
+        data: {
+          userId: app.creatorId,
+          type: notifType,
+          title: `Application ${status.toLowerCase()}`,
+          body: `Your application for ${app.campaign.title} was ${status.toLowerCase()}.`,
+        },
+      });
+    }
+  });
 
   return prisma.application.findUnique({
     where: { id: appId },

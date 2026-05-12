@@ -40,4 +40,30 @@ describe("Campaigns", () => {
     });
     expect(res.statusCode).toBe(401);
   });
+
+  it("POST /api/campaigns/:id/applications requires creator auth", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/campaigns/cmptest/applications",
+      payload: { proposedRate: 25000, message: "Interested in this campaign." },
+    });
+    expect(res.statusCode).toBe(401);
+  });
+
+  it("GET /api/admin/messages requires admin auth", async () => {
+    const res = await app.inject({
+      method: "GET",
+      url: "/api/admin/messages",
+    });
+    expect(res.statusCode).toBe(401);
+  });
+
+  it("PATCH /api/dashboard/messages/:applicationId/read requires auth", async () => {
+    const res = await app.inject({
+      method: "PATCH",
+      url: "/api/dashboard/messages/cmptest/read",
+      payload: {},
+    });
+    expect(res.statusCode).toBe(401);
+  });
 });

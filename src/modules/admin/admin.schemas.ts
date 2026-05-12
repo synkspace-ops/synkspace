@@ -14,3 +14,10 @@ export const updateUserStatusSchema = z.object({
 export const resolveDisputeSchema = z.object({
   action: z.enum(["release", "refund"]),
 });
+
+export const listMessageAuditSchema = z.object({
+  applicationId: z.string().optional(),
+  userId: z.string().optional(),
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(50),
+});

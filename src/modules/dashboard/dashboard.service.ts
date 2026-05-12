@@ -220,10 +220,13 @@ function buildConversations(userId: string, applications: any[]) {
     const otherName = app.creatorId === userId ? brandName : creatorName;
     const messages = (app.messages || []).map((message: any) => ({
       id: message.id,
+      senderId: message.senderId,
       sender: message.senderId === userId ? "You" : otherName,
       text: message.body,
       time: dateLabel(message.createdAt),
       isMine: message.senderId === userId,
+      createdAt: message.createdAt,
+      readAt: message.readAt,
     }));
     return {
       id: app.id,
@@ -366,9 +369,55 @@ export async function addDashboardMessage(userId: string, applicationId: string,
       id: applicationId,
       OR: [{ creatorId: userId }, { campaign: { brandId: userId } }],
     },
+    include: { campaign: true },
   });
   if (!application) throw new Error("Conversation not found");
-  await prisma.message.create({ data: { applicationId, senderId: userId, body } });
+  const recipientId = application.creatorId === userId ? application.campaign.brandId : application.creatorId;
+  await prisma.$transaction(async (tx) => {
+    await tx.message.create({ data: { applicationId, senderId: userId, body } });
+    if (recipientId !== userId) {
+      await tx.notification.create({
+        data: {
+          userId: recipientId,
+          type: "message_received",
+          title: "New message",
+          body: `You received a message about ${application.campaign.title}.`,
+        },
+      });
+    }
+  });
+  const reloaded = await prisma.application.findMany({
+    where: {
+      id: applicationId,
+      OR: [{ creatorId: userId }, { campaign: { brandId: userId } }],
+    },
+    include: {
+      messages: { orderBy: { createdAt: "asc" } },
+      campaign: { include: { brand: { include: { brandProfile: true, organiserProfile: true } } } },
+      creator: { include: { creatorProfile: true } },
+    },
+  });
+  return buildConversations(userId, reloaded)[0];
+}
+
+export async function markDashboardConversationRead(userId: string, applicationId: string) {
+  const application = await prisma.application.findFirst({
+    where: {
+      id: applicationId,
+      OR: [{ creatorId: userId }, { campaign: { brandId: userId } }],
+    },
+  });
+  if (!application) throw new Error("Conversation not found");
+
+  await prisma.message.updateMany({
+    where: {
+      applicationId,
+      senderId: { not: userId },
+      readAt: null,
+    },
+    data: { readAt: new Date() },
+  });
+
   const reloaded = await prisma.application.findMany({
     where: {
       id: applicationId,
@@ -429,10 +478,46 @@ export async function deleteDashboardCampaign(userId: string, campaignId: string
 export async function updateDashboardApplication(userId: string, applicationId: string, status: string) {
   const appStatus = UI_TO_APP_STATUS[status];
   if (!appStatus) throw new Error("Invalid application status");
-  await prisma.application.updateMany({
+
+  const existing = await prisma.application.findFirst({
     where: { id: applicationId, campaign: { brandId: userId } },
-    data: { status: appStatus },
+    include: { campaign: true },
   });
+  if (!existing) throw new Error("Application not found");
+
+  if (appStatus === "ACCEPTED" && existing.status !== "ACCEPTED") {
+    const acceptedCount = await prisma.application.count({
+      where: { campaignId: existing.campaignId, status: "ACCEPTED" },
+    });
+    if (acceptedCount >= existing.campaign.totalSlots) throw new Error("No slots left");
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.application.update({
+      where: { id: applicationId },
+      data: { status: appStatus },
+    });
+
+    const acceptedCount = await tx.application.count({
+      where: { campaignId: existing.campaignId, status: "ACCEPTED" },
+    });
+    await tx.campaign.update({
+      where: { id: existing.campaignId },
+      data: { filledSlots: Math.min(acceptedCount, existing.campaign.totalSlots) },
+    });
+
+    if (existing.status !== appStatus) {
+      await tx.notification.create({
+        data: {
+          userId: existing.creatorId,
+          type: `application_${status}`,
+          title: `Application ${status}`,
+          body: `Your application for ${existing.campaign.title} was ${status}.`,
+        },
+      });
+    }
+  });
+
   const application = await prisma.application.findFirst({
     where: { id: applicationId, campaign: { brandId: userId } },
     include: { campaign: true, creator: { include: { creatorProfile: true } } },

@@ -77,4 +77,15 @@ export async function dashboardRoutes(app: FastifyInstance, _opts: FastifyPlugin
       return reply.status(201).send({ data, message: "Message sent" });
     }
   );
+
+  app.patch<{ Params: { applicationId: string } }>(
+    "/messages/:applicationId/read",
+    async (request, reply) => {
+      const data = await dashboardService.markDashboardConversationRead(
+        request.user!.id,
+        request.params.applicationId
+      );
+      return reply.send({ data, message: "Conversation marked as read" });
+    }
+  );
 }

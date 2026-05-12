@@ -55,6 +55,12 @@ export function MessagesScreen() {
 
   const activeChat = activeChats.find(chat => chat.id === selectedChat);
 
+  useEffect(() => {
+    if (activeChat?.unread > 0) {
+      app.markRead?.(activeChat.id).catch(() => {});
+    }
+  }, [activeChat?.id, activeChat?.unread]);
+
   const handleSendMessage = async () => {
     if (messageInput.trim() && activeChat) {
       const text = messageInput.trim();

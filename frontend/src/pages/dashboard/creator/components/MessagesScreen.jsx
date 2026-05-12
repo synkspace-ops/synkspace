@@ -1,26 +1,82 @@
 import { Search, Filter, MoreVertical, Send, Paperclip, Image as ImageIcon, Phone, Video, Pin, Archive, Trash2, Circle } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useApp } from '../../shared/context/AppContext';
 
 
 
 export function MessagesScreen({ chatsData, setChatsData }) {
-  const [selectedChat, setSelectedChat] = useState(1);
+  const app = useApp() || {};
+  const dbChats = app.conversations || [];
+  const usingDatabaseChats = !chatsData;
+  const normalizedDbChats = useMemo(() => dbChats.map((conversation) => {
+    const messages = (conversation.messages || []).map((message) => ({
+      id: message.id,
+      sender: message.isMine ? 'me' : 'them',
+      text: message.text,
+      time: message.time,
+      read: true,
+    }));
+    const lastMessage = messages.at(-1)?.text || 'No messages yet';
+    const initials = String(conversation.name || 'Chat')
+      .split(' ')
+      .map((part) => part.charAt(0))
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
+    return {
+      id: conversation.id,
+      name: conversation.name || 'Conversation',
+      brand: conversation.name || 'Conversation',
+      avatar: initials || 'C',
+      lastMessage,
+      time: conversation.time || '',
+      unread: conversation.unread || 0,
+      online: conversation.online || false,
+      messages,
+    };
+  }), [dbChats]);
+
+  const activeChats = chatsData || normalizedDbChats;
+  const [selectedChat, setSelectedChat] = useState(null);
   const [messageInput, setMessageInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState('');
 
-  const filteredChats = chatsData.filter(chat =>
+  useEffect(() => {
+    if (!selectedChat && activeChats.length > 0) {
+      setSelectedChat(activeChats[0].id);
+    }
+  }, [activeChats, selectedChat]);
+
+  const filteredChats = activeChats.filter(chat =>
     chat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     chat.brand.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const activeChat = chatsData.find(chat => chat.id === selectedChat);
+  const activeChat = activeChats.find(chat => chat.id === selectedChat);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (messageInput.trim() && activeChat) {
+      const text = messageInput.trim();
+      setSendError('');
+      setSending(true);
+      if (usingDatabaseChats) {
+        try {
+          await app.addMessage?.(activeChat.id, text);
+          setMessageInput('');
+        } catch (error) {
+          setSendError(error?.message || 'Could not send message.');
+        } finally {
+          setSending(false);
+        }
+        return;
+      }
+
       const newMessage = {
         id: Date.now(),
         sender: 'me',
-        text: messageInput.trim(),
+        text,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         read: false,
       };
@@ -38,6 +94,7 @@ export function MessagesScreen({ chatsData, setChatsData }) {
       }));
       
       setMessageInput('');
+      setSending(false);
     }
   };
 
@@ -74,7 +131,7 @@ export function MessagesScreen({ chatsData, setChatsData }) {
               key={chat.id}
               onClick={() => {
                 setSelectedChat(chat.id);
-                setChatsData(prev => prev.map(c => 
+                setChatsData?.(prev => prev.map(c => 
                   c.id === chat.id ? { ...c, unread: 0 } : c
                 ));
               }}
@@ -202,10 +259,12 @@ export function MessagesScreen({ chatsData, setChatsData }) {
                   rows={1}
                   className="w-full px-4 py-3 bg-white/80 backdrop-blur-md border border-white/60 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-300 shadow-md resize-none"
                 />
+                {sendError && <p className="text-xs font-semibold text-red-600 mt-2">{sendError}</p>}
               </div>
               <button
                 onClick={handleSendMessage}
-                className="p-3 bg-gradient-to-br from-purple-500 to-blue-500 text-white rounded-xl hover:shadow-xl transition-all hover:scale-110"
+                disabled={sending || !messageInput.trim()}
+                className="p-3 bg-gradient-to-br from-purple-500 to-blue-500 text-white rounded-xl hover:shadow-xl transition-all hover:scale-110 disabled:opacity-50 disabled:hover:scale-100"
               >
                 <Send className="w-5 h-5" />
               </button>

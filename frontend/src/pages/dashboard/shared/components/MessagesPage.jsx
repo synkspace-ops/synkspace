@@ -6,6 +6,8 @@ export function MessagesPage() {
   const { conversations, addMessage, markRead } = useApp();
   const [activeId, setActiveId] = useState(null);
   const [input, setInput] = useState('');
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState('');
   const messagesEndRef = useRef(null);
 
   const activeConv = conversations.find((c) => c.id === activeId);
@@ -20,12 +22,21 @@ export function MessagesPage() {
     if (!activeId && conversations.length > 0) {
       setActiveId(conversations[0].id);
     }
-  }, []);
+  }, [activeId, conversations]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (input.trim() && activeId) {
-      addMessage(activeId, input.trim());
+      setSending(true);
+      setSendError('');
+      try {
+        await addMessage(activeId, input.trim());
+      } catch (error) {
+        setSendError(error?.message || 'Could not send message.');
+        setSending(false);
+        return;
+      }
       setInput('');
+      setSending(false);
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
@@ -88,13 +99,17 @@ export function MessagesPage() {
               </div>
 
               <div className="p-3 border-t flex gap-2">
-                <input
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  className="flex-1 border rounded px-3 py-2"
-                />
-                <button onClick={handleSend} className="bg-[#6f8e97] text-white px-4 rounded">
+                <div className="flex-1">
+                  <input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    className="w-full border rounded px-3 py-2"
+                    placeholder="Type your message..."
+                  />
+                  {sendError && <p className="text-xs font-semibold text-red-600 mt-2">{sendError}</p>}
+                </div>
+                <button disabled={sending || !input.trim()} onClick={handleSend} className="bg-[#6f8e97] text-white px-4 rounded disabled:opacity-50">
                   Send
                 </button>
               </div>

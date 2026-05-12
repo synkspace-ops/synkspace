@@ -85,7 +85,7 @@ function CreatorDashboardContent() {
     }
   ]);
 
-  const totalUnread = chatsData.reduce((sum, chat) => sum + chat.unread, 0);
+  const totalUnread = (app.conversations || []).reduce((sum, chat) => sum + (chat.unread || 0), 0);
 
   return (
     <div className="min-h-screen w-full flex bg-gradient-to-br from-pink-100 via-blue-100 to-purple-100 p-6">
@@ -289,7 +289,7 @@ function CreatorDashboardContent() {
           ) : activeTab === 'applications' ? (
             <MyApplicationsScreen />
           ) : activeTab === 'messages' ? (
-            <MessagesScreen chatsData={chatsData} setChatsData={setChatsData} />
+            <MessagesScreen />
           ) : activeTab === 'analytics' ? (
             <AnalyticsScreen />
           ) : activeTab === 'earnings' ? (

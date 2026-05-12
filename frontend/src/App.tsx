@@ -24,6 +24,7 @@ import Event_Step4_Finalize from "./pages/event/Event_Step4_Finalize";
 
 // ✅ DASHBOARDS (NEW)
 import SharedDashboard from "./pages/dashboard/shared/SharedDashboard";
+import CreatorDashboard from "./pages/dashboard/creator/CreatorDashboard";
 import ProtectedDashboard from "./components/ProtectedDashboard";
 
 export default function App() {
@@ -55,7 +56,7 @@ export default function App() {
       <Route path="/event/step4" element={<Event_Step4_Finalize />} />
 
       {/* ✅ DASHBOARD ROUTES (NEW) */}
-      <Route path="/creator/dashboard" element={<ProtectedDashboard><SharedDashboard /></ProtectedDashboard>} />
+      <Route path="/creator/dashboard" element={<ProtectedDashboard><CreatorDashboard /></ProtectedDashboard>} />
       <Route path="/brand/dashboard" element={<ProtectedDashboard><SharedDashboard /></ProtectedDashboard>} />
       <Route path="/event/dashboard" element={<ProtectedDashboard><SharedDashboard /></ProtectedDashboard>} />
       <Route path="/dashboard" element={<ProtectedDashboard><SharedDashboard /></ProtectedDashboard>} />

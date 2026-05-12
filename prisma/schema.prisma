@@ -86,7 +86,10 @@ model User {
   notifications    Notification[]
   reviewsGiven     Review[]          @relation("Reviewer")
   reviewsReceived  Review[]          @relation("Reviewee")
-  messagesSent     Message[]
+  messagesSent     Message[]         @relation("MessageSender")
+  messagesReceived Message[]         @relation("MessageRecipient")
+  creatorFavorites CreatorFavorite[] @relation("CreatorFavoriteOwner")
+  favoritedBy      CreatorFavorite[] @relation("CreatorFavoriteTarget")
 }
 
 model OnboardingProgress {
@@ -242,14 +245,33 @@ model Application {
 
 model Message {
   id            String      @id @default(cuid())
-  applicationId String
+  applicationId String?
   senderId      String
+  recipientId   String?
   body          String
   readAt        DateTime?
   createdAt     DateTime    @default(now())
 
-  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  sender      User        @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  application Application? @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  sender      User         @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient   User?        @relation("MessageRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+  @@index([recipientId])
+  @@index([senderId, recipientId])
+}
+
+model CreatorFavorite {
+  id        String   @id @default(cuid())
+  userId    String
+  creatorId String
+  createdAt DateTime @default(now())
+
+  user    User @relation("CreatorFavoriteOwner", fields: [userId], references: [id], onDelete: Cascade)
+  creator User @relation("CreatorFavoriteTarget", fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, creatorId])
+  @@index([creatorId])
 }
 
 model Contract {

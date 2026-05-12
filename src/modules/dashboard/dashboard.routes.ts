@@ -78,6 +78,20 @@ export async function dashboardRoutes(app: FastifyInstance, _opts: FastifyPlugin
     }
   );
 
+  app.post(
+    "/messages/direct",
+    async (request, reply) => {
+      const body = z.object({
+        creatorId: z.string().min(1),
+        text: z.string().min(1).max(5000).optional(),
+      }).parse(request.body);
+      const data = body.text
+        ? await dashboardService.addDirectDashboardMessage(request.user!.id, body.creatorId, body.text)
+        : await dashboardService.getDirectDashboardConversation(request.user!.id, body.creatorId);
+      return reply.status(body.text ? 201 : 200).send({ data, message: body.text ? "Message sent" : "Conversation ready" });
+    }
+  );
+
   app.patch<{ Params: { applicationId: string } }>(
     "/messages/:applicationId/read",
     async (request, reply) => {
@@ -86,6 +100,19 @@ export async function dashboardRoutes(app: FastifyInstance, _opts: FastifyPlugin
         request.params.applicationId
       );
       return reply.send({ data, message: "Conversation marked as read" });
+    }
+  );
+
+  app.post<{ Params: { creatorId: string } }>(
+    "/creators/:creatorId/favorite",
+    async (request, reply) => {
+      const body = z.object({ liked: z.boolean() }).parse(request.body);
+      const data = await dashboardService.setCreatorFavorite(
+        request.user!.id,
+        request.params.creatorId,
+        body.liked
+      );
+      return reply.send({ data, message: body.liked ? "Creator saved" : "Creator removed" });
     }
   );
 }

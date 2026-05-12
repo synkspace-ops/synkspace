@@ -16,6 +16,18 @@ export type ListMessageAuditInput = {
   limit: number;
 };
 
+function auditUserName(user: any) {
+  return (
+    user?.creatorProfile?.displayName ||
+    user?.brandProfile?.companyName ||
+    user?.brandProfile?.founderName ||
+    user?.organiserProfile?.orgName ||
+    user?.organiserProfile?.contactName ||
+    user?.email?.split("@")?.[0] ||
+    "User"
+  );
+}
+
 export async function listUsers(input: ListUsersInput) {
   // FIX: Type the 'where' object correctly so Prisma accepts it
   const where: { role?: Role; status?: Status } = {};
@@ -68,7 +80,7 @@ export async function listDisputes() {
 export async function listMessageAudit(input: ListMessageAuditInput) {
   const where = {
     ...(input.applicationId ? { applicationId: input.applicationId } : {}),
-    ...(input.userId ? { senderId: input.userId } : {}),
+    ...(input.userId ? { OR: [{ senderId: input.userId }, { recipientId: input.userId }] } : {}),
   };
 
   const [items, total] = await Promise.all([
@@ -79,6 +91,16 @@ export async function listMessageAudit(input: ListMessageAuditInput) {
       orderBy: { createdAt: "desc" },
       include: {
         sender: {
+          select: {
+            id: true,
+            email: true,
+            role: true,
+            creatorProfile: { select: { displayName: true } },
+            brandProfile: { select: { companyName: true, founderName: true } },
+            organiserProfile: { select: { orgName: true, contactName: true } },
+          },
+        },
+        recipient: {
           select: {
             id: true,
             email: true,
@@ -115,22 +137,20 @@ export async function listMessageAudit(input: ListMessageAuditInput) {
     items: items.map((message) => ({
       id: message.id,
       applicationId: message.applicationId,
-      campaignId: message.application.campaignId,
-      campaignTitle: message.application.campaign.title,
+      campaignId: message.application?.campaignId || null,
+      campaignTitle: message.application?.campaign.title || "Direct message",
       senderId: message.senderId,
       senderEmail: message.sender.email,
       senderRole: message.sender.role,
-      senderName:
-        message.sender.creatorProfile?.displayName ||
-        message.sender.brandProfile?.companyName ||
-        message.sender.brandProfile?.founderName ||
-        message.sender.organiserProfile?.orgName ||
-        message.sender.organiserProfile?.contactName ||
-        message.sender.email.split("@")[0],
-      creatorId: message.application.creatorId,
-      creatorEmail: message.application.creator.email,
-      creatorName: message.application.creator.creatorProfile?.displayName || message.application.creator.email.split("@")[0],
-      brandId: message.application.campaign.brandId,
+      senderName: auditUserName(message.sender),
+      recipientId: message.recipientId,
+      recipientEmail: message.recipient?.email || null,
+      recipientRole: message.recipient?.role || null,
+      recipientName: message.recipient ? auditUserName(message.recipient) : null,
+      creatorId: message.application?.creatorId || (message.recipient?.role === "CREATOR" ? message.recipient.id : message.sender.role === "CREATOR" ? message.sender.id : null),
+      creatorEmail: message.application?.creator.email || (message.recipient?.role === "CREATOR" ? message.recipient.email : message.sender.role === "CREATOR" ? message.sender.email : null),
+      creatorName: message.application?.creator.creatorProfile?.displayName || (message.recipient?.role === "CREATOR" ? auditUserName(message.recipient) : message.sender.role === "CREATOR" ? auditUserName(message.sender) : null),
+      brandId: message.application?.campaign.brandId || null,
       body: message.body,
       readAt: message.readAt,
       createdAt: message.createdAt,

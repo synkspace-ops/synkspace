@@ -29,6 +29,18 @@ const UI_TO_APP_STATUS: Record<string, AppStatus> = {
   rejected: "REJECTED",
 };
 
+const DIRECT_CONVERSATION_PREFIX = "direct_";
+
+function directConversationId(userId: string) {
+  return `${DIRECT_CONVERSATION_PREFIX}${userId}`;
+}
+
+function directUserIdFromConversation(conversationId: string) {
+  return conversationId.startsWith(DIRECT_CONVERSATION_PREFIX)
+    ? conversationId.slice(DIRECT_CONVERSATION_PREFIX.length)
+    : null;
+}
+
 function money(value: unknown) {
   const amount = Number(value ?? 0);
   return new Intl.NumberFormat("en-IN", {
@@ -61,6 +73,32 @@ function profileName(user: Awaited<ReturnType<typeof getUserWithProfiles>>) {
     user.organiserProfile?.contactName ||
     user.email.split("@")[0]
   );
+}
+
+function displayNameForUser(user: any) {
+  if (!user) return "User";
+  return (
+    user.creatorProfile?.displayName ||
+    user.brandProfile?.companyName ||
+    user.brandProfile?.founderName ||
+    user.organiserProfile?.orgName ||
+    user.organiserProfile?.contactName ||
+    user.email?.split("@")?.[0] ||
+    "User"
+  );
+}
+
+function avatarUrlForUser(user: any) {
+  return user?.creatorProfile?.avatarUrl || user?.brandProfile?.avatarUrl || user?.organiserProfile?.avatarUrl || "";
+}
+
+function subtitleForUser(user: any) {
+  if (user?.creatorProfile) {
+    return [user.creatorProfile.niche, user.creatorProfile.followerRange].filter(Boolean).join(" · ");
+  }
+  if (user?.brandProfile) return user.brandProfile.companyName || "Brand";
+  if (user?.organiserProfile) return user.organiserProfile.orgName || "Event organiser";
+  return user?.role ? String(user.role).toLowerCase() : "";
 }
 
 async function getUserWithProfiles(userId: string) {
@@ -209,7 +247,7 @@ function buildAnalytics(campaigns: any[], applications: any[], escrows: any[], c
   };
 }
 
-function buildConversations(userId: string, applications: any[]) {
+function buildApplicationConversations(userId: string, applications: any[]) {
   return applications.map((app) => {
     const creatorName = app.creator?.creatorProfile?.displayName || app.creator?.email?.split("@")[0] || "Creator";
     const brandName =
@@ -231,12 +269,81 @@ function buildConversations(userId: string, applications: any[]) {
     return {
       id: app.id,
       name: otherName,
+      subtitle: app.campaign?.title || "Campaign conversation",
+      avatarUrl: app.creatorId === userId ? avatarUrlForUser(app.campaign?.brand) : avatarUrlForUser(app.creator),
+      direct: false,
       time: messages.at(-1)?.time || dateLabel(app.appliedAt),
       unread: (app.messages || []).filter((message: any) => message.senderId !== userId && !message.readAt).length,
       online: false,
       color: "bg-[#a3e4c7] text-[#4c7569]",
       messages,
     };
+  });
+}
+
+function buildDirectConversations(userId: string, messages: any[]) {
+  const grouped = new Map<string, any[]>();
+  for (const message of messages) {
+    const otherId = message.senderId === userId ? message.recipientId : message.senderId;
+    if (!otherId) continue;
+    grouped.set(otherId, [...(grouped.get(otherId) || []), message]);
+  }
+
+  return Array.from(grouped.entries()).map(([otherId, group]) => {
+    const first = group[0];
+    const otherUser = first.senderId === userId ? first.recipient : first.sender;
+    const builtMessages = group.map((message) => ({
+      id: message.id,
+      senderId: message.senderId,
+      sender: message.senderId === userId ? "You" : displayNameForUser(otherUser),
+      text: message.body,
+      time: dateLabel(message.createdAt),
+      isMine: message.senderId === userId,
+      createdAt: message.createdAt,
+      readAt: message.readAt,
+    }));
+
+    return {
+      id: directConversationId(otherId),
+      direct: true,
+      creatorId: otherUser?.role === "CREATOR" ? otherId : undefined,
+      name: displayNameForUser(otherUser),
+      subtitle: subtitleForUser(otherUser) || "Direct message",
+      avatarUrl: avatarUrlForUser(otherUser),
+      time: builtMessages.at(-1)?.time || "New",
+      unread: group.filter((message) => message.senderId !== userId && !message.readAt).length,
+      online: false,
+      color: "bg-[#a3e4c7] text-[#4c7569]",
+      messages: builtMessages,
+    };
+  });
+}
+
+function buildDirectConversationForUser(userId: string, otherUser: any, messages: any[] = []) {
+  if (messages.length) return buildDirectConversations(userId, messages)[0];
+  return {
+    id: directConversationId(otherUser.id),
+    direct: true,
+    creatorId: otherUser.role === "CREATOR" ? otherUser.id : undefined,
+    name: displayNameForUser(otherUser),
+    subtitle: subtitleForUser(otherUser) || "Direct message",
+    avatarUrl: avatarUrlForUser(otherUser),
+    time: "New",
+    unread: 0,
+    online: false,
+    color: "bg-[#a3e4c7] text-[#4c7569]",
+    messages: [],
+  };
+}
+
+function buildConversations(userId: string, applications: any[], directMessages: any[] = []) {
+  return [
+    ...buildDirectConversations(userId, directMessages),
+    ...buildApplicationConversations(userId, applications),
+  ].sort((a, b) => {
+    const aDate = a.messages.at(-1)?.createdAt || "";
+    const bDate = b.messages.at(-1)?.createdAt || "";
+    return String(bDate).localeCompare(String(aDate));
   });
 }
 
@@ -305,11 +412,30 @@ export async function getDashboardSnapshot(userId: string) {
     ? await prisma.application.count({ where: { campaign: { brandId: userId }, status: "ACCEPTED" } })
     : 1;
 
+  const directMessages = await prisma.message.findMany({
+    where: {
+      applicationId: null,
+      OR: [{ senderId: userId }, { recipientId: userId }],
+    },
+    orderBy: { createdAt: "asc" },
+    include: {
+      sender: { include: { creatorProfile: true, brandProfile: true, organiserProfile: true } },
+      recipient: { include: { creatorProfile: true, brandProfile: true, organiserProfile: true } },
+    },
+  });
+
   const creators = await prisma.creatorProfile.findMany({
     take: 30,
     orderBy: { createdAt: "desc" },
     include: { user: { select: { status: true, email: true } } },
   });
+
+  const favoriteCreatorIds = ownsCampaigns
+    ? new Set((await prisma.creatorFavorite.findMany({
+        where: { userId },
+        select: { creatorId: true },
+      })).map((favorite) => favorite.creatorId))
+    : new Set<string>();
 
   const notifications = await prisma.notification.findMany({
     where: { userId },
@@ -337,7 +463,7 @@ export async function getDashboardSnapshot(userId: string) {
     availableCampaigns: availableCampaigns.map(buildCampaign),
     rawCampaigns: campaigns,
     applications: buildApplications(applications),
-    conversations: buildConversations(userId, applications),
+    conversations: buildConversations(userId, applications, directMessages),
     notifications: buildNotifications(notifications),
     payments: escrows.map((escrow) => ({
       id: escrow.id,
@@ -356,6 +482,8 @@ export async function getDashboardSnapshot(userId: string) {
       engagement: creator.engagementRate != null ? `${creator.engagementRate}%` : "Not provided",
       location: [creator.city, creator.state, creator.country].filter(Boolean).join(", "),
       verified: creator.user.status === "VERIFIED",
+      avatarUrl: creator.avatarUrl || "",
+      liked: favoriteCreatorIds.has(creator.userId),
       avatarColor: "bg-[#a3e4c7] text-[#4c7569]",
     })),
     events: campaigns.filter((campaign) => user.role === "ORGANISER").map(buildCampaign),
@@ -364,6 +492,9 @@ export async function getDashboardSnapshot(userId: string) {
 }
 
 export async function addDashboardMessage(userId: string, applicationId: string, body: string) {
+  const directUserId = directUserIdFromConversation(applicationId);
+  if (directUserId) return addDirectDashboardMessage(userId, directUserId, body);
+
   const application = await prisma.application.findFirst({
     where: {
       id: applicationId,
@@ -401,6 +532,9 @@ export async function addDashboardMessage(userId: string, applicationId: string,
 }
 
 export async function markDashboardConversationRead(userId: string, applicationId: string) {
+  const directUserId = directUserIdFromConversation(applicationId);
+  if (directUserId) return markDirectConversationRead(userId, directUserId);
+
   const application = await prisma.application.findFirst({
     where: {
       id: applicationId,
@@ -430,6 +564,116 @@ export async function markDashboardConversationRead(userId: string, applicationI
     },
   });
   return buildConversations(userId, reloaded)[0];
+}
+
+async function getDirectMessagesBetween(userId: string, otherUserId: string) {
+  return prisma.message.findMany({
+    where: {
+      applicationId: null,
+      OR: [
+        { senderId: userId, recipientId: otherUserId },
+        { senderId: otherUserId, recipientId: userId },
+      ],
+    },
+    orderBy: { createdAt: "asc" },
+    include: {
+      sender: { include: { creatorProfile: true, brandProfile: true, organiserProfile: true } },
+      recipient: { include: { creatorProfile: true, brandProfile: true, organiserProfile: true } },
+    },
+  });
+}
+
+async function getDirectConversationTarget(userId: string, otherUserId: string) {
+  if (userId === otherUserId) throw new Error("Cannot message yourself");
+  const [requester, otherUser, existingMessages] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: userId },
+      include: { creatorProfile: true, brandProfile: true, organiserProfile: true },
+    }),
+    prisma.user.findUnique({
+      where: { id: otherUserId },
+      include: { creatorProfile: true, brandProfile: true, organiserProfile: true },
+    }),
+    getDirectMessagesBetween(userId, otherUserId),
+  ]);
+  if (!requester || !otherUser) throw new Error("User not found");
+
+  const creatorInThread = requester.role === "CREATOR" || otherUser.role === "CREATOR";
+  if (!creatorInThread && existingMessages.length === 0) {
+    throw new Error("Direct messages can only be started with creators");
+  }
+
+  return { otherUser, existingMessages };
+}
+
+export async function getDirectDashboardConversation(userId: string, creatorId: string) {
+  const { otherUser, existingMessages } = await getDirectConversationTarget(userId, creatorId);
+  if (otherUser.role !== "CREATOR" && existingMessages.length === 0) {
+    throw new Error("Creator not found");
+  }
+  return buildDirectConversationForUser(userId, otherUser, existingMessages);
+}
+
+export async function addDirectDashboardMessage(userId: string, otherUserId: string, body: string) {
+  const { otherUser } = await getDirectConversationTarget(userId, otherUserId);
+  await prisma.$transaction(async (tx) => {
+    await tx.message.create({
+      data: {
+        senderId: userId,
+        recipientId: otherUserId,
+        body,
+      },
+    });
+    await tx.notification.create({
+      data: {
+        userId: otherUserId,
+        type: "message_received",
+        title: "New message",
+        body: `You received a message from ${displayNameForUser(await tx.user.findUnique({
+          where: { id: userId },
+          include: { creatorProfile: true, brandProfile: true, organiserProfile: true },
+        }))}.`,
+      },
+    });
+  });
+  const messages = await getDirectMessagesBetween(userId, otherUserId);
+  return buildDirectConversationForUser(userId, otherUser, messages);
+}
+
+export async function markDirectConversationRead(userId: string, otherUserId: string) {
+  const { otherUser } = await getDirectConversationTarget(userId, otherUserId);
+  await prisma.message.updateMany({
+    where: {
+      applicationId: null,
+      senderId: otherUserId,
+      recipientId: userId,
+      readAt: null,
+    },
+    data: { readAt: new Date() },
+  });
+  const messages = await getDirectMessagesBetween(userId, otherUserId);
+  return buildDirectConversationForUser(userId, otherUser, messages);
+}
+
+export async function setCreatorFavorite(userId: string, creatorId: string, liked: boolean) {
+  if (userId === creatorId) throw new Error("Cannot favorite yourself");
+  const creator = await prisma.user.findFirst({
+    where: { id: creatorId, role: "CREATOR", creatorProfile: { isNot: null } },
+    select: { id: true },
+  });
+  if (!creator) throw new Error("Creator not found");
+
+  if (liked) {
+    await prisma.creatorFavorite.upsert({
+      where: { userId_creatorId: { userId, creatorId } },
+      create: { userId, creatorId },
+      update: {},
+    });
+  } else {
+    await prisma.creatorFavorite.deleteMany({ where: { userId, creatorId } });
+  }
+
+  return { creatorId, liked };
 }
 
 export async function createDashboardCampaign(userId: string, input: any) {

@@ -104,6 +104,7 @@ export function AppProvider({ children, navigate }) {
   const [dashboard, setDashboard] = useState(emptyDashboard);
   const [loadingDashboard, setLoadingDashboard] = useState(false);
   const [dashboardError, setDashboardError] = useState("");
+  const [activeConversationId, setActiveConversationId] = useState(null);
 
   const userId = currentUser?.id;
 
@@ -193,10 +194,82 @@ export function AppProvider({ children, navigate }) {
     const response = await apiPost(`/api/dashboard/messages/${conversationId}`, { text });
     setDashboard((prev) => ({
       ...prev,
-      conversations: prev.conversations.map((conversation) =>
-        conversation.id === conversationId ? response.data : conversation
+      conversations: [
+        response.data,
+        ...prev.conversations.filter((conversation) => conversation.id !== conversationId),
+      ],
+    }));
+    setActiveConversationId(response.data.id);
+    return response.data;
+  };
+
+  const startCreatorConversation = async (creator, text) => {
+    if (!userId) throw new Error("Missing dashboard user");
+    const fallbackId = creator?.conversationId || `direct_${creator.id}`;
+    const existing = dashboard.conversations.find((conversation) => conversation.id === fallbackId);
+    if (!existing && creator) {
+      setDashboard((prev) => ({
+        ...prev,
+        conversations: [
+          {
+            id: fallbackId,
+            direct: true,
+            creatorId: creator.id,
+            name: creator.name,
+            subtitle: [creator.niche, creator.followers].filter(Boolean).join(' · '),
+            avatarUrl: creator.avatarUrl || '',
+            time: 'New',
+            unread: 0,
+            color: creator.avatarColor || 'bg-[#a3e4c7] text-[#4c7569]',
+            messages: [],
+          },
+          ...prev.conversations,
+        ],
+      }));
+    }
+    setActiveConversationId(fallbackId);
+    navigate('messages');
+    const response = await apiPost('/api/dashboard/messages/direct', {
+      creatorId: creator.id,
+      ...(text?.trim() ? { text: text.trim() } : {}),
+    });
+    setDashboard((prev) => ({
+      ...prev,
+      conversations: [
+        response.data,
+        ...prev.conversations.filter((conversation) => conversation.id !== fallbackId && conversation.id !== response.data.id),
+      ],
+    }));
+    setActiveConversationId(response.data.id);
+    return response.data;
+  };
+
+  const toggleCreatorLike = async (creatorId, liked) => {
+    if (!userId) throw new Error("Missing dashboard user");
+    setDashboard((prev) => ({
+      ...prev,
+      creators: prev.creators.map((creator) =>
+        creator.id === creatorId ? { ...creator, liked } : creator
       ),
     }));
+    try {
+      const response = await apiPost(`/api/dashboard/creators/${creatorId}/favorite`, { liked });
+      setDashboard((prev) => ({
+        ...prev,
+        creators: prev.creators.map((creator) =>
+          creator.id === creatorId ? { ...creator, liked: response.data.liked } : creator
+        ),
+      }));
+      return response.data;
+    } catch (error) {
+      setDashboard((prev) => ({
+        ...prev,
+        creators: prev.creators.map((creator) =>
+          creator.id === creatorId ? { ...creator, liked: !liked } : creator
+        ),
+      }));
+      throw error;
+    }
   };
 
   const updateProfile = async (profile) => {
@@ -239,6 +312,10 @@ export function AppProvider({ children, navigate }) {
     notifications: dashboard.notifications,
     availableCampaigns: dashboard.availableCampaigns,
     addMessage,
+    activeConversationId,
+    setActiveConversationId,
+    startCreatorConversation,
+    toggleCreatorLike,
     updateProfile,
     markRead,
     payments: dashboard.payments,
@@ -248,7 +325,7 @@ export function AppProvider({ children, navigate }) {
     creators: dashboard.creators,
     analytics: dashboard.analytics,
     navigate,
-  }), [currentUser, dashboard, loadingDashboard, dashboardError]);
+  }), [currentUser, dashboard, loadingDashboard, dashboardError, activeConversationId]);
 
   return (
     <AppContext.Provider value={value}>

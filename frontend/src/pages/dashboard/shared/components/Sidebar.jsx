@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { clearAuthSession } from '../../../../lib/auth';
 import { useApp } from '../context/AppContext';
+import logo from '../../../../../assets/synkspace-logo.png';
 
 
 export function Sidebar({ currentPage, onNavigate }) {
@@ -95,12 +96,10 @@ export function Sidebar({ currentPage, onNavigate }) {
       {/* ===== Mobile Top Bar ===== */}
       <div className="lg:hidden flex items-center justify-between px-5 py-4 sticky top-0 z-40 bg-[#5A7684]/60 backdrop-blur-xl border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-            <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C8.686 2 6 4.686 6 8c0 3.314 2.686 6 6 6s6-2.686 6-6c0-3.314-2.686-6-6-6zm0 14c-4.418 0-8 1.79-8 4v2h16v-2c0-2.21-3.582-4-8-4z" />
-            </svg>
+          <div className="w-9 h-9 rounded-xl bg-white/90 flex items-center justify-center shadow-sm">
+            <img src={logo} alt="SynkSpace" className="h-7 w-7 object-contain" />
           </div>
-          <span className="text-xl font-bold text-white tracking-wide">synkspace</span>
+          <span className="text-xl font-bold text-white tracking-wide">SynkSpace</span>
         </div>
         <button
           onClick={() => setMobileOpen(true)}
@@ -127,12 +126,10 @@ export function Sidebar({ currentPage, onNavigate }) {
             {/* Close button */}
             <div className="flex items-center justify-between pt-6 pb-4 px-6">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C8.686 2 6 4.686 6 8c0 3.314 2.686 6 6 6s6-2.686 6-6c0-3.314-2.686-6-6-6zm0 14c-4.418 0-8 1.79-8 4v2h16v-2c0-2.21-3.582-4-8-4z" />
-                  </svg>
+                <div className="w-9 h-9 rounded-xl bg-white/90 flex items-center justify-center shadow-sm">
+                  <img src={logo} alt="SynkSpace" className="h-7 w-7 object-contain" />
                 </div>
-                <h1 className="text-xl font-bold text-white tracking-wide">synkspace</h1>
+                <h1 className="text-xl font-bold text-white tracking-wide">SynkSpace</h1>
               </div>
               <button
                 onClick={() => setMobileOpen(false)}
@@ -182,12 +179,10 @@ export function Sidebar({ currentPage, onNavigate }) {
       <aside className="hidden lg:flex w-[240px] flex-col h-screen sticky top-0 font-sans z-20">
         {/* Logo */}
         <div className="pt-8 pb-6 px-6 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
-            <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C8.686 2 6 4.686 6 8c0 3.314 2.686 6 6 6s6-2.686 6-6c0-3.314-2.686-6-6-6zm0 14c-4.418 0-8 1.79-8 4v2h16v-2c0-2.21-3.582-4-8-4z" />
-            </svg>
+          <div className="w-10 h-10 rounded-xl bg-white/90 flex items-center justify-center shadow-sm backdrop-blur-sm">
+            <img src={logo} alt="SynkSpace" className="h-8 w-8 object-contain" />
           </div>
-          <h1 className="text-xl font-bold text-white tracking-wide">synkspace</h1>
+          <h1 className="text-xl font-bold text-white tracking-wide">SynkSpace</h1>
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-2 flex flex-col gap-6">

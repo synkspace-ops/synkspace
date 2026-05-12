@@ -55,7 +55,7 @@ function isNonEmptyString(v: unknown): v is string {
 function normalizeRole(role: string) {
   const value = role.trim().toUpperCase();
   if (value === "EVENT" || value === "EVENT_ORGANISER" || value === "ORGANIZER") return "ORGANISER";
-  if (["CREATOR", "BRAND", "ORGANISER", "ADMIN"].includes(value)) return value;
+  if (["CREATOR", "BRAND", "ORGANISER"].includes(value)) return value;
   throw new AuthServiceError("AUTH_INVALID_INPUT");
 }
 

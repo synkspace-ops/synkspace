@@ -1,4 +1,6 @@
-import { Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
+import { apiPost } from "./lib/api";
 
 // Role selection
 import SelectRole from "./pages/SelectRole";
@@ -25,9 +27,44 @@ import Event_Step4_Finalize from "./pages/event/Event_Step4_Finalize";
 // ✅ DASHBOARDS (NEW)
 import SharedDashboard from "./pages/dashboard/shared/SharedDashboard";
 import CreatorDashboard from "./pages/dashboard/creator/CreatorDashboard";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import ProtectedDashboard from "./components/ProtectedDashboard";
 
+function getTrafficSessionId() {
+  const key = "synkspaceTrafficSession";
+  const existing = localStorage.getItem(key);
+  if (existing) return existing;
+
+  const generated =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  localStorage.setItem(key, generated);
+  return generated;
+}
+
 export default function App() {
+  const location = useLocation();
+
+  useEffect(() => {
+    const path = `${location.pathname}${location.search}`;
+    const lastTrackedRaw = sessionStorage.getItem("synkspace:lastTrackedPath");
+
+    try {
+      const lastTracked = lastTrackedRaw ? JSON.parse(lastTrackedRaw) : null;
+      if (lastTracked?.path === path && Date.now() - Number(lastTracked.at) < 1200) return;
+    } catch {
+      sessionStorage.removeItem("synkspace:lastTrackedPath");
+    }
+
+    sessionStorage.setItem("synkspace:lastTrackedPath", JSON.stringify({ path, at: Date.now() }));
+    apiPost("/api/tracking/page-view", {
+      sessionId: getTrafficSessionId(),
+      path,
+      referrer: document.referrer || null,
+    }).catch(() => {});
+  }, [location.pathname, location.search]);
+
   return (
     <Routes>
       {/* Home */}
@@ -59,6 +96,7 @@ export default function App() {
       <Route path="/creator/dashboard" element={<ProtectedDashboard><CreatorDashboard /></ProtectedDashboard>} />
       <Route path="/brand/dashboard" element={<ProtectedDashboard><SharedDashboard /></ProtectedDashboard>} />
       <Route path="/event/dashboard" element={<ProtectedDashboard><SharedDashboard /></ProtectedDashboard>} />
+      <Route path="/admin/dashboard" element={<ProtectedDashboard requiredRole="ADMIN"><AdminDashboard /></ProtectedDashboard>} />
       <Route path="/dashboard" element={<ProtectedDashboard><SharedDashboard /></ProtectedDashboard>} />
     </Routes>
   );

@@ -92,6 +92,7 @@ model User {
   favoritedBy      CreatorFavorite[] @relation("CreatorFavoriteTarget")
   ownedTeamMembers TeamMember[]      @relation("TeamOwner")
   teamMembership   TeamMember?       @relation("TeamMemberUser")
+  trafficEvents    TrafficEvent[]
 }
 
 model OnboardingProgress {
@@ -295,6 +296,24 @@ model TeamMember {
 
   @@unique([ownerId, email])
   @@index([email])
+}
+
+model TrafficEvent {
+  id        String   @id @default(cuid())
+  sessionId String?
+  userId    String?
+  path      String
+  referrer  String?
+  userAgent String?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([path])
+  @@index([sessionId])
+  @@index([userId])
 }
 
 model Contract {

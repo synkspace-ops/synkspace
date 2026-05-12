@@ -6,7 +6,7 @@ const roleDashboardPath = {
   CREATOR: '/creator/dashboard',
   BRAND: '/brand/dashboard',
   ORGANISER: '/event/dashboard',
-  ADMIN: '/dashboard',
+  ADMIN: '/admin/dashboard',
 };
 
 export default function Login() {

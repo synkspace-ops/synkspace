@@ -6,6 +6,15 @@ import { listUsersSchema, updateUserStatusSchema, resolveDisputeSchema, listMess
 
 export async function adminRoutes(app: FastifyInstance, _opts: FastifyPluginOptions) {
   app.get(
+    "/overview",
+    { preHandler: [authGuard, roleGuard("ADMIN")] },
+    async (_request, reply) => {
+      const data = await adminService.getAdminOverview();
+      return reply.send({ data, message: "OK" });
+    }
+  );
+
+  app.get(
     "/users",
     { preHandler: [authGuard, roleGuard("ADMIN")] },
     async (request, reply) => {

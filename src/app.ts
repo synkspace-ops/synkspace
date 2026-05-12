@@ -14,6 +14,7 @@ import { dashboardRoutes } from "./modules/dashboard/dashboard.routes.js";
 import { notificationRoutes } from "./modules/notifications/notifications.routes.js";
 import { adminRoutes } from "./modules/admin/admin.routes.js";
 import { userRoutes } from "./modules/users/users.routes.js";
+import { trackingRoutes } from "./modules/tracking/tracking.routes.js";
 
 export async function buildApp() {
   const env = getEnv();
@@ -61,6 +62,7 @@ export async function buildApp() {
   app.register(notificationRoutes, { prefix: "/api/notifications" });
   app.register(adminRoutes, { prefix: "/api/admin" });
   app.register(userRoutes, { prefix: "/api/users" });
+  app.register(trackingRoutes, { prefix: "/api/tracking" });
 
   return app;
 }

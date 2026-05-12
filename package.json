@@ -19,6 +19,7 @@
     "db:studio": "prisma studio",
     "test": "vitest run",
     "test:watch": "vitest",
+    "admin:create": "node scripts/create-admin.mjs",
     "gen:jwt-keys": "node scripts/gen-jwt-keys.mjs"
   },
   "engines": {

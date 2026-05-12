@@ -4,10 +4,9 @@ import { useApp } from '../../shared/context/AppContext';
 
 
 
-export function MessagesScreen({ chatsData, setChatsData }) {
+export function MessagesScreen() {
   const app = useApp() || {};
   const dbChats = app.conversations || [];
-  const usingDatabaseChats = !chatsData;
   const normalizedDbChats = useMemo(() => dbChats.map((conversation) => {
     const messages = (conversation.messages || []).map((message) => ({
       id: message.id,
@@ -36,7 +35,7 @@ export function MessagesScreen({ chatsData, setChatsData }) {
     };
   }), [dbChats]);
 
-  const activeChats = chatsData || normalizedDbChats;
+  const activeChats = normalizedDbChats;
   const [selectedChat, setSelectedChat] = useState(null);
   const [messageInput, setMessageInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -61,40 +60,14 @@ export function MessagesScreen({ chatsData, setChatsData }) {
       const text = messageInput.trim();
       setSendError('');
       setSending(true);
-      if (usingDatabaseChats) {
-        try {
-          await app.addMessage?.(activeChat.id, text);
-          setMessageInput('');
-        } catch (error) {
-          setSendError(error?.message || 'Could not send message.');
-        } finally {
-          setSending(false);
-        }
-        return;
+      try {
+        await app.addMessage?.(activeChat.id, text);
+        setMessageInput('');
+      } catch (error) {
+        setSendError(error?.message || 'Could not send message.');
+      } finally {
+        setSending(false);
       }
-
-      const newMessage = {
-        id: Date.now(),
-        sender: 'me',
-        text,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        read: false,
-      };
-
-      setChatsData(prevChats => prevChats.map(chat => {
-        if (chat.id === activeChat.id) {
-          return {
-            ...chat,
-            messages: [...chat.messages, newMessage],
-            lastMessage: newMessage.text,
-            time: 'Just now'
-          };
-        }
-        return chat;
-      }));
-      
-      setMessageInput('');
-      setSending(false);
     }
   };
 
@@ -131,9 +104,6 @@ export function MessagesScreen({ chatsData, setChatsData }) {
               key={chat.id}
               onClick={() => {
                 setSelectedChat(chat.id);
-                setChatsData?.(prev => prev.map(c => 
-                  c.id === chat.id ? { ...c, unread: 0 } : c
-                ));
               }}
               className={`w-full p-4 flex items-start gap-3 hover:bg-white/40 transition-all border-b border-white/20 relative ${
                 selectedChat === chat.id ? 'bg-white/60' : ''

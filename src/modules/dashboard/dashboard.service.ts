@@ -237,6 +237,18 @@ function buildConversations(userId: string, applications: any[]) {
   });
 }
 
+function buildNotifications(notifications: any[]) {
+  return notifications.map((notification) => ({
+    id: notification.id,
+    type: notification.type,
+    title: notification.title,
+    body: notification.body,
+    isRead: notification.isRead,
+    time: dateLabel(notification.createdAt),
+    createdAt: notification.createdAt,
+  }));
+}
+
 export async function getDashboardSnapshot(userId: string) {
   const user = await getUserWithProfiles(userId);
   if (!user) throw new Error("User not found");
@@ -296,12 +308,34 @@ export async function getDashboardSnapshot(userId: string) {
     include: { user: { select: { status: true, email: true } } },
   });
 
+  const notifications = await prisma.notification.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    take: 30,
+  });
+
+  const appliedCampaignIds = new Set(applications.map((application) => application.campaignId));
+  const availableCampaigns = ownsCampaigns
+    ? []
+    : await prisma.campaign.findMany({
+        where: {
+          status: "ACTIVE",
+          brandId: { not: userId },
+          id: { notIn: Array.from(appliedCampaignIds) },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 30,
+        include: { applications: true },
+      });
+
   return {
     user: buildUser(user),
     campaigns: campaigns.map(buildCampaign),
+    availableCampaigns: availableCampaigns.map(buildCampaign),
     rawCampaigns: campaigns,
     applications: buildApplications(applications),
     conversations: buildConversations(userId, applications),
+    notifications: buildNotifications(notifications),
     payments: escrows.map((escrow) => ({
       id: escrow.id,
       creator: escrow.contract.application.creator.creatorProfile?.displayName || "Creator",

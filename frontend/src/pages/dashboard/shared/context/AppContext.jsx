@@ -7,6 +7,8 @@ const emptyDashboard = {
   campaigns: [],
   applications: [],
   conversations: [],
+  notifications: [],
+  availableCampaigns: [],
   payments: [],
   events: [],
   creators: [],
@@ -49,6 +51,8 @@ function formatDashboardPayload(data) {
       },
     },
     conversations: data?.conversations || [],
+    notifications: data?.notifications || [],
+    availableCampaigns: data?.availableCampaigns || [],
   };
 }
 
@@ -160,6 +164,8 @@ export function AppProvider({ children, navigate }) {
     applications: dashboard.applications,
     updateApplication,
     conversations: dashboard.conversations,
+    notifications: dashboard.notifications,
+    availableCampaigns: dashboard.availableCampaigns,
     addMessage,
     markRead,
     payments: dashboard.payments,

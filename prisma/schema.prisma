@@ -90,6 +90,8 @@ model User {
   messagesReceived Message[]         @relation("MessageRecipient")
   creatorFavorites CreatorFavorite[] @relation("CreatorFavoriteOwner")
   favoritedBy      CreatorFavorite[] @relation("CreatorFavoriteTarget")
+  ownedTeamMembers TeamMember[]      @relation("TeamOwner")
+  teamMembership   TeamMember?       @relation("TeamMemberUser")
 }
 
 model OnboardingProgress {
@@ -156,6 +158,7 @@ model BrandProfile {
 
   // Step 2 Fields
   website           String?
+  description       String?
   companySize       String?
   location          String?
 
@@ -197,6 +200,7 @@ model OrganiserProfile {
   jobTitle    String?
   workEmail   String?
   website     String?
+  description String?
   instagram   String?
   agreements  Json?
   createdAt   DateTime @default(now())
@@ -272,6 +276,25 @@ model CreatorFavorite {
 
   @@unique([userId, creatorId])
   @@index([creatorId])
+}
+
+model TeamMember {
+  id          String    @id @default(cuid())
+  ownerId     String
+  userId      String?   @unique
+  email       String
+  name        String
+  designation String
+  status      String    @default("PENDING")
+  invitedAt   DateTime  @default(now())
+  acceptedAt  DateTime?
+  updatedAt   DateTime  @updatedAt
+
+  owner User  @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  user  User? @relation("TeamMemberUser", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@unique([ownerId, email])
+  @@index([email])
 }
 
 model Contract {

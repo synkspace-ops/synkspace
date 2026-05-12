@@ -12,6 +12,7 @@ const emptyDashboard = {
   payments: [],
   events: [],
   creators: [],
+  teamMembers: [],
   analytics: {
     stats: {
       activeCampaigns: 0,
@@ -53,6 +54,7 @@ function formatDashboardPayload(data) {
     conversations: data?.conversations || [],
     notifications: data?.notifications || [],
     availableCampaigns: data?.availableCampaigns || [],
+    teamMembers: data?.teamMembers || [],
   };
 }
 
@@ -68,6 +70,10 @@ function normalizeCurrentUser(user, fallback = {}, patch = {}) {
   delete profilePatch.contactName;
 
   if (patch.displayName !== undefined) profilePatch.displayName = patch.displayName;
+  if (patch.founderName !== undefined) profilePatch.founderName = patch.founderName;
+  if (patch.contactName !== undefined) profilePatch.contactName = patch.contactName;
+  if (patch.companyName !== undefined) profilePatch.companyName = patch.companyName;
+  if (patch.orgName !== undefined) profilePatch.orgName = patch.orgName;
   if (patch.avatarUrl !== undefined) profilePatch.avatarUrl = patch.avatarUrl || '';
 
   const avatarUrl = patch.avatarUrl !== undefined
@@ -81,16 +87,22 @@ function normalizeCurrentUser(user, fallback = {}, patch = {}) {
     profile.state,
     profile.country,
   ].filter(Boolean).join(', ') || profile.location || fallback?.location || '';
+  const website = patch.website !== undefined ? patch.website || '' : user?.website || profile.website || fallback?.website || '';
+  const industry = patch.industry !== undefined ? patch.industry || '' : user?.industry || profile.industry || profile.eventType || fallback?.industry || '';
+  const description = patch.description !== undefined ? patch.description || '' : user?.description || profile.description || fallback?.description || '';
 
   return {
     ...(fallback || {}),
     ...(user || {}),
     role: typeof roleValue === 'string' ? roleValue.toLowerCase() : roleValue,
-    name: patch.displayName || user?.name || profile.displayName || profile.founderName || profile.contactName || fallback?.name || user?.email?.split('@')?.[0] || '',
-    companyName: patch.companyName || user?.companyName || profile.companyName || profile.orgName || fallback?.companyName || '',
+    name: patch.displayName || patch.founderName || patch.contactName || user?.name || profile.displayName || profile.founderName || profile.contactName || fallback?.name || user?.email?.split('@')?.[0] || '',
+    companyName: patch.companyName || patch.orgName || user?.companyName || profile.companyName || profile.orgName || fallback?.companyName || '',
     phone,
     avatarUrl,
     location,
+    website,
+    industry,
+    description,
     profile: {
       ...(fallback?.profile || {}),
       ...profile,
@@ -282,6 +294,35 @@ export function AppProvider({ children, navigate }) {
     return nextUser;
   };
 
+  const inviteTeamMember = async (member) => {
+    if (!userId) throw new Error("Missing dashboard user");
+    const response = await apiPost('/api/dashboard/team-members', member);
+    setDashboard((prev) => ({
+      ...prev,
+      teamMembers: [response.data, ...prev.teamMembers.filter((item) => item.id !== response.data.id)],
+    }));
+    return response.data;
+  };
+
+  const updateTeamMember = async (memberId, patch) => {
+    if (!userId) throw new Error("Missing dashboard user");
+    const response = await apiPatch(`/api/dashboard/team-members/${memberId}`, patch);
+    setDashboard((prev) => ({
+      ...prev,
+      teamMembers: prev.teamMembers.map((member) => member.id === memberId ? response.data : member),
+    }));
+    return response.data;
+  };
+
+  const removeTeamMember = async (memberId) => {
+    if (!userId) throw new Error("Missing dashboard user");
+    await apiDelete(`/api/dashboard/team-members/${memberId}`);
+    setDashboard((prev) => ({
+      ...prev,
+      teamMembers: prev.teamMembers.filter((member) => member.id !== memberId),
+    }));
+  };
+
   const markRead = async (conversationId) => {
     if (!conversationId) return;
     const response = await apiPatch(`/api/dashboard/messages/${conversationId}/read`, {});
@@ -317,6 +358,10 @@ export function AppProvider({ children, navigate }) {
     startCreatorConversation,
     toggleCreatorLike,
     updateProfile,
+    teamMembers: dashboard.teamMembers,
+    inviteTeamMember,
+    updateTeamMember,
+    removeTeamMember,
     markRead,
     payments: dashboard.payments,
     releasePayment,

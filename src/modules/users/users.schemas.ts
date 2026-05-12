@@ -28,6 +28,8 @@ export const updateProfileSchema = z.object({
   companyName: z.string().max(200).optional(),
   founderName: z.string().max(200).optional(),
   industry: z.string().max(200).optional(),
+  description: z.string().max(2000).optional().nullable(),
+  location: z.string().max(300).optional().nullable(),
   orgName: z.string().max(200).optional(),
   contactName: z.string().max(200).optional(),
 }).strict();

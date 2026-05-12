@@ -115,4 +115,37 @@ export async function dashboardRoutes(app: FastifyInstance, _opts: FastifyPlugin
       return reply.send({ data, message: body.liked ? "Creator saved" : "Creator removed" });
     }
   );
+
+  app.post(
+    "/team-members",
+    async (request, reply) => {
+      const body = z.object({
+        name: z.string().min(1).max(200),
+        designation: z.string().min(1).max(200),
+        email: z.string().email().max(320),
+      }).parse(request.body);
+      const data = await dashboardService.inviteTeamMember(request.user!.id, body);
+      return reply.status(201).send({ data, message: "Team member invited" });
+    }
+  );
+
+  app.patch<{ Params: { memberId: string } }>(
+    "/team-members/:memberId",
+    async (request, reply) => {
+      const body = z.object({
+        name: z.string().min(1).max(200).optional(),
+        designation: z.string().min(1).max(200).optional(),
+      }).parse(request.body);
+      const data = await dashboardService.updateTeamMember(request.user!.id, request.params.memberId, body);
+      return reply.send({ data, message: "Team member updated" });
+    }
+  );
+
+  app.delete<{ Params: { memberId: string } }>(
+    "/team-members/:memberId",
+    async (request, reply) => {
+      const data = await dashboardService.removeTeamMember(request.user!.id, request.params.memberId);
+      return reply.send({ data, message: "Team member removed" });
+    }
+  );
 }

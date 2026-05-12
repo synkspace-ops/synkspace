@@ -61,6 +61,9 @@ export async function updateMe(userId: string, input: UpdateProfileInput) {
         ...(input.founderName != null && { founderName: input.founderName }),
         ...(input.industry != null && { industry: input.industry }),
         ...(input.phone != null && { phone: input.phone }),
+        ...(input.website !== undefined && { website: input.website }),
+        ...(input.description !== undefined && { description: input.description }),
+        ...(input.location !== undefined && { location: input.location }),
         ...(input.avatarUrl !== undefined && { avatarUrl: input.avatarUrl }),
       },
     });
@@ -75,6 +78,8 @@ export async function updateMe(userId: string, input: UpdateProfileInput) {
         ...(input.phone != null && { phone: input.phone }),
         ...(input.city !== undefined && { city: input.city }),
         ...(input.country !== undefined && { country: input.country }),
+        ...(input.website !== undefined && { website: input.website }),
+        ...(input.description !== undefined && { description: input.description }),
         ...(input.avatarUrl !== undefined && { avatarUrl: input.avatarUrl }),
       },
     });

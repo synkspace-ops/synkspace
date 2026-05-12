@@ -8,6 +8,7 @@ export type AuthErrorCode =
   | "AUTH_USER_EXISTS"
   | "AUTH_USER_NOT_FOUND"
   | "AUTH_INVALID_CREDENTIALS"
+  | "AUTH_PASSWORD_SETUP_REQUIRED"
   | "AUTH_SERVER_ERROR";
 
 export class AuthServiceError extends Error {
@@ -28,6 +29,14 @@ export type LoginUserInput = {
   email: string;
   password: string;
 };
+
+export type CompleteInviteInput = {
+  email: string;
+  password: string;
+};
+
+export const ONBOARDING_PLACEHOLDER_PASSWORD = "onboarding-placeholder";
+export const TEAM_INVITE_PLACEHOLDER_PASSWORD = "team-invite-placeholder";
 
 const PASSWORD_SALT_BYTES = 16;
 const PBKDF2_ITERS = 200_000;
@@ -106,7 +115,7 @@ export async function registerUser(input: RegisterUserInput): Promise<{ user: { 
 
   const role = normalizeRole(input.role) as any;
   const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing && existing.passwordHash !== "onboarding-placeholder") {
+  if (existing && existing.passwordHash !== ONBOARDING_PLACEHOLDER_PASSWORD) {
     throw new AuthServiceError("AUTH_USER_EXISTS");
   }
 
@@ -132,9 +141,39 @@ export async function loginUser(input: LoginUserInput): Promise<{ accessToken: s
   const email = normalizeEmail(input.email);
   const user = await prisma.user.findUnique({ where: { email }, select: { id: true, email: true, role: true, passwordHash: true } });
   if (!user) throw new AuthServiceError("AUTH_USER_NOT_FOUND");
+  if (user.passwordHash === TEAM_INVITE_PLACEHOLDER_PASSWORD) throw new AuthServiceError("AUTH_PASSWORD_SETUP_REQUIRED");
   if (!verifyPassword(input.password, user.passwordHash)) throw new AuthServiceError("AUTH_INVALID_CREDENTIALS");
 
   const safeUser = { id: user.id, role: user.role, email: user.email };
+  return { accessToken: signAccessToken(safeUser), expiresIn: ACCESS_EXPIRES_IN_SEC, user: safeUser };
+}
+
+export async function completeInvite(input: CompleteInviteInput): Promise<{ accessToken: string; expiresIn: number; user: { id: string; role: string; email: string } }> {
+  if (!isNonEmptyString(input?.email) || !isNonEmptyString(input?.password) || input.password.length < 8) {
+    throw new AuthServiceError("AUTH_INVALID_INPUT");
+  }
+
+  const email = normalizeEmail(input.email);
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true, email: true, role: true, passwordHash: true },
+  });
+  if (!user) throw new AuthServiceError("AUTH_USER_NOT_FOUND");
+  if (user.passwordHash !== TEAM_INVITE_PLACEHOLDER_PASSWORD) throw new AuthServiceError("AUTH_USER_EXISTS");
+
+  const safeUser = await prisma.$transaction(async (tx) => {
+    const updated = await tx.user.update({
+      where: { id: user.id },
+      data: { passwordHash: hashPassword(input.password), status: "VERIFIED" },
+      select: { id: true, role: true, email: true },
+    });
+    await tx.teamMember.updateMany({
+      where: { userId: user.id, email },
+      data: { status: "ACTIVE", acceptedAt: new Date() },
+    });
+    return updated;
+  });
+
   return { accessToken: signAccessToken(safeUser), expiresIn: ACCESS_EXPIRES_IN_SEC, user: safeUser };
 }
 

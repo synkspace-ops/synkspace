@@ -1,190 +1,389 @@
-import { Building2, Users, CreditCard, Bell, Shield, Upload, CreditCard as CardIcon } from 'lucide-react';
+import { Building2, Briefcase, Check, Loader2, Mail, Save, Trash2, Upload, Users } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { useApp } from '../context/AppContext';
 
+const emptyProfile = {
+  companyName: '',
+  contactName: '',
+  email: '',
+  phone: '',
+  website: '',
+  industry: '',
+  location: '',
+  description: '',
+  avatarUrl: '',
+};
+
+const AVATAR_EXPORTS = [
+  { maxSize: 512, quality: 0.78, type: 'image/webp' },
+  { maxSize: 384, quality: 0.72, type: 'image/webp' },
+  { maxSize: 256, quality: 0.7, type: 'image/webp' },
+  { maxSize: 256, quality: 0.72, type: 'image/jpeg' },
+];
+
+function readImageFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error('Unable to read image.'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error('Unable to load image.'));
+    image.src = src;
+  });
+}
+
+async function compressImage(file) {
+  const source = await readImageFile(file);
+  const image = await loadImage(source);
+  for (const option of AVATAR_EXPORTS) {
+    const scale = Math.min(1, option.maxSize / Math.max(image.width, image.height));
+    const width = Math.max(1, Math.round(image.width * scale));
+    const height = Math.max(1, Math.round(image.height * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Unable to prepare image.');
+    ctx.drawImage(image, 0, 0, width, height);
+    const dataUrl = canvas.toDataURL(option.type, option.quality);
+    if (dataUrl.length <= 900_000) return dataUrl;
+  }
+  throw new Error('Logo is too large. Please upload a smaller image.');
+}
+
+function buildProfile(currentUser) {
+  const profile = currentUser?.profile || {};
+  const isOrganiser = String(currentUser?.role || '').toLowerCase() === 'organiser';
+  return {
+    ...emptyProfile,
+    companyName: currentUser?.companyName || profile.companyName || profile.orgName || '',
+    contactName: profile.founderName || profile.contactName || currentUser?.name || '',
+    email: currentUser?.email || '',
+    phone: currentUser?.phone || profile.phone || '',
+    website: currentUser?.website || profile.website || '',
+    industry: currentUser?.industry || profile.industry || profile.eventType || '',
+    location: currentUser?.location || profile.location || [profile.city, profile.state, profile.country].filter(Boolean).join(', '),
+    description: currentUser?.description || profile.description || '',
+    avatarUrl: currentUser?.avatarUrl || profile.avatarUrl || '',
+    isOrganiser,
+  };
+}
+
+function initials(name = 'S') {
+  return name.charAt(0).toUpperCase();
+}
+
 export function SettingsPage() {
-  const { currentUser } = useApp();
-  const displayName = currentUser?.companyName || currentUser?.name || 'Company';
-  const displayInitial = displayName.charAt(0).toUpperCase();
-  const displayWebsite = currentUser?.website || '';
-  const avatarUrl = currentUser?.avatarUrl || '';
+  const {
+    currentUser,
+    teamMembers = [],
+    updateProfile,
+    inviteTeamMember,
+    removeTeamMember,
+  } = useApp();
+  const [profile, setProfile] = useState(emptyProfile);
+  const [invite, setInvite] = useState({ name: '', designation: '', email: '' });
+  const [saving, setSaving] = useState(false);
+  const [savingLogo, setSavingLogo] = useState(false);
+  const [inviting, setInviting] = useState(false);
+  const [removingId, setRemovingId] = useState('');
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    setProfile(buildProfile(currentUser));
+  }, [currentUser]);
+
+  const displayName = profile.companyName || currentUser?.companyName || currentUser?.name || 'Company';
+  const isTeamMember = Boolean(currentUser?.teamMember);
+  const canSave = useMemo(() => !isTeamMember && profile.companyName.trim() && profile.contactName.trim(), [isTeamMember, profile]);
+
+  const updateField = (field, value) => {
+    setProfile((prev) => ({ ...prev, [field]: value }));
+    setError('');
+    setMessage('');
+  };
+
+  const handleLogoUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError('Please upload an image file.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Logo must be 5MB or smaller.');
+      return;
+    }
+
+    const previousLogo = profile.avatarUrl;
+    setSavingLogo(true);
+    setError('');
+    setMessage('');
+    try {
+      const avatarUrl = await compressImage(file);
+      setProfile((prev) => ({ ...prev, avatarUrl }));
+      await updateProfile({ avatarUrl });
+      setMessage('Logo updated.');
+    } catch (logoError) {
+      setProfile((prev) => ({ ...prev, avatarUrl: previousLogo }));
+      setError(logoError?.message || 'Could not save logo.');
+    } finally {
+      setSavingLogo(false);
+      event.target.value = '';
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    if (!canSave) {
+      setError('Company name and contact name are required.');
+      return;
+    }
+
+    setSaving(true);
+    setError('');
+    setMessage('');
+    try {
+      const payload = profile.isOrganiser
+        ? {
+            orgName: profile.companyName.trim(),
+            contactName: profile.contactName.trim(),
+            phone: profile.phone.trim() || null,
+            website: profile.website.trim() || null,
+            description: profile.description.trim() || null,
+            avatarUrl: profile.avatarUrl || null,
+          }
+        : {
+            companyName: profile.companyName.trim(),
+            founderName: profile.contactName.trim(),
+            industry: profile.industry.trim() || undefined,
+            phone: profile.phone.trim() || null,
+            website: profile.website.trim() || null,
+            location: profile.location.trim() || null,
+            description: profile.description.trim() || null,
+            avatarUrl: profile.avatarUrl || null,
+          };
+      await updateProfile(payload);
+      setMessage('Company profile saved.');
+    } catch (saveError) {
+      setError(saveError?.message || 'Could not save company profile.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleInvite = async (event) => {
+    event.preventDefault();
+    setInviting(true);
+    setError('');
+    setMessage('');
+    try {
+      await inviteTeamMember({
+        name: invite.name.trim(),
+        designation: invite.designation.trim(),
+        email: invite.email.trim(),
+      });
+      setInvite({ name: '', designation: '', email: '' });
+      setMessage('Team member invited. They can log in with this email and create a password.');
+    } catch (inviteError) {
+      setError(inviteError?.message || 'Could not invite team member.');
+    } finally {
+      setInviting(false);
+    }
+  };
+
+  const handleRemoveMember = async (memberId) => {
+    setRemovingId(memberId);
+    setError('');
+    setMessage('');
+    try {
+      await removeTeamMember(memberId);
+      setMessage('Team member removed.');
+    } catch (removeError) {
+      setError(removeError?.message || 'Could not remove team member.');
+    } finally {
+      setRemovingId('');
+    }
+  };
 
   return (
     <div className="min-h-screen p-4 sm:p-6 font-sans text-slate-800 flex flex-col gap-4 sm:gap-6 w-full">
-      {/* Header */}
       <header className="mb-2">
         <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-wide mb-1">Settings</h1>
-        <p className="text-white/80 text-sm">Manage your company profile and preferences</p>
+        <p className="text-white/80 text-sm">Manage your company profile and team access</p>
       </header>
 
-      {/* Company Profile */}
-      <div className="bg-white/70 backdrop-blur-xl rounded-[32px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60">
-        <div className="flex items-center gap-4 mb-8">
-          <div className="p-3 bg-[#6f8e97]/20 border border-[#6f8e97]/30 rounded-2xl">
-            <Building2 className="w-6 h-6 text-[#4c7569]" />
-          </div>
-          <h2 className="text-2xl font-bold text-slate-800">Company Profile</h2>
+      {(message || error) && (
+        <div className={`rounded-2xl border px-5 py-4 text-sm font-bold shadow-sm ${
+          error ? 'border-red-100 bg-red-50 text-red-700' : 'border-emerald-100 bg-emerald-50 text-emerald-700'
+        }`}>
+          {error || message}
         </div>
-        
+      )}
+
+      <section className="bg-white/70 backdrop-blur-xl rounded-[32px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60">
+        <div className="flex items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-[#6f8e97]/20 border border-[#6f8e97]/30 rounded-2xl">
+              <Building2 className="w-6 h-6 text-[#4c7569]" />
+            </div>
+            <h2 className="text-2xl font-bold text-slate-800">Company Profile</h2>
+          </div>
+          <button
+            onClick={handleSaveProfile}
+            disabled={saving || savingLogo || !canSave}
+            className="hidden sm:inline-flex items-center gap-2 px-5 py-3 bg-[#6f8e97] text-white rounded-2xl hover:bg-[#5A7684] transition-all font-bold shadow-md disabled:opacity-60"
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            Save
+          </button>
+        </div>
+
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 pb-6 border-b border-white/40">
-            <div className="w-24 h-24 bg-[#6f8e97] rounded-[24px] flex items-center justify-center text-white text-3xl font-bold shadow-md shadow-[#6f8e97]/20 border border-white/30">
-              {avatarUrl ? (
-                <img src={avatarUrl} alt={`${displayName} logo`} className="w-full h-full object-cover rounded-[24px]" />
+            <div className="w-24 h-24 bg-[#6f8e97] rounded-[24px] flex items-center justify-center text-white text-3xl font-bold shadow-md shadow-[#6f8e97]/20 border border-white/30 overflow-hidden">
+              {profile.avatarUrl ? (
+                <img src={profile.avatarUrl} alt={`${displayName} logo`} className="w-full h-full object-cover" />
               ) : (
-                displayInitial
+                initials(displayName)
               )}
             </div>
-            <button className="px-6 py-3.5 bg-white/60 border border-white/60 text-slate-700 rounded-2xl hover:bg-white hover:text-[#6f8e97] transition-all flex items-center gap-2 font-bold shadow-sm">
-              <Upload className="w-5 h-5" />
-              Upload Logo
-            </button>
+            <label className={`px-6 py-3.5 bg-white/60 border border-white/60 text-slate-700 rounded-2xl hover:bg-white hover:text-[#6f8e97] transition-all flex items-center gap-2 font-bold shadow-sm cursor-pointer ${(savingLogo || isTeamMember) ? 'pointer-events-none opacity-70' : ''}`}>
+              {savingLogo ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-5 h-5" />}
+              {savingLogo ? 'Uploading...' : 'Upload Logo'}
+              <input type="file" accept="image/*" disabled={savingLogo || isTeamMember} onChange={handleLogoUpload} className="hidden" />
+            </label>
+            {isTeamMember && (
+              <p className="text-sm font-semibold text-slate-500">Company profile edits are available to the owner account.</p>
+            )}
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              <label className="block text-slate-700 font-medium mb-2 text-sm">Company Name</label>
-              <input
-                type="text"
-                defaultValue={displayName}
-                className="w-full bg-white/50 border border-white/50 rounded-2xl px-5 py-3.5 text-slate-800 focus:border-[#6f8e97] focus:outline-none focus:ring-2 focus:ring-[#6f8e97]/20 transition-all font-medium shadow-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-slate-700 font-medium mb-2 text-sm">Website</label>
-              <input
-                type="text"
-                defaultValue={displayWebsite}
-                className="w-full bg-white/50 border border-white/50 rounded-2xl px-5 py-3.5 text-slate-800 focus:border-[#6f8e97] focus:outline-none focus:ring-2 focus:ring-[#6f8e97]/20 transition-all font-medium shadow-sm"
-              />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-slate-700 font-medium mb-2 text-sm">Industry</label>
-              <select className="w-full bg-white/50 border border-white/50 rounded-2xl px-5 py-3.5 text-slate-800 focus:border-[#6f8e97] focus:outline-none focus:ring-2 focus:ring-[#6f8e97]/20 transition-all font-medium shadow-sm appearance-none">
-                <option>Technology</option>
-                <option>Fashion</option>
-                <option>Beauty</option>
-                <option>Food & Beverage</option>
-                <option>Other</option>
-              </select>
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-slate-700 font-medium mb-2 text-sm">Company Description</label>
+            <Field label={profile.isOrganiser ? 'Organisation Name' : 'Company Name'} value={profile.companyName} onChange={(value) => updateField('companyName', value)} />
+            <Field label="Contact Name" value={profile.contactName} onChange={(value) => updateField('contactName', value)} />
+            <Field label="Email" value={profile.email} disabled />
+            <Field label="Phone" value={profile.phone} onChange={(value) => updateField('phone', value)} />
+            <Field label="Website" value={profile.website} onChange={(value) => updateField('website', value)} />
+            <Field label={profile.isOrganiser ? 'Event Type' : 'Industry'} value={profile.industry} onChange={(value) => updateField('industry', value)} />
+            {!profile.isOrganiser && <Field label="Location" value={profile.location} onChange={(value) => updateField('location', value)} className="md:col-span-2" />}
+            <label className="md:col-span-2">
+              <span className="block text-slate-700 font-medium mb-2 text-sm">Description</span>
               <textarea
                 rows={4}
-                defaultValue="A leading technology company focused on innovative solutions..."
+                value={profile.description}
+                onChange={(event) => updateField('description', event.target.value)}
+                placeholder="Add a short description for your brand or organisation."
                 className="w-full bg-white/50 border border-white/50 rounded-2xl px-5 py-3.5 text-slate-800 focus:border-[#6f8e97] focus:outline-none focus:ring-2 focus:ring-[#6f8e97]/20 resize-none transition-all font-medium shadow-sm"
               />
-            </div>
+            </label>
           </div>
-        </div>
-      </div>
 
-      {/* Team Access */}
-      <div className="bg-white/70 backdrop-blur-xl rounded-[32px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60">
+          <button
+            onClick={handleSaveProfile}
+            disabled={saving || savingLogo || !canSave}
+            className="sm:hidden w-full inline-flex justify-center items-center gap-2 px-5 py-3 bg-[#6f8e97] text-white rounded-2xl hover:bg-[#5A7684] transition-all font-bold shadow-md disabled:opacity-60"
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            Save Profile
+          </button>
+        </div>
+      </section>
+
+      <section className="bg-white/70 backdrop-blur-xl rounded-[32px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60">
         <div className="flex items-center gap-4 mb-8">
           <div className="p-3 bg-[#91c0cf]/20 border border-[#91c0cf]/30 rounded-2xl">
             <Users className="w-6 h-6 text-[#4f8396]" />
           </div>
           <h2 className="text-2xl font-bold text-slate-800">Team Members</h2>
         </div>
-        
-        <div className="space-y-4 mb-6">
-          {[
-            { name: 'John Doe', email: 'john@synkspace.com', role: 'Admin', color: 'bg-[#a3e4c7] text-[#4c7569]' },
-            { name: 'Jane Smith', email: 'jane@synkspace.com', role: 'Manager', color: 'bg-[#f4a298] text-[#b5735c]' },
-            { name: 'Bob Wilson', email: 'bob@synkspace.com', role: 'Manager', color: 'bg-[#91c0cf] text-[#4f8396]' },
-          ].map((member, index) => (
-            <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-white/40 border border-white/50 rounded-2xl shadow-sm gap-4">
-              <div className="flex items-center gap-4">
-                <div className={`w-12 h-12 rounded-[16px] flex items-center justify-center font-bold text-lg shadow-sm border border-white/50 ${member.color}`}>
-                  {member.name.charAt(0)}
+
+        {!isTeamMember ? (
+          <form onSubmit={handleInvite} className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1fr_1.2fr_auto]">
+            <Field label="Name" value={invite.name} onChange={(value) => setInvite((prev) => ({ ...prev, name: value }))} icon={Users} compact />
+            <Field label="Designation" value={invite.designation} onChange={(value) => setInvite((prev) => ({ ...prev, designation: value }))} icon={Briefcase} compact />
+            <Field label="Email" type="email" value={invite.email} onChange={(value) => setInvite((prev) => ({ ...prev, email: value }))} icon={Mail} compact />
+            <button
+              disabled={inviting || !invite.name.trim() || !invite.designation.trim() || !invite.email.trim()}
+              className="self-end h-[50px] px-6 bg-[#6f8e97] text-white rounded-2xl hover:bg-[#5A7684] transition-all font-bold shadow-md shadow-[#6f8e97]/20 disabled:opacity-60"
+            >
+              {inviting ? 'Inviting...' : 'Invite'}
+            </button>
+          </form>
+        ) : (
+          <div className="mb-6 rounded-2xl border border-white/50 bg-white/40 p-4 text-sm font-semibold text-slate-500">
+            Team invitations are managed by the owner account.
+          </div>
+        )}
+
+        <div className="space-y-4">
+          {teamMembers.map((member) => (
+            <div key={member.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-white/40 border border-white/50 rounded-2xl shadow-sm gap-4">
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="w-12 h-12 rounded-[16px] flex shrink-0 items-center justify-center font-bold text-lg shadow-sm border border-white/50 bg-[#a3e4c7] text-[#4c7569]">
+                  {initials(member.name)}
                 </div>
-                <div>
-                  <p className="font-bold text-slate-800">{member.name}</p>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-bold text-slate-800">{member.name}</p>
+                    <span className={`rounded-full px-2.5 py-1 text-[11px] font-black uppercase ${
+                      member.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                    }`}>
+                      {member.status === 'ACTIVE' ? 'Active' : 'Invited'}
+                    </span>
+                  </div>
+                  <p className="text-sm font-medium text-slate-500">{member.designation}</p>
                   <p className="text-sm font-medium text-slate-500">{member.email}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-4 w-full sm:w-auto">
-                <select className="flex-1 sm:w-auto bg-white/60 border border-white/60 rounded-xl px-4 py-2.5 text-slate-700 focus:border-[#6f8e97] focus:outline-none font-semibold shadow-sm text-sm">
-                  <option selected={member.role === 'Admin'}>Admin</option>
-                  <option selected={member.role === 'Manager'}>Manager</option>
-                </select>
-                <button className="text-[#f4a298] hover:text-[#b5735c] font-bold text-sm px-3 py-2 transition-colors">
-                  Remove
-                </button>
-              </div>
+              <button
+                onClick={() => handleRemoveMember(member.id)}
+                disabled={isTeamMember || removingId === member.id}
+                className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-bold text-[#b5735c] transition-colors hover:bg-red-50 disabled:opacity-60"
+              >
+                {removingId === member.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                Remove
+              </button>
             </div>
           ))}
-        </div>
-        <button className="px-6 py-3.5 bg-[#6f8e97] text-white rounded-2xl hover:bg-[#5A7684] transition-all font-bold shadow-md shadow-[#6f8e97]/20">
-          Invite Team Member
-        </button>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Payment Settings */}
-        <div className="bg-white/70 backdrop-blur-xl rounded-[32px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 flex flex-col">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="p-3 bg-[#a3e4c7]/20 border border-[#a3e4c7]/30 rounded-2xl">
-              <CardIcon className="w-6 h-6 text-[#345b4c]" />
+          {!teamMembers.length && (
+            <div className="rounded-2xl border border-white/50 bg-white/40 p-6 text-center text-sm font-semibold text-slate-500">
+              No team members have been invited yet.
             </div>
-            <h2 className="text-2xl font-bold text-slate-800">Payment Settings</h2>
-          </div>
-          <div className="space-y-4 mb-6 flex-1">
-            <div className="p-5 bg-white/40 border border-white/50 rounded-2xl shadow-sm relative overflow-hidden">
-              <div className="flex items-center justify-between z-10 relative">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <CardIcon className="w-5 h-5 text-slate-600" />
-                    <p className="font-bold text-slate-800">•••• 4242</p>
-                  </div>
-                  <p className="text-sm font-medium text-slate-500">Expires 12/2027</p>
-                </div>
-                <span className="px-3 py-1 bg-[#a3e4c7]/30 text-[#345b4c] border border-[#a3e4c7]/40 rounded-full text-xs font-bold tracking-wide uppercase">Default</span>
-              </div>
-            </div>
-          </div>
-          <button className="w-full px-6 py-3.5 bg-white/60 border border-white/60 text-slate-700 rounded-2xl hover:bg-white transition-all font-bold shadow-sm">
-            Add Payment Method
-          </button>
+          )}
         </div>
 
-        {/* Notifications */}
-        <div className="bg-white/70 backdrop-blur-xl rounded-[32px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 flex flex-col">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="p-3 bg-[#f0ad9f]/20 border border-[#f0ad9f]/30 rounded-2xl">
-              <Bell className="w-6 h-6 text-[#b5735c]" />
-            </div>
-            <h2 className="text-2xl font-bold text-slate-800">Notifications</h2>
-          </div>
-          <div className="space-y-3 flex-1">
-            {[
-              { label: 'New Applications', description: 'Get notified when creators apply', active: true },
-              { label: 'Campaign Updates', description: 'Receive updates about campaigns', active: true },
-              { label: 'Messages', description: 'Get notified when you receive messages', active: true },
-              { label: 'Payment Alerts', description: 'Receive alerts about payments', active: false },
-            ].map((item, index) => (
-              <div key={index} className="flex items-center justify-between p-4 bg-white/40 border border-white/50 rounded-2xl shadow-sm gap-4">
-                <div>
-                  <p className="font-bold text-slate-800 mb-0.5 text-sm">{item.label}</p>
-                  <p className="text-xs font-medium text-slate-500">{item.description}</p>
-                </div>
-                <button className={`w-12 h-6 rounded-full relative transition-all duration-300 shrink-0 ${item.active ? 'bg-[#6f8e97]' : 'bg-slate-300'}`}>
-                  <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-all duration-300 shadow-sm ${item.active ? 'right-0.5' : 'left-0.5'}`}></div>
-                </button>
-              </div>
-            ))}
-          </div>
+        <div className="mt-5 flex items-start gap-3 rounded-2xl border border-[#6f8e97]/20 bg-[#6f8e97]/10 p-4 text-sm font-semibold text-[#4c7569]">
+          <Check className="mt-0.5 h-4 w-4 shrink-0" />
+          Invited team members can use their email on the login page, then create their own password before entering the dashboard.
         </div>
-      </div>
-      
-      <div className="flex justify-end mt-4 mb-6">
-        <button className="px-8 py-4 bg-[#6f8e97] text-white rounded-2xl hover:bg-[#5A7684] transition-all font-bold shadow-lg shadow-[#6f8e97]/30">
-          Save Changes
-        </button>
-      </div>
+      </section>
     </div>
   );
 }
 
-
+function Field({ label, value, onChange, icon: Icon, type = 'text', disabled = false, compact = false, className = '' }) {
+  return (
+    <label className={className}>
+      <span className="block text-slate-700 font-medium mb-2 text-sm">{label}</span>
+      <div className="relative">
+        {Icon && <Icon className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />}
+        <input
+          type={type}
+          value={value}
+          disabled={disabled}
+          onChange={(event) => onChange?.(event.target.value)}
+          className={`w-full bg-white/50 border border-white/50 rounded-2xl ${Icon ? 'pl-11' : 'pl-5'} pr-5 ${compact ? 'py-3' : 'py-3.5'} text-slate-800 focus:border-[#6f8e97] focus:outline-none focus:ring-2 focus:ring-[#6f8e97]/20 transition-all font-medium shadow-sm disabled:text-slate-500`}
+          required={!disabled && compact}
+        />
+      </div>
+    </label>
+  );
+}

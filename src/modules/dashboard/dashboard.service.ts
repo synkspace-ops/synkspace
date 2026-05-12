@@ -1,5 +1,6 @@
 import { prisma } from "../../db/client.js";
 import type { AppStatus, Campaign, CampaignStatus, User } from "@prisma/client";
+import { TEAM_INVITE_PLACEHOLDER_PASSWORD } from "../auth/auth.service.js";
 
 const STATUS_TO_UI: Record<CampaignStatus, string> = {
   DRAFT: "draft",
@@ -112,8 +113,41 @@ async function getUserWithProfiles(userId: string) {
   });
 }
 
+async function resolveDashboardAccess(userId: string) {
+  const actor = await getUserWithProfiles(userId);
+  if (!actor) throw new Error("User not found");
+  if (actor.creatorProfile || actor.brandProfile || actor.organiserProfile || actor.role === "ADMIN") {
+    return { actor, dashboardUser: actor, ownerId: userId, teamMember: null as any };
+  }
+
+  const teamMember = await prisma.teamMember.findFirst({
+    where: { userId },
+    include: {
+      owner: {
+        include: {
+          creatorProfile: true,
+          brandProfile: true,
+          organiserProfile: true,
+        },
+      },
+    },
+  });
+
+  if (teamMember?.owner) {
+    return { actor, dashboardUser: teamMember.owner, ownerId: teamMember.ownerId, teamMember };
+  }
+
+  return { actor, dashboardUser: actor, ownerId: userId, teamMember: null as any };
+}
+
+async function resolveDashboardOwnerId(userId: string) {
+  const access = await resolveDashboardAccess(userId);
+  return access.ownerId;
+}
+
 function buildUser(user: NonNullable<Awaited<ReturnType<typeof getUserWithProfiles>>>) {
   const profile = user.creatorProfile || user.brandProfile || user.organiserProfile;
+  const profileRecord = profile as any;
   const profileWithPhoneCode = profile && "phoneCode" in profile ? profile : undefined;
   const profileWithLocation = profile && "city" in profile ? profile : undefined;
   const state = profile && "state" in profile ? profile.state : undefined;
@@ -124,6 +158,9 @@ function buildUser(user: NonNullable<Awaited<ReturnType<typeof getUserWithProfil
     role: user.role.toLowerCase(),
     name: profileName(user),
     companyName: user.brandProfile?.companyName || user.organiserProfile?.orgName || "",
+    website: profileRecord?.website || "",
+    industry: user.brandProfile?.industry || user.organiserProfile?.eventType || "",
+    description: profileRecord?.description || "",
     phone: profile?.phone || "",
     phoneCode: profileWithPhoneCode?.phoneCode,
     phoneCountry: profileWithPhoneCode && "phoneCountry" in profileWithPhoneCode ? profileWithPhoneCode.phoneCountry : undefined,
@@ -135,6 +172,19 @@ function buildUser(user: NonNullable<Awaited<ReturnType<typeof getUserWithProfil
       profileWithLocation?.country,
     ].filter(Boolean).join(", ") || brandLocation || "",
     profile,
+  };
+}
+
+function buildTeamMember(member: any) {
+  return {
+    id: member.id,
+    userId: member.userId,
+    name: member.name,
+    email: member.email,
+    designation: member.designation,
+    status: member.status,
+    invitedAt: member.invitedAt,
+    acceptedAt: member.acceptedAt,
   };
 }
 
@@ -360,13 +410,14 @@ function buildNotifications(notifications: any[]) {
 }
 
 export async function getDashboardSnapshot(userId: string) {
-  const user = await getUserWithProfiles(userId);
-  if (!user) throw new Error("User not found");
+  const access = await resolveDashboardAccess(userId);
+  const user = access.dashboardUser;
+  const ownerId = access.ownerId;
 
   const ownsCampaigns = user.role === "BRAND" || user.role === "ORGANISER";
   const campaigns = ownsCampaigns
     ? await prisma.campaign.findMany({
-        where: { brandId: userId },
+        where: { brandId: ownerId },
         orderBy: { createdAt: "desc" },
         include: { applications: true },
       })
@@ -378,7 +429,7 @@ export async function getDashboardSnapshot(userId: string) {
 
   const applications = ownsCampaigns
     ? await prisma.application.findMany({
-        where: { campaign: { brandId: userId } },
+        where: { campaign: { brandId: ownerId } },
         orderBy: { appliedAt: "desc" },
         include: {
           messages: { orderBy: { createdAt: "asc" } },
@@ -397,7 +448,7 @@ export async function getDashboardSnapshot(userId: string) {
       });
 
   const escrows = await prisma.escrow.findMany({
-    where: ownsCampaigns ? { contract: { brandId: userId } } : { contract: { creatorId: userId } },
+    where: ownsCampaigns ? { contract: { brandId: ownerId } } : { contract: { creatorId: userId } },
     orderBy: { createdAt: "desc" },
     include: {
       contract: {
@@ -409,7 +460,7 @@ export async function getDashboardSnapshot(userId: string) {
   });
 
   const creatorCount = ownsCampaigns
-    ? await prisma.application.count({ where: { campaign: { brandId: userId }, status: "ACCEPTED" } })
+    ? await prisma.application.count({ where: { campaign: { brandId: ownerId }, status: "ACCEPTED" } })
     : 1;
 
   const directMessages = await prisma.message.findMany({
@@ -432,7 +483,7 @@ export async function getDashboardSnapshot(userId: string) {
 
   const favoriteCreatorIds = ownsCampaigns
     ? new Set((await prisma.creatorFavorite.findMany({
-        where: { userId },
+        where: { userId: ownerId },
         select: { creatorId: true },
       })).map((favorite) => favorite.creatorId))
     : new Set<string>();
@@ -443,13 +494,21 @@ export async function getDashboardSnapshot(userId: string) {
     take: 30,
   });
 
+  const teamMembers = ownsCampaigns
+    ? await prisma.teamMember.findMany({
+        where: { ownerId },
+        orderBy: { invitedAt: "desc" },
+        include: { user: { select: { id: true, email: true, status: true } } },
+      })
+    : [];
+
   const appliedCampaignIds = new Set(applications.map((application) => application.campaignId));
   const availableCampaigns = ownsCampaigns
     ? []
     : await prisma.campaign.findMany({
         where: {
           status: "ACTIVE",
-          brandId: { not: userId },
+          brandId: { not: ownerId },
           id: { notIn: Array.from(appliedCampaignIds) },
         },
         orderBy: { createdAt: "desc" },
@@ -458,13 +517,23 @@ export async function getDashboardSnapshot(userId: string) {
       });
 
   return {
-    user: buildUser(user),
+    user: {
+      ...buildUser(user),
+      ...(access.teamMember ? {
+        id: access.actor.id,
+        email: access.actor.email,
+        role: access.actor.role.toLowerCase(),
+        name: access.teamMember.name,
+        teamMember: buildTeamMember(access.teamMember),
+      } : {}),
+    },
     campaigns: campaigns.map(buildCampaign),
     availableCampaigns: availableCampaigns.map(buildCampaign),
     rawCampaigns: campaigns,
     applications: buildApplications(applications),
     conversations: buildConversations(userId, applications, directMessages),
     notifications: buildNotifications(notifications),
+    teamMembers: teamMembers.map(buildTeamMember),
     payments: escrows.map((escrow) => ({
       id: escrow.id,
       creator: escrow.contract.application.creator.creatorProfile?.displayName || "Creator",
@@ -494,11 +563,12 @@ export async function getDashboardSnapshot(userId: string) {
 export async function addDashboardMessage(userId: string, applicationId: string, body: string) {
   const directUserId = directUserIdFromConversation(applicationId);
   if (directUserId) return addDirectDashboardMessage(userId, directUserId, body);
+  const ownerId = await resolveDashboardOwnerId(userId);
 
   const application = await prisma.application.findFirst({
     where: {
       id: applicationId,
-      OR: [{ creatorId: userId }, { campaign: { brandId: userId } }],
+      OR: [{ creatorId: userId }, { campaign: { brandId: ownerId } }],
     },
     include: { campaign: true },
   });
@@ -520,7 +590,7 @@ export async function addDashboardMessage(userId: string, applicationId: string,
   const reloaded = await prisma.application.findMany({
     where: {
       id: applicationId,
-      OR: [{ creatorId: userId }, { campaign: { brandId: userId } }],
+      OR: [{ creatorId: userId }, { campaign: { brandId: ownerId } }],
     },
     include: {
       messages: { orderBy: { createdAt: "asc" } },
@@ -534,11 +604,12 @@ export async function addDashboardMessage(userId: string, applicationId: string,
 export async function markDashboardConversationRead(userId: string, applicationId: string) {
   const directUserId = directUserIdFromConversation(applicationId);
   if (directUserId) return markDirectConversationRead(userId, directUserId);
+  const ownerId = await resolveDashboardOwnerId(userId);
 
   const application = await prisma.application.findFirst({
     where: {
       id: applicationId,
-      OR: [{ creatorId: userId }, { campaign: { brandId: userId } }],
+      OR: [{ creatorId: userId }, { campaign: { brandId: ownerId } }],
     },
   });
   if (!application) throw new Error("Conversation not found");
@@ -555,7 +626,7 @@ export async function markDashboardConversationRead(userId: string, applicationI
   const reloaded = await prisma.application.findMany({
     where: {
       id: applicationId,
-      OR: [{ creatorId: userId }, { campaign: { brandId: userId } }],
+      OR: [{ creatorId: userId }, { campaign: { brandId: ownerId } }],
     },
     include: {
       messages: { orderBy: { createdAt: "asc" } },
@@ -656,6 +727,7 @@ export async function markDirectConversationRead(userId: string, otherUserId: st
 }
 
 export async function setCreatorFavorite(userId: string, creatorId: string, liked: boolean) {
+  const ownerId = await resolveDashboardOwnerId(userId);
   if (userId === creatorId) throw new Error("Cannot favorite yourself");
   const creator = await prisma.user.findFirst({
     where: { id: creatorId, role: "CREATOR", creatorProfile: { isNot: null } },
@@ -665,24 +737,110 @@ export async function setCreatorFavorite(userId: string, creatorId: string, like
 
   if (liked) {
     await prisma.creatorFavorite.upsert({
-      where: { userId_creatorId: { userId, creatorId } },
-      create: { userId, creatorId },
+      where: { userId_creatorId: { userId: ownerId, creatorId } },
+      create: { userId: ownerId, creatorId },
       update: {},
     });
   } else {
-    await prisma.creatorFavorite.deleteMany({ where: { userId, creatorId } });
+    await prisma.creatorFavorite.deleteMany({ where: { userId: ownerId, creatorId } });
   }
 
   return { creatorId, liked };
 }
 
+export async function inviteTeamMember(userId: string, input: { name: string; designation: string; email: string }) {
+  const owner = await getUserWithProfiles(userId);
+  if (!owner || (owner.role !== "BRAND" && owner.role !== "ORGANISER")) {
+    throw new Error("Only brand or event organiser accounts can invite team members");
+  }
+  if (!owner.brandProfile && !owner.organiserProfile) {
+    throw new Error("Complete your company profile before inviting team members");
+  }
+
+  const email = input.email.trim().toLowerCase();
+  const name = input.name.trim();
+  const designation = input.designation.trim();
+  if (!name || !designation || !email.includes("@")) throw new Error("Invalid team member details");
+
+  const member = await prisma.$transaction(async (tx) => {
+    const existingUser = await tx.user.findUnique({ where: { email } });
+    if (existingUser && existingUser.passwordHash !== TEAM_INVITE_PLACEHOLDER_PASSWORD) {
+      throw new Error("This email already has an active SynkSpace account");
+    }
+
+    const invitedUser = existingUser
+      ? await tx.user.update({
+          where: { id: existingUser.id },
+          data: { role: owner.role },
+          select: { id: true },
+        })
+      : await tx.user.create({
+          data: {
+            email,
+            role: owner.role,
+            passwordHash: TEAM_INVITE_PLACEHOLDER_PASSWORD,
+          },
+          select: { id: true },
+        });
+
+    return tx.teamMember.upsert({
+      where: { ownerId_email: { ownerId: userId, email } },
+      create: {
+        ownerId: userId,
+        userId: invitedUser.id,
+        email,
+        name,
+        designation,
+        status: "PENDING",
+      },
+      update: {
+        userId: invitedUser.id,
+        name,
+        designation,
+        status: "PENDING",
+        acceptedAt: null,
+      },
+    });
+  });
+
+  return buildTeamMember(member);
+}
+
+export async function updateTeamMember(userId: string, memberId: string, input: { name?: string; designation?: string }) {
+  const data: Record<string, string> = {};
+  if (input.name?.trim()) data.name = input.name.trim();
+  if (input.designation?.trim()) data.designation = input.designation.trim();
+  const existing = await prisma.teamMember.findFirst({ where: { id: memberId, ownerId: userId } });
+  if (!existing) throw new Error("Team member not found");
+  const member = await prisma.teamMember.update({
+    where: { id: memberId },
+    data,
+  });
+  return buildTeamMember(member);
+}
+
+export async function removeTeamMember(userId: string, memberId: string) {
+  const member = await prisma.teamMember.findFirst({ where: { id: memberId, ownerId: userId } });
+  if (!member) throw new Error("Team member not found");
+  await prisma.teamMember.delete({ where: { id: memberId } });
+  if (member.userId) {
+    const remainingMemberships = await prisma.teamMember.count({ where: { userId: member.userId } });
+    const user = await prisma.user.findUnique({ where: { id: member.userId }, select: { passwordHash: true } });
+    if (remainingMemberships === 0 && user?.passwordHash === TEAM_INVITE_PLACEHOLDER_PASSWORD) {
+      await prisma.user.delete({ where: { id: member.userId } });
+    }
+  }
+  return { id: memberId };
+}
+
 export async function createDashboardCampaign(userId: string, input: any) {
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+  const ownerId = await resolveDashboardOwnerId(userId);
+  const user = await prisma.user.findUnique({ where: { id: ownerId } });
   if (!user) throw new Error("Campaign owner not found");
 
   const campaign = await prisma.campaign.create({
     data: {
-      brandId: userId,
+      brandId: ownerId,
       title: input.title,
       description: input.description,
       category: input.category,
@@ -701,14 +859,15 @@ export async function createDashboardCampaign(userId: string, input: any) {
 }
 
 export async function updateDashboardCampaign(userId: string, campaignId: string, input: any) {
+  const ownerId = await resolveDashboardOwnerId(userId);
   const data: Record<string, unknown> = {};
   if (input.status && UI_TO_STATUS[input.status]) data.status = UI_TO_STATUS[input.status];
   await prisma.campaign.updateMany({
-    where: { id: campaignId, brandId: userId },
+    where: { id: campaignId, brandId: ownerId },
     data,
   });
   const campaign = await prisma.campaign.findFirst({
-    where: { id: campaignId, brandId: userId },
+    where: { id: campaignId, brandId: ownerId },
     include: { applications: true },
   });
   if (!campaign) throw new Error("Campaign not found");
@@ -716,15 +875,17 @@ export async function updateDashboardCampaign(userId: string, campaignId: string
 }
 
 export async function deleteDashboardCampaign(userId: string, campaignId: string) {
-  await prisma.campaign.deleteMany({ where: { id: campaignId, brandId: userId } });
+  const ownerId = await resolveDashboardOwnerId(userId);
+  await prisma.campaign.deleteMany({ where: { id: campaignId, brandId: ownerId } });
 }
 
 export async function updateDashboardApplication(userId: string, applicationId: string, status: string) {
+  const ownerId = await resolveDashboardOwnerId(userId);
   const appStatus = UI_TO_APP_STATUS[status];
   if (!appStatus) throw new Error("Invalid application status");
 
   const existing = await prisma.application.findFirst({
-    where: { id: applicationId, campaign: { brandId: userId } },
+    where: { id: applicationId, campaign: { brandId: ownerId } },
     include: { campaign: true },
   });
   if (!existing) throw new Error("Application not found");
@@ -763,7 +924,7 @@ export async function updateDashboardApplication(userId: string, applicationId: 
   });
 
   const application = await prisma.application.findFirst({
-    where: { id: applicationId, campaign: { brandId: userId } },
+    where: { id: applicationId, campaign: { brandId: ownerId } },
     include: { campaign: true, creator: { include: { creatorProfile: true } } },
   });
   if (!application) throw new Error("Application not found");

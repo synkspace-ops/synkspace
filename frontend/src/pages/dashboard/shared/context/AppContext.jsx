@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { apiDelete, apiGet, apiPatch, apiPost } from '../../../../lib/api';
+import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from '../../../../lib/api';
 
 const AppContext = createContext(null);
 
@@ -155,6 +155,12 @@ export function AppProvider({ children, navigate }) {
     }));
   };
 
+  const updateProfile = async (profile) => {
+    if (!userId) throw new Error("Missing dashboard user");
+    await apiPut(`/api/users/me`, profile);
+    await refreshDashboard();
+  };
+
   const markRead = async (conversationId) => {
     if (!conversationId) return;
     const response = await apiPatch(`/api/dashboard/messages/${conversationId}/read`, {});
@@ -185,6 +191,7 @@ export function AppProvider({ children, navigate }) {
     notifications: dashboard.notifications,
     availableCampaigns: dashboard.availableCampaigns,
     addMessage,
+    updateProfile,
     markRead,
     payments: dashboard.payments,
     releasePayment,

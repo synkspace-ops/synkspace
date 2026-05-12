@@ -13,6 +13,7 @@ import { escrowRoutes } from "./modules/escrow/escrow.routes.js";
 import { dashboardRoutes } from "./modules/dashboard/dashboard.routes.js";
 import { notificationRoutes } from "./modules/notifications/notifications.routes.js";
 import { adminRoutes } from "./modules/admin/admin.routes.js";
+import { userRoutes } from "./modules/users/users.routes.js";
 
 export async function buildApp() {
   const env = getEnv();
@@ -58,6 +59,7 @@ export async function buildApp() {
   app.register(dashboardRoutes, { prefix: "/api/dashboard" });
   app.register(notificationRoutes, { prefix: "/api/notifications" });
   app.register(adminRoutes, { prefix: "/api/admin" });
+  app.register(userRoutes, { prefix: "/api/users" });
 
   return app;
 }

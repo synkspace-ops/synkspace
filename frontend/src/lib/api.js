@@ -46,6 +46,19 @@ export async function apiPatch(path, data) {
   return json;
 }
 
+export async function apiPut(path, data) {
+  const res = await fetch(API_BASE + path, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json?.message || "Request failed");
+  }
+  return json;
+}
+
 export async function apiDelete(path) {
   const res = await fetch(API_BASE + path, { method: "DELETE", headers: authHeaders() });
   const json = await res.json();

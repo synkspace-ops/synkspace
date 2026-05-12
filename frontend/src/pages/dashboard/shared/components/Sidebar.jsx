@@ -1,10 +1,14 @@
-import { Home, PlusCircle, Search, FileText, Megaphone, MessageCircle, BarChart3, CreditCard, Settings, ChevronDown, CalendarDays, Menu, X } from 'lucide-react';
+import { Home, PlusCircle, Search, FileText, Megaphone, MessageCircle, BarChart3, CreditCard, Settings, ChevronDown, CalendarDays, Menu, X, LogOut, UserCircle } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { clearAuthSession } from '../../../../lib/auth';
 import { useApp } from '../context/AppContext';
 
 
 export function Sidebar({ currentPage, onNavigate }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const navigate = useNavigate();
   const { currentUser } = useApp();
   
   const storedName = currentUser?.name?.trim();
@@ -31,7 +35,34 @@ export function Sidebar({ currentPage, onNavigate }) {
   const handleNavigate = (id) => {
     onNavigate(id);
     setMobileOpen(false);
+    setProfileOpen(false);
   };
+
+  const handleLogout = () => {
+    clearAuthSession();
+    setProfileOpen(false);
+    setMobileOpen(false);
+    navigate('/login', { replace: true });
+  };
+
+  const ProfileMenu = () => (
+    <div className="absolute bottom-full left-4 right-4 mb-2 rounded-2xl border border-white/20 bg-white/95 p-2 text-slate-800 shadow-2xl backdrop-blur-xl">
+      <button
+        onClick={() => handleNavigate('settings')}
+        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold transition hover:bg-slate-100"
+      >
+        <UserCircle className="h-4 w-4" />
+        Edit Profile
+      </button>
+      <button
+        onClick={handleLogout}
+        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold text-red-600 transition hover:bg-red-50"
+      >
+        <LogOut className="h-4 w-4" />
+        Log out
+      </button>
+    </div>
+  );
 
   const NavItems = ({ items, label }) => (
     <div>
@@ -117,8 +148,12 @@ export function Sidebar({ currentPage, onNavigate }) {
             </div>
 
             {/* Profile */}
-            <div className="p-4 mb-2">
-              <button className="w-full flex items-center justify-between p-3 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all border border-white/10 group">
+            <div className="relative p-4 mb-2">
+              {profileOpen && <ProfileMenu />}
+              <button
+                onClick={() => setProfileOpen((value) => !value)}
+                className="w-full flex items-center justify-between p-3 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all border border-white/10 group"
+              >
                 <div className="flex items-center gap-3">
                   {avatarUrl ? (
                     <img
@@ -161,8 +196,12 @@ export function Sidebar({ currentPage, onNavigate }) {
         </div>
 
         {/* Profile Section */}
-        <div className="p-4 mt-auto mb-4">
-          <button className="w-full flex items-center justify-between p-3 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all border border-white/10 group">
+        <div className="relative p-4 mt-auto mb-4">
+          {profileOpen && <ProfileMenu />}
+          <button
+            onClick={() => setProfileOpen((value) => !value)}
+            className="w-full flex items-center justify-between p-3 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all border border-white/10 group"
+          >
             <div className="flex items-center gap-3">
               {avatarUrl ? (
                 <img

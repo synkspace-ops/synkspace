@@ -3,17 +3,22 @@ import {
   BarChart3,
   Bell,
   Briefcase,
+  ChevronDown,
   CheckCircle2,
+  Edit3,
   FileCheck,
   Grid3x3,
+  LogOut,
   Mail,
-  MessageCircle,
   MessageSquare,
   Settings,
   Target,
+  UserCircle,
   Wallet,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import logo from '../../../../assets/synkspace-logo.png';
+import { clearAuthSession } from '../../../lib/auth';
 import { OpportunitiesScreen } from './components/OpportunitiesScreen';
 import { MessagesScreen } from './components/MessagesScreen';
 import { AnalyticsScreen } from './components/AnalyticsScreen';
@@ -79,9 +84,11 @@ function StatCard({ label, value, helper, icon: Icon, tone }) {
 
 function CreatorDashboardContent() {
   const app = useApp() || {};
+  const routerNavigate = useNavigate();
   const currentUser = app.currentUser;
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showNotifications, setShowNotifications] = useState(false);
+  const [profileMenuAnchor, setProfileMenuAnchor] = useState(null);
 
   const displayName = currentUser?.name && currentUser.name.toLowerCase() !== 'pending'
     ? currentUser.name
@@ -126,6 +133,43 @@ function CreatorDashboardContent() {
   const activeDeals = (app.campaigns || []).slice(0, 4);
   const recentApplications = (app.applications || []).slice(0, 4);
   const recentNotifications = notifications.slice(0, 4);
+
+  const handleEditProfile = () => {
+    setProfileMenuAnchor(null);
+    setActiveTab('settings');
+  };
+
+  const handleLogout = () => {
+    clearAuthSession();
+    setProfileMenuAnchor(null);
+    routerNavigate('/login', { replace: true });
+  };
+
+  const avatarNode = (size = 'h-14 w-14', textSize = 'text-base') => (
+    <div className={`flex ${size} items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 ${textSize} font-semibold text-white shadow-xl`}>
+      {currentUser?.avatarUrl ? <img src={currentUser.avatarUrl} alt={displayName} className="h-full w-full object-cover" /> : initial}
+    </div>
+  );
+
+  const profileMenu = (
+    <div className="absolute bottom-16 left-0 z-50 w-56 overflow-hidden rounded-2xl border border-white/70 bg-white/95 p-2 shadow-2xl backdrop-blur-xl">
+      <div className="mb-2 flex items-center gap-3 rounded-xl bg-gray-50/80 p-3">
+        {avatarNode('h-10 w-10', 'text-sm')}
+        <div className="min-w-0">
+          <p className="truncate text-sm font-bold text-gray-950">{displayName}</p>
+          <p className="truncate text-xs text-gray-500">{currentUser?.email}</p>
+        </div>
+      </div>
+      <button onClick={handleEditProfile} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-semibold text-gray-700 transition hover:bg-purple-50 hover:text-purple-700">
+        <Edit3 className="h-4 w-4" />
+        Edit Profile
+      </button>
+      <button onClick={handleLogout} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-semibold text-red-600 transition hover:bg-red-50">
+        <LogOut className="h-4 w-4" />
+        Log out
+      </button>
+    </div>
+  );
 
   const renderPage = () => {
     if (activeTab === 'opportunities') return <OpportunitiesScreen />;
@@ -264,8 +308,15 @@ function CreatorDashboardContent() {
             </button>
           ))}
         </div>
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 text-base font-semibold text-white shadow-xl">
-          {currentUser?.avatarUrl ? <img src={currentUser.avatarUrl} alt={displayName} className="h-full w-full rounded-full object-cover" /> : initial}
+        <div className="relative">
+          <button
+            onClick={() => setProfileMenuAnchor((value) => value === 'sidebar' ? null : 'sidebar')}
+            className="transition hover:scale-110"
+            title="Profile menu"
+          >
+            {avatarNode()}
+          </button>
+          {profileMenuAnchor === 'sidebar' && profileMenu}
         </div>
       </aside>
 
@@ -304,10 +355,37 @@ function CreatorDashboardContent() {
                 </div>
               </div>
             )}
-            <div className="flex items-center gap-2 rounded-xl px-3 py-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 text-sm font-semibold text-white">{initial}</div>
+            <button
+              onClick={() => setProfileMenuAnchor((value) => value === 'header' ? null : 'header')}
+              className="relative flex items-center gap-2 rounded-xl px-3 py-2 transition hover:border-white/50 hover:bg-white/60"
+            >
+              {currentUser?.avatarUrl ? (
+                <img src={currentUser.avatarUrl} alt={displayName} className="h-8 w-8 rounded-full object-cover shadow-lg" />
+              ) : (
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 text-sm font-semibold text-white">{initial}</div>
+              )}
               <span className="font-medium text-gray-900">{firstName}</span>
-            </div>
+              <ChevronDown className="h-4 w-4 text-gray-600" />
+            </button>
+            {profileMenuAnchor === 'header' && (
+              <div className="absolute right-0 top-14 z-50 w-56 overflow-hidden rounded-2xl border border-white/70 bg-white/95 p-2 shadow-2xl backdrop-blur-xl">
+                <div className="mb-2 flex items-center gap-3 rounded-xl bg-gray-50/80 p-3">
+                  {avatarNode('h-10 w-10', 'text-sm')}
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold text-gray-950">{displayName}</p>
+                    <p className="truncate text-xs text-gray-500">{currentUser?.email}</p>
+                  </div>
+                </div>
+                <button onClick={handleEditProfile} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-semibold text-gray-700 transition hover:bg-purple-50 hover:text-purple-700">
+                  <UserCircle className="h-4 w-4" />
+                  Edit Profile
+                </button>
+                <button onClick={handleLogout} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-semibold text-red-600 transition hover:bg-red-50">
+                  <LogOut className="h-4 w-4" />
+                  Log out
+                </button>
+              </div>
+            )}
           </div>
         </header>
         <div className="p-8 pt-0">{renderPage()}</div>

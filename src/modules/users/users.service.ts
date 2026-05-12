@@ -34,9 +34,19 @@ export async function updateMe(userId: string, input: UpdateProfileInput) {
         ...(input.bio !== undefined && { bio: input.bio }),
         ...(input.niche != null && { niche: input.niche }),
         ...(input.state != null && { state: input.state }),
+        ...(input.city !== undefined && { city: input.city }),
+        ...(input.country !== undefined && { country: input.country }),
+        ...(input.phone !== undefined && { phone: input.phone }),
         ...(input.socialHandle != null && { socialHandle: input.socialHandle }),
+        ...(input.youtube !== undefined && { youtube: input.youtube }),
+        ...(input.linkedin !== undefined && { linkedin: input.linkedin }),
+        ...(input.website !== undefined && { website: input.website }),
         ...(input.followerRange != null && { followerRange: input.followerRange }),
         ...(input.engagementRate !== undefined && { engagementRate: input.engagementRate }),
+        ...(input.rateReel !== undefined && { rateReel: input.rateReel }),
+        ...(input.rateStory !== undefined && { rateStory: input.rateStory }),
+        ...(input.rateEvent !== undefined && { rateEvent: input.rateEvent }),
+        ...(input.avatarUrl !== undefined && { avatarUrl: input.avatarUrl }),
       },
     });
     try {
@@ -51,6 +61,7 @@ export async function updateMe(userId: string, input: UpdateProfileInput) {
         ...(input.founderName != null && { founderName: input.founderName }),
         ...(input.industry != null && { industry: input.industry }),
         ...(input.phone != null && { phone: input.phone }),
+        ...(input.avatarUrl !== undefined && { avatarUrl: input.avatarUrl }),
       },
     });
   }
@@ -62,6 +73,9 @@ export async function updateMe(userId: string, input: UpdateProfileInput) {
         ...(input.contactName != null && { contactName: input.contactName }),
         ...(input.state != null && { state: input.state }),
         ...(input.phone != null && { phone: input.phone }),
+        ...(input.city !== undefined && { city: input.city }),
+        ...(input.country !== undefined && { country: input.country }),
+        ...(input.avatarUrl !== undefined && { avatarUrl: input.avatarUrl }),
       },
     });
   }

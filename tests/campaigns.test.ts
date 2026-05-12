@@ -66,4 +66,12 @@ describe("Campaigns", () => {
     });
     expect(res.statusCode).toBe(401);
   });
+
+  it("GET /api/users/me requires auth", async () => {
+    const res = await app.inject({
+      method: "GET",
+      url: "/api/users/me",
+    });
+    expect(res.statusCode).toBe(401);
+  });
 });

@@ -18,6 +18,7 @@ import { userRoutes } from "./modules/users/users.routes.js";
 export async function buildApp() {
   const env = getEnv();
   const app = Fastify({
+    bodyLimit: 6 * 1024 * 1024,
     logger: {
       level: "info"
     },

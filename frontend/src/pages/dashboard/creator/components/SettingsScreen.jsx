@@ -41,6 +41,15 @@ const emptyForm = {
   avatarUrl: '',
 };
 
+const MAX_AVATAR_DATA_URL_LENGTH = 900_000;
+const AVATAR_EXPORTS = [
+  { maxSize: 512, quality: 0.78, type: 'image/webp' },
+  { maxSize: 384, quality: 0.72, type: 'image/webp' },
+  { maxSize: 320, quality: 0.66, type: 'image/webp' },
+  { maxSize: 256, quality: 0.62, type: 'image/webp' },
+  { maxSize: 256, quality: 0.7, type: 'image/jpeg' },
+];
+
 const sections = [
   ['profile', 'Profile', User],
   ['social', 'Social Accounts', Globe],
@@ -70,16 +79,22 @@ function loadImage(src) {
 async function compressImage(file) {
   const source = await readImageFile(file);
   const image = await loadImage(source);
-  const maxSize = 512;
-  const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
-  const width = Math.max(1, Math.round(image.width * scale));
-  const height = Math.max(1, Math.round(image.height * scale));
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(image, 0, 0, width, height);
-  return canvas.toDataURL('image/webp', 0.82);
+
+  for (const option of AVATAR_EXPORTS) {
+    const scale = Math.min(1, option.maxSize / Math.max(image.width, image.height));
+    const width = Math.max(1, Math.round(image.width * scale));
+    const height = Math.max(1, Math.round(image.height * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Unable to prepare image.');
+    ctx.drawImage(image, 0, 0, width, height);
+    const dataUrl = canvas.toDataURL(option.type, option.quality);
+    if (dataUrl.length <= MAX_AVATAR_DATA_URL_LENGTH) return dataUrl;
+  }
+
+  throw new Error('Profile picture is too large. Please upload a smaller image.');
 }
 
 function buildForm(currentUser) {
@@ -114,6 +129,7 @@ export function SettingsScreen() {
   const [activeSection, setActiveSection] = useState('profile');
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [savingImage, setSavingImage] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
   const [error, setError] = useState('');
 
@@ -163,11 +179,20 @@ export function SettingsScreen() {
     }
 
     setError('');
+    setSaveMessage('');
+    setSavingImage(true);
+    const previousAvatar = form.avatarUrl;
     try {
       const avatarUrl = await compressImage(file);
-      updateField('avatarUrl', avatarUrl);
-    } catch {
-      setError('Could not process this image. Try another file.');
+      setForm((prev) => ({ ...prev, avatarUrl }));
+      await updateProfile({ avatarUrl });
+      setSaveMessage('Profile picture updated.');
+    } catch (uploadError) {
+      setForm((prev) => ({ ...prev, avatarUrl: previousAvatar }));
+      setError(uploadError?.message || 'Could not save this image. Try another file.');
+    } finally {
+      setSavingImage(false);
+      event.target.value = '';
     }
   };
 
@@ -200,7 +225,7 @@ export function SettingsScreen() {
         rateEvent: form.rateEvent.trim() || null,
         avatarUrl: form.avatarUrl || null,
       });
-      setSaveMessage('Profile saved to the database.');
+      setSaveMessage('Profile saved.');
     } catch (saveError) {
       setError(saveError?.message || 'Could not save profile changes.');
     } finally {
@@ -266,7 +291,7 @@ export function SettingsScreen() {
                 </div>
                 <button
                   onClick={handleSave}
-                  disabled={saving}
+                  disabled={saving || savingImage}
                   className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 px-5 py-3 font-bold text-white shadow-xl transition hover:scale-105 disabled:opacity-60 disabled:hover:scale-100"
                 >
                   {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
@@ -278,11 +303,11 @@ export function SettingsScreen() {
                 <Avatar avatarUrl={form.avatarUrl} initials={initials} size="h-24 w-24" />
                 <div className="flex-1">
                   <p className="font-bold text-gray-950">Profile picture</p>
-                  <p className="mt-1 text-sm text-gray-600">Upload JPG, PNG, or WebP. The image is compressed and saved to your database profile.</p>
-                  <label className="mt-4 inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-white/60 bg-white/80 px-5 py-3 text-sm font-bold text-gray-800 shadow-lg transition hover:scale-105">
-                    <Camera className="h-4 w-4" />
-                    Change Photo
-                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                  <p className="mt-1 text-sm text-gray-600">Upload JPG, PNG, or WebP. The image is compressed and saved to your creator profile.</p>
+                  <label className={`mt-4 inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-white/60 bg-white/80 px-5 py-3 text-sm font-bold text-gray-800 shadow-lg transition hover:scale-105 ${savingImage ? 'pointer-events-none opacity-70' : ''}`}>
+                    {savingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
+                    {savingImage ? 'Uploading...' : 'Change Photo'}
+                    <input type="file" accept="image/*" disabled={savingImage} className="hidden" onChange={handleImageUpload} />
                   </label>
                 </div>
               </div>
@@ -335,7 +360,7 @@ export function SettingsScreen() {
                 <Field label="LinkedIn" value={form.linkedin} onChange={(value) => updateField('linkedin', value)} icon={Globe} placeholder="https://linkedin.com/in/..." />
                 <Field label="Website" value={form.website} onChange={(value) => updateField('website', value)} icon={Globe} placeholder="https://..." />
               </div>
-              <SaveRow saving={saving} onSave={handleSave} />
+              <SaveRow saving={saving || savingImage} onSave={handleSave} />
             </GlassPanel>
           )}
 
@@ -348,7 +373,7 @@ export function SettingsScreen() {
                 <Field label="Story" value={form.rateStory} onChange={(value) => updateField('rateStory', value)} icon={Wallet} placeholder="8000" />
                 <Field label="Event Appearance" value={form.rateEvent} onChange={(value) => updateField('rateEvent', value)} icon={Wallet} placeholder="75000" />
               </div>
-              <SaveRow saving={saving} onSave={handleSave} />
+              <SaveRow saving={saving || savingImage} onSave={handleSave} />
             </GlassPanel>
           )}
 

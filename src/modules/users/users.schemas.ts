@@ -1,5 +1,12 @@
 import { z } from "zod";
 
+const avatarUrlSchema = z.string()
+  .max(1_000_000, "Profile picture is too large. Please upload a smaller image.")
+  .refine((value) => {
+    if (!value) return true;
+    return value.startsWith("data:image/") || /^https?:\/\//i.test(value);
+  }, "Profile picture must be an image upload or image URL.");
+
 export const updateProfileSchema = z.object({
   displayName: z.string().min(1).max(200).optional(),
   bio: z.string().max(2000).optional().nullable(),
@@ -17,7 +24,7 @@ export const updateProfileSchema = z.object({
   rateReel: z.string().max(100).optional().nullable(),
   rateStory: z.string().max(100).optional().nullable(),
   rateEvent: z.string().max(100).optional().nullable(),
-  avatarUrl: z.string().max(1_500_000).optional().nullable(),
+  avatarUrl: avatarUrlSchema.optional().nullable(),
   companyName: z.string().max(200).optional(),
   founderName: z.string().max(200).optional(),
   industry: z.string().max(200).optional(),

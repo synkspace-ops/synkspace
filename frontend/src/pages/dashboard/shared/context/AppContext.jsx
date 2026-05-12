@@ -56,6 +56,49 @@ function formatDashboardPayload(data) {
   };
 }
 
+function normalizeCurrentUser(user, fallback = {}, patch = {}) {
+  if (!user && !fallback && !patch) return null;
+  const profile = user?.profile || user?.creatorProfile || user?.brandProfile || user?.organiserProfile || {};
+  const roleValue = user?.role || fallback?.role || patch?.role || '';
+  const profilePatch = { ...patch };
+  delete profilePatch.displayName;
+  delete profilePatch.companyName;
+  delete profilePatch.founderName;
+  delete profilePatch.orgName;
+  delete profilePatch.contactName;
+
+  if (patch.displayName !== undefined) profilePatch.displayName = patch.displayName;
+  if (patch.avatarUrl !== undefined) profilePatch.avatarUrl = patch.avatarUrl || '';
+
+  const avatarUrl = patch.avatarUrl !== undefined
+    ? patch.avatarUrl || ''
+    : user?.avatarUrl || profile.avatarUrl || fallback?.avatarUrl || '';
+  const phone = patch.phone !== undefined
+    ? patch.phone || ''
+    : user?.phone || profile.phone || fallback?.phone || '';
+  const location = user?.location || [
+    profile.city,
+    profile.state,
+    profile.country,
+  ].filter(Boolean).join(', ') || profile.location || fallback?.location || '';
+
+  return {
+    ...(fallback || {}),
+    ...(user || {}),
+    role: typeof roleValue === 'string' ? roleValue.toLowerCase() : roleValue,
+    name: patch.displayName || user?.name || profile.displayName || profile.founderName || profile.contactName || fallback?.name || user?.email?.split('@')?.[0] || '',
+    companyName: patch.companyName || user?.companyName || profile.companyName || profile.orgName || fallback?.companyName || '',
+    phone,
+    avatarUrl,
+    location,
+    profile: {
+      ...(fallback?.profile || {}),
+      ...profile,
+      ...profilePatch,
+    },
+  };
+}
+
 export function AppProvider({ children, navigate }) {
   const [currentUser, setCurrentUser] = useState(getStoredUser);
   const [dashboard, setDashboard] = useState(emptyDashboard);
@@ -78,8 +121,9 @@ export function AppProvider({ children, navigate }) {
       const payload = formatDashboardPayload(response.data || {});
       setDashboard(payload);
       if (payload.user) {
-        setCurrentUser(payload.user);
-        localStorage.setItem("currentUser", JSON.stringify(payload.user));
+        const nextUser = normalizeCurrentUser(payload.user, currentUser);
+        setCurrentUser(nextUser);
+        localStorage.setItem("currentUser", JSON.stringify(nextUser));
       }
     } catch (error) {
       console.error("Error loading dashboard:", error);
@@ -157,8 +201,12 @@ export function AppProvider({ children, navigate }) {
 
   const updateProfile = async (profile) => {
     if (!userId) throw new Error("Missing dashboard user");
-    await apiPut(`/api/users/me`, profile);
+    const response = await apiPut(`/api/users/me`, profile);
+    const nextUser = normalizeCurrentUser(response.data, currentUser, profile);
+    setCurrentUser(nextUser);
+    localStorage.setItem("currentUser", JSON.stringify(nextUser));
     await refreshDashboard();
+    return nextUser;
   };
 
   const markRead = async (conversationId) => {

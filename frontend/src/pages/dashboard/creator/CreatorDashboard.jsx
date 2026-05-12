@@ -67,14 +67,14 @@ function EmptyState({ title, body }) {
 
 function StatCard({ label, value, helper, icon: Icon, tone }) {
   return (
-    <div className={`rounded-3xl border-2 border-white/60 p-5 shadow-2xl backdrop-blur-2xl ${tone}`}>
+    <div className={`rounded-2xl border-2 border-white/60 p-4 shadow-xl backdrop-blur-2xl ${tone}`}>
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="text-xs font-semibold uppercase tracking-wide text-gray-800/80">{label}</div>
-          <div className="mt-2 text-3xl font-bold text-white drop-shadow-lg">{value}</div>
-          {helper && <div className="mt-2 text-xs font-semibold text-gray-800/80">{helper}</div>}
+          <div className="mt-1 text-2xl font-bold text-white drop-shadow-lg">{value}</div>
+          {helper && <div className="mt-1 text-xs font-semibold text-gray-800/80">{helper}</div>}
         </div>
-        <div className="flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white/50 shadow-xl">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-white/50 shadow-lg">
           <Icon className="h-5 w-5 text-gray-800" />
         </div>
       </div>
@@ -130,9 +130,9 @@ function CreatorDashboardContent() {
     ['settings', Settings],
   ];
 
-  const activeDeals = (app.campaigns || []).slice(0, 4);
-  const recentApplications = (app.applications || []).slice(0, 4);
-  const recentNotifications = notifications.slice(0, 4);
+  const activeDeals = (app.campaigns || []).slice(0, 2);
+  const recentApplications = (app.applications || []).slice(0, 3);
+  const recentNotifications = notifications.slice(0, 2);
 
   const handleEditProfile = () => {
     setProfileMenuAnchor(null);
@@ -152,7 +152,7 @@ function CreatorDashboardContent() {
   );
 
   const profileMenu = (
-    <div className="absolute bottom-16 left-0 z-50 w-56 overflow-hidden rounded-2xl border border-white/70 bg-white/95 p-2 shadow-2xl backdrop-blur-xl">
+    <div className="absolute bottom-14 left-0 z-50 w-56 overflow-hidden rounded-2xl border border-white/70 bg-white/95 p-2 shadow-2xl backdrop-blur-xl">
       <div className="mb-2 flex items-center gap-3 rounded-xl bg-gray-50/80 p-3">
         {avatarNode('h-10 w-10', 'text-sm')}
         <div className="min-w-0">
@@ -180,29 +180,29 @@ function CreatorDashboardContent() {
     if (activeTab === 'settings') return <SettingsScreen />;
 
     return (
-      <div className="space-y-6">
-        {app.loadingDashboard && <EmptyState title="Loading dashboard" body="Fetching your latest creator data from the database." />}
+      <div className="h-full min-h-0 space-y-4 overflow-hidden">
+        {app.loadingDashboard && <EmptyState title="Loading dashboard" body="Fetching your latest creator data." />}
         {app.dashboardError && <EmptyState title="Dashboard unavailable" body={app.dashboardError} />}
 
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-6">
+        <div className="grid grid-cols-1 gap-3 xl:grid-cols-6">
           <StatCard label="Total Earnings" value={formatCurrency(stats.totalEarnings)} helper={`${app.payments?.length || 0} payment records`} icon={Wallet} tone="bg-gradient-to-br from-emerald-300/80 to-teal-400/80" />
           <StatCard label="Applications" value={stats.appliedCampaigns} helper={`${stats.pending} pending`} icon={FileCheck} tone="bg-gradient-to-br from-purple-300/80 to-indigo-400/80" />
           <StatCard label="Accepted" value={stats.accepted} helper="Approved collaborations" icon={CheckCircle2} tone="bg-gradient-to-br from-blue-300/80 to-cyan-400/80" />
-          <StatCard label="Active Deals" value={stats.activeDeals} helper="From your DB campaigns" icon={Briefcase} tone="bg-gradient-to-br from-pink-300/80 to-rose-400/80" />
+          <StatCard label="Active Deals" value={stats.activeDeals} helper="Current collaborations" icon={Briefcase} tone="bg-gradient-to-br from-pink-300/80 to-rose-400/80" />
           <StatCard label="Opportunities" value={stats.opportunities} helper="Open campaigns" icon={Target} tone="bg-gradient-to-br from-orange-300/80 to-amber-400/80" />
           <StatCard label="Messages" value={totalUnread} helper="Unread conversations" icon={MessageSquare} tone="bg-gradient-to-br from-slate-300/80 to-gray-400/80" />
         </div>
 
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-12">
-          <section className="xl:col-span-8 rounded-3xl border border-white/60 bg-white/60 p-6 shadow-xl backdrop-blur-xl">
-            <div className="mb-5 flex items-center justify-between">
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
+          <section className="xl:col-span-8 rounded-2xl border border-white/60 bg-white/60 p-4 shadow-lg backdrop-blur-xl">
+            <div className="mb-3 flex items-center justify-between">
               <h3 className="text-lg font-bold text-gray-900">Recent Applications</h3>
               <button onClick={() => setActiveTab('applications')} className="text-sm font-bold text-purple-700">View all</button>
             </div>
             {recentApplications.length ? (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {recentApplications.map((application) => (
-                  <div key={application.id} className="rounded-2xl border border-white/60 bg-white/60 p-4 shadow-sm">
+                  <div key={application.id} className="rounded-xl border border-white/60 bg-white/60 p-3 shadow-sm">
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <p className="font-bold text-gray-900">{application.campaign}</p>
@@ -214,19 +214,19 @@ function CreatorDashboardContent() {
                 ))}
               </div>
             ) : (
-              <EmptyState title="No applications yet" body="When you apply to campaigns, they will appear here from the database." />
+              <EmptyState title="No applications yet" body="When you apply to campaigns, they will appear here." />
             )}
           </section>
 
-          <section className="xl:col-span-4 rounded-3xl border border-white/60 bg-white/60 p-6 shadow-xl backdrop-blur-xl">
-            <h3 className="mb-5 text-lg font-bold text-gray-900">Profile Completion</h3>
-            <div className="flex items-center gap-5">
-              <div className="relative h-28 w-28 rounded-full bg-white/70 p-2 shadow-inner">
+          <section className="xl:col-span-4 rounded-2xl border border-white/60 bg-white/60 p-4 shadow-lg backdrop-blur-xl">
+            <h3 className="mb-3 text-lg font-bold text-gray-900">Profile Completion</h3>
+            <div className="flex items-center gap-4">
+              <div className="relative h-20 w-20 rounded-full bg-white/70 p-1 shadow-inner">
                 <div
                   className="h-full w-full rounded-full"
                   style={{ background: `conic-gradient(#8b5cf6 ${stats.profile * 3.6}deg, rgba(255,255,255,.7) 0deg)` }}
                 />
-                <div className="absolute inset-4 flex items-center justify-center rounded-full bg-white text-xl font-black text-gray-900">
+                <div className="absolute inset-3 flex items-center justify-center rounded-full bg-white text-lg font-black text-gray-900">
                   {stats.profile}%
                 </div>
               </div>
@@ -239,16 +239,16 @@ function CreatorDashboardContent() {
           </section>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <section className="rounded-3xl border border-white/60 bg-white/60 p-6 shadow-xl backdrop-blur-xl">
-            <div className="mb-5 flex items-center justify-between">
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <section className="rounded-2xl border border-white/60 bg-white/60 p-4 shadow-lg backdrop-blur-xl">
+            <div className="mb-3 flex items-center justify-between">
               <h3 className="text-lg font-bold text-gray-900">Active Deals</h3>
               <button onClick={() => setActiveTab('opportunities')} className="text-sm font-bold text-purple-700">Open opportunities</button>
             </div>
             {activeDeals.length ? (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {activeDeals.map((campaign) => (
-                  <div key={campaign.id} className="rounded-2xl border border-white/60 bg-white/60 p-4 shadow-sm">
+                  <div key={campaign.id} className="rounded-xl border border-white/60 bg-white/60 p-3 shadow-sm">
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <p className="font-bold text-gray-900">{campaign.title || campaign.name}</p>
@@ -260,16 +260,16 @@ function CreatorDashboardContent() {
                 ))}
               </div>
             ) : (
-              <EmptyState title="No active deals" body="Accepted or active campaign work will appear here from the database." />
+              <EmptyState title="No active deals" body="Accepted or active campaign work will appear here." />
             )}
           </section>
 
-          <section className="rounded-3xl border border-white/60 bg-white/60 p-6 shadow-xl backdrop-blur-xl">
-            <h3 className="mb-5 text-lg font-bold text-gray-900">Recent Notifications</h3>
+          <section className="rounded-2xl border border-white/60 bg-white/60 p-4 shadow-lg backdrop-blur-xl">
+            <h3 className="mb-3 text-lg font-bold text-gray-900">Recent Notifications</h3>
             {recentNotifications.length ? (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {recentNotifications.map((notification) => (
-                  <div key={notification.id} className="rounded-2xl border border-white/60 bg-white/60 p-4 shadow-sm">
+                  <div key={notification.id} className="rounded-xl border border-white/60 bg-white/60 p-3 shadow-sm">
                     <p className="font-bold text-gray-900">{notification.title}</p>
                     <p className="mt-1 text-sm text-gray-600">{notification.body}</p>
                     <p className="mt-2 text-xs font-semibold text-gray-500">{notification.time}</p>
@@ -277,7 +277,7 @@ function CreatorDashboardContent() {
                 ))}
               </div>
             ) : (
-              <EmptyState title="No notifications" body="Database notifications will appear here when they are created." />
+              <EmptyState title="No notifications" body="New account updates will appear here." />
             )}
           </section>
         </div>
@@ -286,22 +286,22 @@ function CreatorDashboardContent() {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-gradient-to-br from-pink-100 via-blue-100 to-purple-100 p-6">
-      <aside className="relative z-10 mr-6 flex w-24 flex-col items-center gap-8 rounded-3xl border border-white/60 bg-white/50 py-8 shadow-2xl backdrop-blur-2xl">
-        <button onClick={() => setActiveTab('dashboard')} className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/70 shadow-lg transition hover:scale-105">
-          <img src={logo} alt="SynkSpace" className="h-12 w-12 object-contain" />
+    <div className="flex h-screen w-full overflow-hidden bg-gradient-to-br from-pink-100 via-blue-100 to-purple-100 p-4">
+      <aside className="relative z-10 mr-4 flex w-20 shrink-0 flex-col items-center gap-4 rounded-2xl border border-white/60 bg-white/50 py-4 shadow-xl backdrop-blur-2xl">
+        <button onClick={() => setActiveTab('dashboard')} className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/70 shadow-md transition hover:scale-105">
+          <img src={logo} alt="SynkSpace" className="h-10 w-10 object-contain" />
         </button>
-        <div className="flex flex-1 flex-col items-center gap-5">
+        <div className="flex flex-1 flex-col items-center justify-center gap-3">
           {navItems.map(([id, Icon]) => (
             <button
               key={id}
               onClick={() => setActiveTab(id)}
-              className={`relative flex h-14 w-14 items-center justify-center rounded-xl transition-all ${
-                activeTab === id ? 'scale-110 border border-white/70 bg-white/70 text-purple-600 shadow-lg' : 'text-gray-500 hover:bg-white/50'
+              className={`relative flex h-11 w-11 items-center justify-center rounded-xl transition-all ${
+                activeTab === id ? 'scale-105 border border-white/70 bg-white/70 text-purple-600 shadow-md' : 'text-gray-500 hover:bg-white/50'
               }`}
               title={id}
             >
-              <Icon className="h-6 w-6" />
+              <Icon className="h-5 w-5" />
               {id === 'messages' && totalUnread > 0 && (
                 <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">{totalUnread}</span>
               )}
@@ -314,19 +314,18 @@ function CreatorDashboardContent() {
             className="transition hover:scale-110"
             title="Profile menu"
           >
-            {avatarNode()}
+            {avatarNode('h-12 w-12', 'text-sm')}
           </button>
           {profileMenuAnchor === 'sidebar' && profileMenu}
         </div>
       </aside>
 
-      <main className="relative mx-auto flex w-full max-w-[1600px] flex-1 flex-col overflow-y-auto">
-        <header className="sticky top-0 z-10 mb-6 flex items-center justify-between rounded-3xl border-b border-white/50 bg-white/40 px-10 py-8 shadow-lg backdrop-blur-xl">
+      <main className="relative mx-auto flex min-h-0 w-full max-w-[1600px] flex-1 flex-col overflow-hidden">
+        <header className="z-10 mb-4 flex items-center justify-between rounded-2xl border-b border-white/50 bg-white/40 px-6 py-4 shadow-md backdrop-blur-xl">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-xl font-bold text-gray-900">
               {activeTab === 'dashboard' ? `Good morning, ${firstName}.` : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
             </h1>
-            <p className="text-gray-700">Live data from your SynkSpace database.</p>
           </div>
           <div className="relative flex items-center gap-4">
             <button onClick={() => setActiveTab('messages')} className="relative rounded-xl border border-transparent p-2 transition hover:border-white/50 hover:bg-white/60">
@@ -350,7 +349,7 @@ function CreatorDashboardContent() {
                       <p className="mt-2 text-xs font-semibold text-gray-500">{notification.time}</p>
                     </div>
                   )) : (
-                    <div className="p-4 text-sm text-gray-600">No database notifications yet.</div>
+                    <div className="p-4 text-sm text-gray-600">No notifications yet.</div>
                   )}
                 </div>
               </div>
@@ -388,7 +387,9 @@ function CreatorDashboardContent() {
             )}
           </div>
         </header>
-        <div className="p-8 pt-0">{renderPage()}</div>
+        <div className={`min-h-0 flex-1 p-4 pt-0 ${activeTab === 'dashboard' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+          {renderPage()}
+        </div>
       </main>
     </div>
   );
